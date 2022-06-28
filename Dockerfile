@@ -25,5 +25,5 @@ EXPOSE 3000
 
 # CMD ["sh","run.sh"]
 # CMD ["npm","start"]
-CMD ["serve", "-s" "build"]
+CMD ["/usr/local/bin/serve", "-s" "build"]
 
