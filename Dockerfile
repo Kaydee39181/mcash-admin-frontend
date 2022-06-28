@@ -7,11 +7,15 @@ RUN mkdir /app
 WORKDIR /app
 
 # Copy the files we need to our new Directory
-COPY package.json /app
-RUN npm install
-RUN npm run build
-RUN npm install -g serve
 COPY . .
+
+# COPY package.json /app
+
+RUN npm install
+
+RUN npm run build
+
+RUN npm install -g serve
 # COPY ["package.json", "package-lock.json*", "./"]
 # COPY /run.sh /app/run.sh
 
@@ -20,5 +24,6 @@ COPY . .
 EXPOSE 3000
 
 # CMD ["sh","run.sh"]
-CMD ["serve", "-s" "build"]
+CMD ["npm","start"]
+# CMD ["serve", "-s" "build"]
 
