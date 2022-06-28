@@ -13,9 +13,9 @@ COPY . .
 
 RUN npm install
 
-# RUN npm run build
-
 RUN npm install -g serve
+
+RUN npm run build
 # COPY ["package.json", "package-lock.json*", "./"]
 # COPY /run.sh /app/run.sh
 
