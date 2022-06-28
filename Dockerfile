@@ -1,5 +1,5 @@
 # Docker Parent Image with Node and Typescript
-FROM node:8.11.2
+FROM node:14
 MAINTAINER ADETAYO IBIJOLA S "adetayo@esettlemengroup.com"
 
 # Create Directory for the Container
