@@ -13,9 +13,9 @@ COPY . .
 
 RUN npm install
 
-RUN npm run build
+# RUN npm run build
 
-RUN npm install -g serve
+# RUN npm install -g serve
 # COPY ["package.json", "package-lock.json*", "./"]
 # COPY /run.sh /app/run.sh
 
@@ -23,7 +23,7 @@ RUN npm install -g serve
 # Expose the port outside of the container
 EXPOSE 3000
 
-# CMD ["sh","run.sh"]
-CMD ["npm","start"]
+CMD ["sh","run.sh"]
+# CMD ["npm","start"]
 # CMD ["serve", "-s" "build"]
 
