@@ -3,6 +3,10 @@ import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
+import {
+  DropdownButton,
+  Dropdown,
+} from "react-bootstrap";
 import { FetchCentralPurse, FetchPurseBalance } from "../../../Redux/requests/agentPurseRequest";
 import Loader from "../../../Components/secondLoader";
 import { connect } from "react-redux";
@@ -36,12 +40,12 @@ const CentralPurse = (props) => {
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
 
-console.log(transactionsType)
+  console.log(transactionsType)
 
   useEffect(() => {
     FetchTransactionType()
     FetchCentralPurses(length, nextPage, filterValues);
-  }, [length, nextPage,filterValues]);
+  }, [length, nextPage, filterValues]);
 
 
 
@@ -74,6 +78,9 @@ console.log(transactionsType)
       "Transaction ID",
       "Amount",
       "MCP Cut",
+      "ESL Charge",
+      "Pre-Balance ",
+      "Post-Balance ",
       "Description Name",
     ],
   ];
@@ -83,6 +90,9 @@ console.log(transactionsType)
     agent.transaction.transactionID,
     agent.transaction.amount,
     agent.transaction.thirdpartyCut,
+    agent.transaction.chargeAmount,
+    agent.purseBalancebefore,
+    agent.purseBalance,
     agent.reason,
   ]);
 
@@ -106,13 +116,18 @@ console.log(transactionsType)
         agent.transaction.thirdpartyCut === "undefined"
           ? ""
           : agent.transaction.thirdpartyCut,
-      // PreBalance:agent.purseBalance === 'undefined' ? '': agent.purseBalance,
-      // PostBalance:agent.purseBalance === 'undefined' ? '':agent.purseBalance,
+      ESLCharge: agent.transaction.chargeAmount === "undefined" ? "" : agent.transaction.chargeAmount.toFixed(2),
+      PreBalance: agent.purseBalancebefore === 'undefined' ? '' : agent.purseBalancebefore.toFixed(2),
+      PostBalance: agent.purseBalance === 'undefined' ? '' : agent.purseBalance.toFixed(2),
       Description: agent.reason === "undefined" ? "" : agent.reason,
       DateCreated: agent.createdAt === "undefined" ? "" : agent.createdAt,
 
     };
   });
+
+  const handleSelect = (e) => {
+    setLength(e);
+  };
 
   const columns = [
     // { dataField: 'id', text: 'Id'},
@@ -152,7 +167,6 @@ console.log(transactionsType)
       {loading && (
         <Loader
           type="TailSpin"
-          type="Oval"
           height={60}
           width={60}
           color="#1E4A86"
@@ -172,7 +186,24 @@ console.log(transactionsType)
           condensed
         />
         <div className="pagination_wrap">
-          <p>Showing 1 to 10 of {centralPurseTotal}</p>
+          <DropdownButton
+            menuAlign="right"
+            title={length}
+            id="dropdown-menu-align-right"
+            onSelect={handleSelect}
+          >
+            <Dropdown.Item eventKey="10">10</Dropdown.Item>
+            <Dropdown.Item eventKey="20">20</Dropdown.Item>
+            <Dropdown.Item eventKey="30">30</Dropdown.Item>
+            <Dropdown.Item eventKey="50">50</Dropdown.Item>
+            <Dropdown.Item eventKey="100">100</Dropdown.Item>
+            <Dropdown.Item
+              eventKey={centralPurseTotal ? String(centralPurseTotal) : "0"}
+            >
+              All
+            </Dropdown.Item>
+          </DropdownButton>
+          <p>Showing {length} to 10 of {centralPurseTotal}</p>
           <div className="pagination">
             <Pagination
               activePage={activePage}
@@ -184,21 +215,21 @@ console.log(transactionsType)
           </div>
         </div>
         <FilterModal
-        type={"Transaction"}
-        typetext={"Enter Agent Manager Type"}
-        idtext={"Enter Agent Manager ID"}
-        show={FilterModalActive}
-        name={"centralpurse"}
-        close={closeFilter}
-        nextPage={nextPage}
-        length={length}
-        loadPage={FetchCentralPurses}
-        handleFilterValue={_handleFilterValue}
-        submitFilter={onFilterSubmit}
-        transactionsType={transactionsType}
+          type={"Purse"}
+          typetext={"Enter Agent Manager Type"}
+          idtext={"Enter Agent Manager ID"}
+          show={FilterModalActive}
+          name={"centralpurse"}
+          close={closeFilter}
+          nextPage={nextPage}
+          length={length}
+          loadPage={FetchCentralPurses}
+          handleFilterValue={_handleFilterValue}
+          submitFilter={onFilterSubmit}
+          transactionsType={transactionsType}
 
-      />
-      <ExportModal show={ExportModalActive} close={closeExport} filename='centralPurse file' title={title} headers={headers} item={item} products={products} columns={columns}/>
+        />
+        <ExportModal show={ExportModalActive} close={closeExport} filename='centralPurse file' title={title} headers={headers} item={item} products={products} columns={columns} />
       </div>
     </div>
   );

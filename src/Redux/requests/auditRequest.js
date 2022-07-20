@@ -8,13 +8,19 @@ import { history } from '../../utils/history'
 export const FetchAudit = (
     page,
     length,
+    {
+        startDate,
+        endDate,
+
+    }
 ) => dispatch => {
     dispatch(asyncActions(FETCH_AUDIT).loading(true));
     const token = JSON.parse(localStorage.getItem("data"))
     console.log(token)
-    console.log(`bearer ${token.access_token}`, )
+    console.log(`bearer ${token.access_token}`,)
     axios
-        .get(`${AgentConstant.FETCH_AUDIT_URL}startPage=${page}&length=${length}`, {
+        .get(`${AgentConstant.FETCH_AUDIT_URL}startPage=${page}&length=${length}&startDate=${startDate ? startDate : ""
+            }&endDate=${endDate}`, {
             headers: {
                 'Authorization': `bearer ${token.access_token}`,
                 'Content-Type': 'application/json'

@@ -196,8 +196,9 @@ const Transactions = (props) => {
     transact.agentFee,
     transact.stampDuty,
     transact.rrn,
-    transact.postPurseBalance.toFixed(2),
     transact.prePurseBalance.toFixed(2),
+    transact.postPurseBalance.toFixed(2),
+
   ]);
 
   const products = transaction.map((transact) => {
@@ -360,7 +361,7 @@ const Transactions = (props) => {
         return (
           <h5>
             {row.transact.transactionType.type == "Funds Transfer" ||
-            row.transact.transactionType.type == "Agent Transfer" ? (
+              row.transact.transactionType.type == "Agent Transfer" ? (
               <button
                 type="button"
                 onClick={() => QueryTransaction(row.TransactionID)}

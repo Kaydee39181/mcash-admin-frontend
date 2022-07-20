@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
+import {
+  Nav,
+  NavItem,
+  NavLink,
+  DropdownButton,
+  Dropdown,
+} from "react-bootstrap"
 import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
@@ -8,6 +15,8 @@ import Loader from "../../../Components/secondLoader";
 import Upload from "../../../Assets/img/upload.png";
 import Filter from "../../../Assets/img/filter.png";
 import Print from "../../../Assets/img/printer.png";
+import ExportModal from "../../../Components/Exports";
+import FilterModal from "../../../Components/Filter";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import Pagination from "react-js-pagination";
 import { connect } from "react-redux";
@@ -18,10 +27,21 @@ const Audit = (props) => {
   const [nextPage, setNextPage] = useState(0);
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
+  const [exportModalActive, showExportModal] = useState(false);
+  const [FilterModalActive, showFilterModal] = useState(false);
+  const [viewReceipt, setViewReceipt] = useState("");
+  const [receiptview, showReceiptView] = useState(false);
   console.log(audits);
   useEffect(() => {
-    FetchAudits(nextPage,length);
-  }, [nextPage,length]);
+    FetchAudits(nextPage, length, filterValues);
+  }, [nextPage, length]);
+
+  const initialState = {
+    startDate: "",
+    endDate: "",
+
+  };
+  const [filterValues, setFilterValues] = useState(initialState);
 
   const products = audits.map((aud, index) => {
     return {
@@ -31,10 +51,33 @@ const Audit = (props) => {
       Actions: aud.action === "undefined" ? "" : aud.action,
       IpAdress: aud.ip === "undefined" ? "" : aud.ip,
       RequestMethod: aud.requestMethod === "undefined" ? "" : aud.requestMethod,
-      // pageAccessed:aud.user.requestMethod === 'undefined' ? '':aud.user.requestMethod,
-      // DataAccessed:aud.user.username === 'undefined' ? '':aud.user.username,
+      pageAccessed: aud.url === 'undefined' ? '' : aud.url,
+      DataAccessed: aud.time === 'undefined' ? '' : aud.time,
     };
   });
+
+  const item = audits.map((aud) => [
+    aud.user.memberId,
+    aud.user.username,
+    aud.action,
+    aud.ip,
+    aud.url,
+    aud.requestMethod,
+    aud.time
+  ]);
+  const title = "Audit page";
+  const headers = [
+    [
+      "Agent ID",
+      "User Name",
+      "Actions",
+      "IP Address",
+      "Page Accessed",
+      "Request Method",
+      "Date Accessed",
+    ],
+  ];
+
 
   const columns = [
     // { dataField: 'id', text: 'Id'},
@@ -64,10 +107,54 @@ const Audit = (props) => {
       order: "desc",
     },
   ];
+  const _handleFilterValue = (event) => {
+    console.log(event);
+    setFilterValues({
+      ...filterValues,
+      [event.target.name]: event.target.value,
+    });
+    setNextPage(0);
+    showExportModal(false);
+  };
+
+  const resetFilter = (event) => {
+    event.preventDefault();
+
+    setFilterValues({ ...initialState });
+  };
+  const handleSelect = (e) => {
+    setLength(e);
+  };
+  const onFilterSubmit = (event) => {
+    event.preventDefault();
+    FetchAudits(nextPage, length, filterValues);
+    closeFilter();
+    setNextPage(0);
+  };
+  const ViewReceipt = (details) => {
+    console.log(details);
+    showReceiptView(true);
+    setViewReceipt(details);
+  };
+
+  const closeViewReceipt = () => {
+    showReceiptView(false);
+  };
 
   const _handlePageChange = (pageNumber) => {
     setActivePage(pageNumber);
-    setNextPage(pageNumber-1);
+    setNextPage(pageNumber - 1);
+  };
+  const closeExport = () => {
+    showExportModal(false);
+  };
+  const closeFilter = () => {
+    showFilterModal(false);
+  };
+
+  const OpenFilter = () => {
+    showFilterModal(true);
+    setFilterValues(initialState);
   };
   return (
     <DashboardTemplate>
@@ -75,7 +162,6 @@ const Audit = (props) => {
         {loading && (
           <Loader
             type="TailSpin"
-            type="Oval"
             height={60}
             width={60}
             color="#1E4A86"
@@ -86,22 +172,22 @@ const Audit = (props) => {
         </div>
         <div className="agent-transact-header">
           <div>Overview of agent activities on mCashPoint</div>
-          {/* <div className="manage-agent">
+          <div className="manage-agent">
             <span>
               <img src={Print} />
               Print
             </span>
 
-            <span>
+            <span onClick={() => OpenFilter()}>
               <img src={Filter} />
               Filter
             </span>
 
             <span>
-              <img src={Upload} />
+              <img src={Upload} onClick={() => showExportModal(true)} />
               Export
             </span>
-          </div> */}
+          </div>
         </div>
         <div className="table-wrapper">
           <h4>All Agents</h4>
@@ -115,12 +201,53 @@ const Audit = (props) => {
             hover
             condensed
           />
+          <FilterModal
+            type={"Audit"}
+            typetext={"Enter Transaction Type"}
+            idtext={"Enter Transaction ID"}
+            show={FilterModalActive}
+            close={closeFilter}
+            nextPage={nextPage}
+            length={length}
+            loadPage={FetchAudits}
+            handleFilterValue={_handleFilterValue}
+            submitFilter={onFilterSubmit}
+            name={"audits"}
+
+          />
+          <ExportModal
+            show={exportModalActive}
+            close={closeExport}
+            filename="audits file"
+            title={title}
+            headers={headers}
+            item={item}
+            products={products}
+            columns={columns}
+          />
           <div className="pagination_wrap">
-            <p>Showing 1 to 10 of {auditTotal}</p>
+            <p>Showing 1 to {length} of {auditTotal}</p>
             <div className="pagination">
+              <DropdownButton
+                menuAlign="right"
+                title={length}
+                id="dropdown-menu-align-right"
+                onSelect={handleSelect}
+              >
+                <Dropdown.Item eventKey="10">10</Dropdown.Item>
+                <Dropdown.Item eventKey="20">20</Dropdown.Item>
+                <Dropdown.Item eventKey="30">30</Dropdown.Item>
+                <Dropdown.Item eventKey="50">50</Dropdown.Item>
+                <Dropdown.Item eventKey="100">100</Dropdown.Item>
+                <Dropdown.Item
+                  eventKey={auditTotal ? String(auditTotal) : "0"}
+                >
+                  All
+                </Dropdown.Item>
+              </DropdownButton>
               <Pagination
                 activePage={activePage}
-                itemsCountPerPage={10}
+                itemsCountPerPage={length}
                 totalItemsCount={auditTotal}
                 pageRangeDisplayed={5}
                 onChange={_handlePageChange}

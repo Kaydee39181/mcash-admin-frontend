@@ -23,6 +23,8 @@ const AgentsPurses = (props) => {
   const [createModalActive, showCreateModal] = React.useState(false);
   const [ExportModalActive, showExportModal] = React.useState(false);
   const [FilterModalActive, showFilterModal] = React.useState(false);
+  const [ExportModalActive2, showExportModal2] = React.useState(false);
+  const [FilterModalActive2, showFilterModal2] = React.useState(false);
 
   const initialState = {
     startDate: "",
@@ -30,19 +32,41 @@ const AgentsPurses = (props) => {
     transactionId: "",
     transactionType: "",
   };
+  const initialState2 = {
+    agentName: "",
+  };
   const [filterValues, setFilterValues] = React.useState(initialState);
+  const [filterValues2, setFilterValues2] = React.useState(initialState2);
 
   useEffect(() => {
     FetchPurseBalances()
   }, []);
 
+  //console.log(key)
   const onclose = () => {
     showActive("centralPurse");
     showCreateModal(false);
   };
   const OpenFilter = () => {
-    showFilterModal(true);
-    setFilterValues(initialState);
+    console.log(key)
+    if (key === "centralPurse") {
+      showFilterModal(true);
+      setFilterValues(initialState);
+
+    } else {
+      showFilterModal2(true);
+      setFilterValues2(initialState2);
+    }
+
+  };
+  const OpenModal = () => {
+    if (key === "centralPurse") {
+      showExportModal(true);
+
+    } else {
+      showExportModal2(true);
+    }
+
   };
   const { totalAgentBalance, walletBalance } = centralPurseBalance
 
@@ -88,15 +112,15 @@ const AgentsPurses = (props) => {
               Filter
             </span>
 
-            <span onClick={() => showExportModal(true)}>
+            <span onClick={() => OpenModal()}>
               <img src={Upload} />
               Export
             </span>
           </div>
         </div>
 
-        <Tabs defaultActiveKey={key} id="uncontrolled-tab-example">
-          <Tab eventKey={"centralPurse"} title="Central Purse">
+        <Tabs defaultActiveKey={key} id="uncontrolled-tab-example" onSelect={(e) => { showActive(e) }}>
+          <Tab eventKey={"centralPurse"} title="Central Purse" >
             <CentralPurse
               initialState={initialState}
               ExportModalActive={ExportModalActive}
@@ -109,7 +133,14 @@ const AgentsPurses = (props) => {
 
           <Tab eventKey={"AgentPurse"} title="Agent Purse">
             <AgentPurse
-             
+              initialState={initialState2}
+              ExportModalActives={ExportModalActive2}
+              FilterModalActive={FilterModalActive2}
+              showExportModals={showExportModal2}
+              showFilterModals={showFilterModal2}
+              filterValues={filterValues2}
+              setFilterValues={setFilterValues2}
+
             />
           </Tab>
         </Tabs>

@@ -4,6 +4,10 @@ import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import {
+  DropdownButton,
+  Dropdown,
+} from "react-bootstrap";
+import {
   FetchAgentPurse,
   CreditDebitPurse,
 } from "../../../Redux/requests/agentPurseRequest";
@@ -28,11 +32,11 @@ const AgentPurse = (props) => {
     loading,
     agentPurseTotal,
     showFilterModals,
-    FilterModalActives,
+    FilterModalActive,
     showExportModals,
     ExportModalActives,
     settlement,
-    
+
   } = props;
 
   const initialState = {
@@ -43,7 +47,6 @@ const AgentPurse = (props) => {
   const [nextPage, setNextPage] = useState(0);
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
-
 
 
   useEffect(() => {
@@ -82,6 +85,29 @@ const AgentPurse = (props) => {
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
   };
+
+  const handleSelect = (e) => {
+    setLength(e);
+  };
+  const title = "Agent Purse page";
+  const headers = [
+    [
+      "Agent ID",
+      "Business Name",
+      "Agent Name",
+      "Balance ",
+      "Action",
+      "Date Created",
+    ],
+  ];
+
+  const item = agentPurse.map((agent) => [
+    agent.agent.id,
+    agent.agent.businessName,
+    agent.agent.user.username,
+    agent.balance.toFixed(2),
+    agent.createdAt
+  ]);
   const products = agentPurse.map((agent, index) => {
     return {
       id: index,
@@ -94,7 +120,7 @@ const AgentPurse = (props) => {
         agent.agent.user.username === "undefined"
           ? ""
           : agent.agent.user.username,
-      Balance: agent.balance === "undefined" ? "" : agent.balance,
+      Balance: agent.balance === "undefined" ? "" : agent.balance.toFixed(2),
       DateCreated: agent.createdAt === "undefined" ? "" : agent.createdAt,
       // pageAccessed:aud.agent.requestMethod === 'undefined' ? '':aud.user.requestMethod,
       // DataAccessed:aud.user.username === 'undefined' ? '':aud.user.username,
@@ -153,7 +179,6 @@ const AgentPurse = (props) => {
       {loading && (
         <Loader
           type="TailSpin"
-          type="Oval"
           height={60}
           width={60}
           color="#1E4A86"
@@ -173,7 +198,24 @@ const AgentPurse = (props) => {
           condensed
         />
         <div className="pagination_wrap">
-          <p>Showing 1 to 10 of {agentPurseTotal}</p>
+          <DropdownButton
+            menuAlign="right"
+            title={length}
+            id="dropdown-menu-align-right"
+            onSelect={handleSelect}
+          >
+            <Dropdown.Item eventKey="10">10</Dropdown.Item>
+            <Dropdown.Item eventKey="20">20</Dropdown.Item>
+            <Dropdown.Item eventKey="30">30</Dropdown.Item>
+            <Dropdown.Item eventKey="50">50</Dropdown.Item>
+            <Dropdown.Item eventKey="100">100</Dropdown.Item>
+            <Dropdown.Item
+              eventKey={agentPurseTotal ? String(agentPurseTotal) : "0"}
+            >
+              All
+            </Dropdown.Item>
+          </DropdownButton>
+          <p>Showing {length} to 10 of {agentPurseTotal}</p>
           <div className="pagination">
             <Pagination
               activePage={activePage}
@@ -182,6 +224,7 @@ const AgentPurse = (props) => {
               pageRangeDisplayed={5}
               onChange={_handlePageChange}
             />
+
           </div>
         </div>
         <CreditDebit
@@ -191,19 +234,19 @@ const AgentPurse = (props) => {
           businessName={businessName}
         />
         <FilterModal
-        type={"Agent Manager "}
-        typetext={"Enter Agent Manager Type"}
-        idtext={"Enter Agent Manager ID"}
-        show={FilterModalActives}
-        name={"agent"}
-        close={closeFilter}
-        nextPage={nextPage}
-        length={length}
-        loadPage={FetchAgentPurses}
-        handleFilterValue={_handleFilterValue}
-        submitFilter={onFilterSubmit}
-      />
-      <ExportModal show={ExportModalActives} close={closeExport} filename='AgentPurse file'  products={products} columns={columns}/>
+          type={"AgentPurse"}
+          typetext={"Enter Agent Manager Type"}
+          idtext={"Enter Agent Manager ID"}
+          show={FilterModalActive}
+          name={"agentPurse"}
+          close={closeFilter}
+          nextPage={nextPage}
+          length={length}
+          loadPage={FetchAgentPurses}
+          handleFilterValue={_handleFilterValue}
+          submitFilter={onFilterSubmit}
+        />
+        <ExportModal show={ExportModalActives} close={closeExport} filename='AgentPurse file' title={title} headers={headers} item={item} products={products} columns={columns} />
 
       </div>
     </div>
