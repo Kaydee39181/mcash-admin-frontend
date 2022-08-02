@@ -1,15 +1,14 @@
 # Docker Parent Image with Node and Typescript
-FROM node:14
-MAINTAINER ADETAYO IBIJOLA S "adetayo@esettlemengroup.com"
+FROM node:8.11.2
+LABEL ADETAYO IBIJOLA="adetayo@esettlemengroup.com"
 
 # Create Directory for the Container
 RUN mkdir /app
 WORKDIR /app
 
 # Copy the files we need to our new Directory
-COPY . .
 
-# COPY package.json /app
+COPY package.json /app
 
 RUN npm install
 
@@ -18,6 +17,7 @@ RUN npm install -g serve
 RUN npm run build
 # COPY ["package.json", "package-lock.json*", "./"]
 # COPY /run.sh /app/run.sh
+COPY . .
 
 # RUN ls -lah
 # Expose the port outside of the container
