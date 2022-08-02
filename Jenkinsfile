@@ -11,6 +11,7 @@ pipeline {
     stages {
         stage('Node Install') {
             steps {
+                sh 'ls -la'
                 sh 'make install'
             }
         }
