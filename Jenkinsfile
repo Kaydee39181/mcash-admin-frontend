@@ -12,6 +12,8 @@ pipeline {
         stage('Node Install') {
             steps {
                 sh 'ls -la'
+                sh 'rm -rf ~/tmp'
+                sh 'npm cache clear'
                 sh 'make install'
             }
         }
