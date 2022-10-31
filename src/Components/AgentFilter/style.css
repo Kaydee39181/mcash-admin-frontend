@@ -1,0 +1,21 @@
+.filter-btn {
+  border: 1px solid;
+  color: #00249c;
+  margin-right: 1rem;
+}
+.btn {
+  width: 150px;
+}
+.filter {
+  background-color: #00249c;
+}
+.filter-btns {
+  display: flex;
+  justify-content: flex-end;
+}
+h3 {
+  font-size: small;
+}
+/* .body{
+       width: 1024px;
+   } */

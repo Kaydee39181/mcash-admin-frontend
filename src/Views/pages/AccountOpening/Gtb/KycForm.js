@@ -10,25 +10,23 @@ import {
   Col,
   Alert,
 } from "react-bootstrap";
-import Cancel from "../../../Assets/img/x.png";
+//import Cancel from "../../../Assets/img/x.png";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import {
   FetchState,
   FetchLga,
   FetchBank,
-} from "../../../Redux/requests/agentManagerRequest";
-import { CreateAgent } from "../../../Redux/requests/agentRequest";
-import Loader from "../../../Components/secondLoader";
+} from "../../../../Redux/requests/agentManagerRequest";
+import Loader from "../../../../Components/secondLoader";
 import "./style.css";
 import moment from "moment";
 import axios from "axios";
-import { AgentConstant } from "../../../constants/constants";
+import { AgentConstant } from "../../../../constants/constants";
 import AsyncSelect from "react-select/async";
 
-const CreateAgentModal = ({
+const KycForm = ({
   create,
-  show,
   CreateAgent: handleCreateAgent,
   close,
   FetchState: FetchStates,
@@ -36,39 +34,42 @@ const CreateAgentModal = ({
   FetchBank: FetchBankS,
   success,
   error,
-  loading,
   erroMessage,
   agentStates,
   agentLgas,
-  agentBanks,
-  createAgent,
 }) => {
-  const [isPublic, setIsPublic] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
   const [logvt, setIsLogvt] = useState({});
   const [CreateAgentData, setCreateAgentData] = useState({
-    accountNumber: "",
-    accountName: "",
-    accountBvn: "",
-    businessName: "",
-    dateOfBirth: moment().locale("en").format("YYYY-MM-DD"),
-    businessPhone: "",
-    businessAddress: "",
-    gender: "",
-    firstname: "",
-    middlename: "",
-    lastname: "",
-    email: "",
-    username: "",
-    stateId: "",
-    lgaId: "",
-    bankId: "",
+    RequestId: "",
+    FirstName: "",
+    MiddleName: "",
+    LastName: "",
+    Gender: "",
+    Channel: "",
+    DateOfBirth: "",
+    StreetName: "",
+    City: "",
+    EmailAddress: "",
+    PhoneNumber: "",
+    AccountOpeningBalance: "",
+    AgentAcc: "",
+    AuthMode: "",
+    AuthValue: "",
+    BankVerificationNumber: "",
+    UserId: "",
+    stateOfOrigin: "",
+    LocalGovtArea: "",
+    MothersMaidenName: "",
+    PCCode: "",
+    AgentWalletID: "",
   });
   const [allAgents, setAllAgents] = useState();
+  const [accountDetails, setAccountDetails] = useState([]);
   const getToken = JSON.parse(localStorage.getItem("data"));
-  const { access_token } = getToken;
-
+  const [clicked, setClicked] = useState(false);
   useEffect(() => {
     FetchStates();
     FetchBankS();
@@ -95,78 +96,143 @@ const CreateAgentModal = ({
     }
   }, [success]);
 
-  const SearchAgentManagers = async (searchQuery) => {
-    try {
-      const res = await axios.get(
-        `${AgentConstant.FETCH_ALL_AGENT_MANAGERS}?username=${searchQuery}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `bearer ${access_token}`,
-          },
-        }
-      );
-      const agentData = res?.data?.data?.map((agent) => ({
-        label: agent.user.fullName,
-        value: agent.id,
-      }));
-      return agentData;
-    } catch (error) {
-      console.log("error ===> ", error?.response);
-    }
-  };
-
-  const promiseOptions = (inputValue) =>
-    new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(SearchAgentManagers(inputValue));
-      }, 1000);
-    });
-
-  const handleInputChange = (newValue) => {
-    const inputValue = newValue.replace(/\W/g, "");
-    return inputValue;
-  };
-
   const updateInput = (event) => {
     setCreateAgentData({
       ...CreateAgentData,
       [event.target.name]: event.target.value,
     });
   };
-
+  const updatedob = (e) => {
+    setCreateAgentData({
+      ...CreateAgentData,
+      [e.target.name]: moment(e.target.value).locale("en").format("MM/DD/YYYY"),
+    });
+  };
   const _handleSelectState = (e) => {
     const optionValue = JSON.parse(e.target.value);
     setCreateAgentData({
       ...CreateAgentData,
-      [e.target.name]: optionValue.stateId,
+      [e.target.name]: optionValue.stateName,
     });
     FetchLgas(optionValue.stateCode);
   };
 
-  const _handleSelectBank = (e) => {
-    let stateCode = e.target.value;
-    FetchLgas(stateCode);
-
-    setCreateAgentData({
-      ...CreateAgentData,
-      [e.target.name]: stateCode,
-    });
-  };
-
   const onSubmit = (event) => {
     event.preventDefault();
-    handleCreateAgent(CreateAgentData);
+    handleSubmit(CreateAgentData);
   };
 
+  const handleSubmit = async (odata) => {
+    setClicked(true);
+    setLoading(true);
+    let req = new Date();
+
+    let ndata = {
+      ...odata,
+      RequestId: req.getTime(),
+      Channel: "TP-MICROSYSTEMS",
+      AccountOpeningBalance: "0",
+      AgentAcc: "227806250",
+      AuthMode: "MPIN",
+      AuthValue: "1234",
+      UserId: "22780625001  ",
+      AgentWalletID: getToken.user.id,
+    };
+    const data = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
+    /*  let ndata = {
+      ...odata,
+      RequestId: `${req.getTime()}`,
+      Channel: "TP-MICROSYSTEMS",
+      AccountOpeningBalance: "0",
+      AgentAcc: "0320232115",
+      AuthMode: "MPIN",
+      AuthValue: "1234",
+      UserId: "20516781701  ",
+      AgentWalletID: `${getToken.user.id}`,
+    };
+    console.log(ndata);
+    const data = axios.post(
+      `http://gtweb6.gtbank.com/WEBAPIs/PubEncrypt4/AccountOpeningNew/Api/AccountOpening3`,
+      ndata
+    );
+ */
+    data.then(async (res) => {
+      //console.log(res.data);
+      setLoading(false);
+      setAccountDetails([res.data]);
+      if (res?.data?.ResponseCode == "00") {
+        await axios
+          .post(`http://165.22.35.35:8000/api/gtaccounts/create-record`, {
+            agentCode: `${getToken.user.username}`,
+            accountCreated: `${res.data.AccountNumber}`,
+          })
+          .then((data) => {
+            console.log(data);
+          });
+      }
+    });
+
+    //console.log(data);
+  };
+  //console.log(accountDetails);
   return (
     <div>
       {loading && (
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
+      {clicked && accountDetails.length > 0 ? (
+        accountDetails[0]?.ResponseCode == "00" ? (
+          <Modal
+            show={clicked}
+            onHide={() => {
+              setClicked(false);
+            }}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Account Created</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p>Your Account Number is : ${accountDetails[0].AccountNumber}</p>
+              <p>Please use your POS to fund the account</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setClicked(false);
+                }}
+              >
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        ) : (
+          <Modal
+            show={clicked}
+            onHide={() => {
+              setClicked(false);
+            }}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>Error!</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>An Error Occurred. Please try again later</Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setClicked(false);
+                }}
+              >
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        )
+      ) : null}
 
       <div className="agent-table-wrapper">
-        <h5>Create Agent</h5>
+        <h5>Open Bank Account</h5>
         <hr />
         <Form onSubmit={onSubmit}>
           {success ? <Alert variant="success">{successMessage}</Alert> : null}
@@ -178,9 +244,10 @@ const CreateAgentModal = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>First Name</Form.Label>
                 <Form.Control
+                  required
                   type="text"
                   placeholder="Enter first name"
-                  name="firstname"
+                  name="FirstName"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -191,7 +258,7 @@ const CreateAgentModal = ({
                 <Form.Control
                   type="text"
                   placeholder="Enter middle name"
-                  name="middlename"
+                  name="MiddleName"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -200,9 +267,10 @@ const CreateAgentModal = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Last Name</Form.Label>
                 <Form.Control
+                  required
                   type="text"
                   placeholder="Enter last name"
-                  name="lastname"
+                  name="LastName"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -213,10 +281,11 @@ const CreateAgentModal = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Date of birth</Form.Label>
                 <Form.Control
+                  required
                   type="date"
                   placeholder="date of birth"
-                  name="dateOfBirth"
-                  onChange={updateInput}
+                  name="DateOfBirth"
+                  onChange={updatedob}
                 />
               </Form.Group>
             </Col>
@@ -224,9 +293,10 @@ const CreateAgentModal = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
+                  required
                   type="email"
                   placeholder="Enter email address"
-                  name="email"
+                  name="EmailAddress"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -234,10 +304,15 @@ const CreateAgentModal = ({
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Gender</Form.Label>
-                <Form.Control as="select" name="gender" onChange={updateInput}>
+                <Form.Control
+                  as="select"
+                  name="Gender"
+                  onChange={updateInput}
+                  required
+                >
                   <option>Select Gender</option>
-                  <option>MALE</option>
-                  <option>FEMALE</option>
+                  <option value={"M"}>MALE</option>
+                  <option value={"F"}>FEMALE</option>
                 </Form.Control>
               </Form.Group>
             </Col>
@@ -245,20 +320,25 @@ const CreateAgentModal = ({
           <Row>
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlInput1">
-                <label>Agent Manager</label>
-                <AsyncSelect
-                  cacheOptions
-                  loadOptions={promiseOptions}
-                  defaultOptions
-                  onChange={(val) => {
-                    const { value } = val;
-                    updateInput({
-                      target: { value: value, name: "agentManagerId" },
-                    });
-                  }}
-                  name="agentManagerId"
-                  onInputChange={handleInputChange}
-                  className="mb-3"
+                <Form.Label>Mother's Maiden Name</Form.Label>
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="Enter Mother's Maiden Name"
+                  name="MothersMaidenName"
+                  onChange={updateInput}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4} sm={12}>
+              <Form.Group controlId="exampleForm.ControlInput1">
+                <Form.Label>PCCode</Form.Label>
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="Enter PCCode"
+                  name="PCCode"
+                  onChange={updateInput}
                 />
               </Form.Group>
             </Col>
@@ -268,22 +348,24 @@ const CreateAgentModal = ({
           <Row>
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Business Name</Form.Label>
+                <Form.Label>Street Name</Form.Label>
                 <Form.Control
+                  required
                   type="text"
-                  placeholder="Enter business name"
-                  name="businessName"
+                  placeholder="Enter street name"
+                  name="StreetName"
                   onChange={updateInput}
                 />
               </Form.Group>
             </Col>
             <Col md={8} sm={12}>
               <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Business Address</Form.Label>
+                <Form.Label>City</Form.Label>
                 <Form.Control
+                  required
                   type="text"
-                  placeholder="Enter Business address"
-                  name="businessAddress"
+                  placeholder="Enter City"
+                  name="City"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -292,11 +374,12 @@ const CreateAgentModal = ({
           <Row>
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Business Phone Number</Form.Label>
+                <Form.Label>Phone Number</Form.Label>
                 <Form.Control
+                  required
                   type="text"
-                  placeholder="Enter business phone number"
-                  name="businessPhone"
+                  placeholder="Enter phone number"
+                  name="PhoneNumber"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -305,7 +388,8 @@ const CreateAgentModal = ({
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>State</Form.Label>
                 <Form.Control
-                  name="stateId"
+                  required
+                  name="stateOfOrigin"
                   as="select"
                   onChange={_handleSelectState}
                 >
@@ -314,7 +398,7 @@ const CreateAgentModal = ({
                     return (
                       <option
                         key={i}
-                        value={`{"stateCode": "${state.stateCode}", "stateId": ${state.id} }`}
+                        value={`{ "stateName": "${state.stateName}","stateCode": "${state.stateCode}", "stateId": ${state.id} }`}
                       >
                         {state.stateName}
                       </option>
@@ -326,11 +410,16 @@ const CreateAgentModal = ({
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Local Govt Area</Form.Label>
-                <Form.Control as="select" name="lgaId" onChange={updateInput}>
+                <Form.Control
+                  required
+                  as="select"
+                  name="LocalGovtArea"
+                  onChange={updateInput}
+                >
                   <option disabled>Select your LGA</option>
                   {agentLgas.map((lga, i) => {
                     return (
-                      <option value={lga.id} key={i}>
+                      <option value={lga.lga} key={i}>
                         {lga.lga}
                       </option>
                     );
@@ -341,75 +430,6 @@ const CreateAgentModal = ({
           </Row>
 
           <br />
-          <h6>Account Information</h6>
-          <br />
-          <Row>
-            <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Account Number</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Account Number"
-                  name="accountNumber"
-                  onChange={updateInput}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Account Name </Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter account name"
-                  name="accountName"
-                  onChange={updateInput}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Bank Name</Form.Label>
-                <Form.Control
-                  name="bankId"
-                  as="select"
-                  onChange={_handleSelectBank}
-                >
-                  <option>Select your bank</option>
-                  {agentBanks.map((bank, i) => {
-                    return (
-                      <option key={i} value={bank.id}>
-                        {bank.name}
-                      </option>
-                    );
-                  })}
-                </Form.Control>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>Account BVN</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Account BVN"
-                  name="accountBvn"
-                  onChange={updateInput}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>User Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter username"
-                  name="username"
-                  onChange={updateInput}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
           <div className=" text-right">
             <Button variant="primary" className="text-white " type="submit">
               Submit
@@ -421,7 +441,7 @@ const CreateAgentModal = ({
   );
 };
 
-CreateAgentModal.propTypes = {
+KycForm.propTypes = {
   show: PropTypes.func.isRequired,
   close: PropTypes.func.isRequired,
   create: PropTypes.func.isRequired,
@@ -438,6 +458,9 @@ const mapStateToProps = (state) => (
     erroMessage: state.agents.errorMessage,
     success: state.agents.createAgentsuccess,
     error: state.agents.error,
+    loading: false,
+    error: null,
+    success: false,
   }
 );
 
@@ -445,5 +468,4 @@ export default connect(mapStateToProps, {
   FetchState,
   FetchLga,
   FetchBank,
-  CreateAgent,
-})(CreateAgentModal);
+})(KycForm);

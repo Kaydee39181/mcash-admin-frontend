@@ -7,6 +7,7 @@ import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 import AssignTerminal from "../../../Components/Assign Terminal";
 import HardwareModal from "../../../Components/hardware";
 
+import { DropdownButton, Dropdown } from "react-bootstrap";
 import Loader from "../../../Components/secondLoader";
 import { Modal } from "react-bootstrap";
 import ExportModal from "../../../Components/Exports/index";
@@ -165,6 +166,10 @@ const Agents = (props) => {
   const _handlePageChange = (pageNumber) => {
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
+  };
+
+  const handleSelect = (e) => {
+    setLength(e);
   };
 
   const onFilterSubmit = (event) => {
@@ -408,7 +413,22 @@ const Agents = (props) => {
         businessName={businessName}
       />
       <div className="pagination_wrap">
-        <p>Showing 1 to 10 of {agentTotal}</p>
+        <DropdownButton
+          menuAlign="right"
+          title={length}
+          id="dropdown-menu-align-right"
+          onSelect={handleSelect}
+        >
+          <Dropdown.Item eventKey="10">10</Dropdown.Item>
+          <Dropdown.Item eventKey="20">20</Dropdown.Item>
+          <Dropdown.Item eventKey="30">30</Dropdown.Item>
+          <Dropdown.Item eventKey="50">50</Dropdown.Item>
+          <Dropdown.Item eventKey="100">100</Dropdown.Item>
+        </DropdownButton>
+        <p>
+          Showing {activePage * length - length + 1} to {length * activePage} of{" "}
+          {agentTotal}
+        </p>
         <div className="pagination">
           <Pagination
             activePage={activePage}

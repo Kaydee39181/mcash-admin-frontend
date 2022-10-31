@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Nav, Form, Button } from "react-bootstrap";
-import { loginUser } from "../../../Redux/requests/userRequest";
+import {
+  loginUser,
+  UserChangePassword,
+} from "../../../Redux/requests/userRequest";
 import Loader from "../../../Components/secondLoader";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
@@ -24,7 +27,7 @@ const Login = ({
 
   const [errors, setErrors] = useState([]);
   function handleInputChange(event) {
-    setErrors([])
+    setErrors([]);
     console.log(event);
     setUserCredentials({
       ...userCredentials,
@@ -35,15 +38,17 @@ const Login = ({
 
   useEffect(() => {
     if (error) {
-      return setErrors([ error.error && error.error.response  ?error.error.response.data.responseMessage:
-        "There was an error sending your request, please try again later.",
+      return setErrors([
+        error.error && error.error.response
+          ? error.error.response.data.responseMessage
+          : "There was an error sending your request, please try again later.",
       ]);
     }
     // removeToken();
   }, [error]);
 
   useEffect(() => {
-    console.log(success)
+    console.log(success);
     if (success) {
       history.push("/dashboard");
     } else {
@@ -71,13 +76,7 @@ const Login = ({
     <div className="d-flex justify-content-center align-items-center login-wrapper">
       <Form className="form-wrapper" onSubmit={onSubmit}>
         {loading && (
-          <Loader
-            type="TailSpin"
-            type="Oval"
-            height={60}
-            width={60}
-            color="#1E4A86"
-          />
+          <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
         )}
 
         <div className="logo"></div>

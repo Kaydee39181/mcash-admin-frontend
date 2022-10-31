@@ -32,6 +32,7 @@ import Pagination from "react-js-pagination";
 import ViewReceipts from "../../../Components/viewReceipt";
 
 import { connect } from "react-redux";
+import moment from "moment";
 
 import "./style.css";
 // import ExportLink from '../Exports/index';
@@ -198,15 +199,20 @@ const Transactions = (props) => {
     transact.rrn,
     transact.prePurseBalance.toFixed(2),
     transact.postPurseBalance.toFixed(2),
-
   ]);
-
+  Date.prototype.addHours = function (h) {
+    this.setTime(this.getTime() + h * 60 * 60 * 1000);
+    return this;
+  };
   const products = transaction.map((transact) => {
-    console.log(transact.agent.agentManager);
+    //console.log(transact.agent.agentManager);
+    let time = new Date(transact.systemTime);
+    let ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+    /* console.log(ntime); */
     return {
       transact: transact,
       id: transact.agent.id === "undefined" ? "" : transact.id,
-      Date: transact.systemTime === "undefined" ? "" : transact.systemTime,
+      Date: transact.systemTime === "undefined" ? "" : ntime,
       Agent:
         transact.agent.businessName === "undefined"
           ? ""
@@ -233,13 +239,13 @@ const Transactions = (props) => {
       STAN: transact.stan === "undefined" ? "" : transact.stan,
       // CardDetails:transact.rrn === 'undefined' ? '':transact.rrn ,
       PreBalance:
-        transact.postPurseBalance.toFixed(2) === "undefined"
+        transact.prePurseBalance.toFixed(2) === "undefined"
           ? ""
-          : transact.postPurseBalance.toFixed(2),
+          : transact.prePurseBalance.toFixed(2),
       PostBalance:
         transact.postPurseBalance.toFixed(2) === "undefined"
           ? ""
-          : transact.prePurseBalance.toFixed(2),
+          : transact.postPurseBalance.toFixed(2),
       AppVersion:
         transact.appVersion === "undefined" ? "" : transact.appVersion,
       totalAmount:
@@ -361,7 +367,7 @@ const Transactions = (props) => {
         return (
           <h5>
             {row.transact.transactionType.type == "Funds Transfer" ||
-              row.transact.transactionType.type == "Agent Transfer" ? (
+            row.transact.transactionType.type == "Agent Transfer" ? (
               <button
                 type="button"
                 onClick={() => QueryTransaction(row.TransactionID)}

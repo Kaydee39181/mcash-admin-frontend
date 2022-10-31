@@ -177,7 +177,18 @@ class SideNav extends Component {
                     </li>
                   </Link>
                 )}
-
+                <NavLink
+                  to="/openAccount"
+                  activeClassName="current"
+                  onClick={this.forceUpdateHandler}
+                >
+                  <li className="list-group-item ">
+                    <img src={Dashboard} alt="" />
+                    <span className="list-group-item-text">
+                      Open Bank Account{" "}
+                    </span>
+                  </li>
+                </NavLink>
                 <div className="list-group footer">
                   <NavLink to="/settings" activeClassName="current">
                     <li className="list-group-item ">

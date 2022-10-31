@@ -1,0 +1,71 @@
+.generate-code{
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    letter-spacing: 0.1px;
+    color: #1AB759;
+    border: 1px solid #1AB759;
+    box-sizing: border-box;
+    border-radius: 8px;
+}
+.assign-terminal{
+    background: #7BA4DB;
+    border-radius: 8px;
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 18px;
+    letter-spacing: 0.1px;
+    
+    color: #25282B;
+}
+.unassign-terminal{
+    background: #BE4D00;
+    border-radius: 8px;
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 9px;
+    line-height: 18px;
+    letter-spacing: 0.1px;
+    color: #FFFFFF;
+}
+
+.view{
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    /* identical to box height, or 129% */
+
+    letter-spacing: 0.1px;
+
+    /* mCashPoint/Tertiary */
+
+    color: #00249C;
+}
+.agent-table-wrapper{
+    background: #FFFFFF;
+    width: 100%;
+    padding: 30px;
+    border-radius: 10px;
+}
+h5{
+   color: #00249C;
+}
+.viewTransac{
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    letter-spacing: 0.1px;
+    background-color: #4489e4 ;
+    color: white;
+}

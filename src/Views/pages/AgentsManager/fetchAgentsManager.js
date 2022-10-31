@@ -11,7 +11,9 @@ import Loader from "../../../Components/secondLoader";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import { connect } from "react-redux";
 import ExportModal from "../../../Components/Exports/index";
-import FilterModal from "../../../Components/Filter/index";
+//import FilterModal from "../../../Components/Filter/index";
+import FilterModal from "../../../Components/AgentFilter/index";
+
 import Pagination from "react-js-pagination";
 
 import "./style.css";
@@ -35,11 +37,10 @@ const FetchAgentsManager = (props) => {
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
 
-  // const [filterValues, setFilterValues] = useState(initialState);
-
+  //const [filterValues, setFilterValues] = useState({});
   useEffect(() => {
     FetchAgentManagers(nextPage, length, filterValues);
-  }, [nextPage, length, filterValues]);
+  }, []);
 
   const closeExport = () => {
     showExportModal(false);
@@ -56,12 +57,14 @@ const FetchAgentsManager = (props) => {
     showExportModal(false);
   }
   const onFilterSubmit = (event) => {
+    console.log(filterValues);
     event.preventDefault();
-    FetchAgentManagers(nextPage, length, filterValues);
+    FetchAgentManagers(0, length, filterValues);
     showExportModal(false);
   };
 
   const _handlePageChange = (pageNumber) => {
+    FetchAgentManagers(pageNumber - 1, length, filterValues);
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
   };
@@ -100,7 +103,7 @@ const FetchAgentsManager = (props) => {
   ]);
 
   const products = agentmanager.map((agent, index) => {
-    console.log(agent);
+    //console.log(agent);
     return {
       id: index,
       Agent: agent,

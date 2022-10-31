@@ -1,29 +1,31 @@
-# Docker Parent Image with Node and Typescript
-FROM node:14
-LABEL ADETAYO IBIJOLA="adetayo@esettlemengroup.com"
+FROM node:16 as build
 
-# Create Directory for the Container
-RUN mkdir /app
 WORKDIR /app
 
-# Copy the files we need to our new Directory
+ENV PATH /app/node_modules/.bin:$PATH
 
-COPY package.json /app
+COPY ./package.json /app/
+COPY ./yarn.lock /app/
 
-RUN npm install
+#RUN apk add git
+#RUN apk add --update --no-cache python3 build-base gcc && ln -sf /usr/bin/python3 /usr/bin/python
+#RUN apk add g++ make py3-pip
 
-RUN npm install -g serve
+RUN yarn
 
-RUN npm run build
-# COPY ["package.json", "package-lock.json*", "./"]
-# COPY /run.sh /app/run.sh
-COPY . .
+COPY . /app
 
-# RUN ls -lah
-# Expose the port outside of the container
+RUN yarn build
+
+#stage 2- build the final image and copy the build files
+FROM nginx:alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY nginx.conf /etc/nginx/conf.d
+
 EXPOSE 3000
 
-# CMD ["sh","run.sh"]
-# CMD ["npm","start"]
-CMD ["serve", "-s", "build"]
-
+CMD ["nginx", "-g", "daemon off;"]
