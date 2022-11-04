@@ -39,10 +39,10 @@ const Gtb = () => {
           <Form.Group controlId="exampleForm.ControlSelect1">
             <Form.Label>Select an action</Form.Label>
             <Form.Control as="select" name="Gender" onChange={updateInput}>
-              <option>Select Method</option>
+              <option>Select Operation</option>
               <option value={"B"}>Open account with BVN</option>
               <option value={"F"}>Open account with manually</option>
-              <option value={"O"}>Link your card to your account</option>
+              <option value={"O"}>Link your Tier 1 card to your account</option>
             </Form.Control>
           </Form.Group>
         </Col>
