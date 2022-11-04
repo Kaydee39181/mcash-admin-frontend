@@ -29,11 +29,11 @@ const BVNForm = () => {
       PhoneNumber,
       RequestId,
     };
-    console.log(ndata);
+    //console.log(ndata);
     await axios
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
-        setBvnData(data.data.responseObject);
+        setBvnData({ ...data.data.responseObject });
       })
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
@@ -71,7 +71,15 @@ const BVNForm = () => {
                 type="text"
                 placeholder="Enter your BVN"
                 name="bvn"
-                onChange={(e) => setBvn(e.target.value)}
+                onChange={(e) => {
+                  setBvn(e.target.value);
+                  setClicked(false);
+                }}
+                onKeyPress={(event) => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
               />
             </Form.Group>
           </Col>
@@ -82,7 +90,15 @@ const BVNForm = () => {
                 type="text"
                 placeholder="Enter your phone number"
                 name="phonenumber"
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => {
+                  setPhoneNumber(e.target.value);
+                  setClicked(false);
+                }}
+                onKeyPress={(event) => {
+                  if (!/[0-9]/.test(event.key)) {
+                    event.preventDefault();
+                  }
+                }}
               />
             </Form.Group>
           </Col>
@@ -96,7 +112,12 @@ const BVNForm = () => {
       {loading && (
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
-      {clicked && !loading && <EditBvnDetails data={bvnData} />}
+      {clicked && !loading && bvnData && Object.keys(bvnData).length > 0 && (
+        <EditBvnDetails data={bvnData} />
+      )}
+      {clicked && !loading && Object.keys(bvnData).length <= 0 && (
+        <p style={{ marginTop: "10px", color: "red" }}>An Error Occurred</p>
+      )}
     </div>
   );
 };

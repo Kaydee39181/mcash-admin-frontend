@@ -135,7 +135,7 @@ const KycForm = ({
       AgentAcc: "227806250",
       AuthMode: "MPIN",
       AuthValue: "1234",
-      UserId: "22780625001  ",
+      UserId: "22780625001",
       AgentWalletID: getToken.user.id,
     };
     const data = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
@@ -193,7 +193,10 @@ const KycForm = ({
             </Modal.Header>
             <Modal.Body>
               <p>Your Account Number is : ${accountDetails[0].AccountNumber}</p>
-              <p>Please use your POS to fund the account</p>
+              <p>
+                Please use your POS to fund your new account with at least 1000
+                naira
+              </p>
             </Modal.Body>
             <Modal.Footer>
               <Button
@@ -338,6 +341,11 @@ const KycForm = ({
                   type="text"
                   placeholder="Enter PCCode"
                   name="PCCode"
+                  onKeyPress={(event) => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -380,6 +388,11 @@ const KycForm = ({
                   type="text"
                   placeholder="Enter phone number"
                   name="PhoneNumber"
+                  onKeyPress={(event) => {
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
                   onChange={updateInput}
                 />
               </Form.Group>
