@@ -122,13 +122,20 @@ const EditBvnDetails = ({
 
   const onSubmit = (event) => {
     event.preventDefault();
-    handleSubmit(CreateAgentData);
+    const newData = {
+      ...CreateAgentData,
+      Gender: CreateAgentData.Gender == "Male" ? "M" : "F",
+      DateOfBirth: moment(new Date(CreateAgentData.DateOfBirth))
+        .locale("en")
+        .format("MM/DD/YYYY"),
+    };
+    handleSubmit(newData);
   };
 
-  const handleSubmit = async (odata) => {
+  const handleSubmit = (odata) => {
+    setClicked(true);
     setLoading(true);
     let req = new Date();
-
     let ndata = {
       ...odata,
       RequestId: `${req.getTime()}`,
@@ -140,25 +147,34 @@ const EditBvnDetails = ({
       UserId: "22780625001",
       AgentWalletID: `${getToken.user.id}`,
     };
-    const data = await axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
-    //console.log(data);
-    data.then(async (res) => {
-      //console.log(res.data);
-      setLoading(false);
+    console.log(ndata);
+    const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
+    response.then((res) => {
+      console.log(res.data);
       setAccountDetails([res.data]);
       if (res?.data?.ResponseCode == "00") {
-        await axios
-          .post(`http://165.22.35.35:8000/api/gtaccounts/create-record`, {
-            agentCode: `${getToken.user.username}`,
-            accountCreated: `${res.data.AccountNumber}`,
-          })
+        axios
+          .post(
+            `https://account-opening-production.up.railway.app/api/gtaccounts/create-record`,
+            {
+              agentCode: `${getToken.user.username}`,
+              accountCreated: `${res.data.AccountNumber}`,
+            }
+          )
           .then((data) => {
+            setLoading(false);
             console.log(data);
+          })
+          .catch((e) => {
+            setLoading(false);
+            console.log(e);
           });
+      } else {
+        setLoading(false);
       }
     });
   };
-
+  console.log(accountDetails);
   return (
     <div>
       {loading && (
@@ -170,19 +186,21 @@ const EditBvnDetails = ({
             show={clicked}
             onHide={() => {
               setClicked(false);
+              window.location.reload();
             }}
           >
             <Modal.Header closeButton>
               <Modal.Title>Account Created</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Your Account Number is : ${accountDetails[0].AccountNumber}
+              Your Account Number is : {accountDetails[0].AccountNumber}
             </Modal.Body>
             <Modal.Footer>
               <Button
                 variant="primary"
                 onClick={() => {
                   setClicked(false);
+                  window.location.reload();
                 }}
               >
                 Close
@@ -194,17 +212,19 @@ const EditBvnDetails = ({
             show={clicked}
             onHide={() => {
               setClicked(false);
+              window.location.reload();
             }}
           >
             <Modal.Header closeButton>
               <Modal.Title>Error!</Modal.Title>
             </Modal.Header>
-            <Modal.Body>An Error Occurred. Please try again later</Modal.Body>
+            <Modal.Body>{accountDetails[0].ResponseDescription}</Modal.Body>
             <Modal.Footer>
               <Button
                 variant="primary"
                 onClick={() => {
                   setClicked(false);
+                  window.location.reload();
                 }}
               >
                 Close
@@ -267,12 +287,14 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Date of birth</Form.Label>
                 <Form.Control
-                  //type="date"
+                  type="date"
                   required
                   placeholder="date of birth"
                   name="DateOfBirth"
-                  value={CreateAgentData.DateOfBirth}
-                  onChange={updatedob}
+                  defaultValue={moment(
+                    new Date(CreateAgentData.DateOfBirth)
+                  ).format("YYYY-MM-DD")}
+                  onChange={updateInput}
                 />
               </Form.Group>
             </Col>
@@ -297,7 +319,7 @@ const EditBvnDetails = ({
                   as="select"
                   name="Gender"
                   onChange={updateInput}
-                  value={CreateAgentData.Gender}
+                  value={CreateAgentData.Gender == "Male" ? "M" : "F"}
                 >
                   <option>Select Gender</option>
                   <option value={"M"}>MALE</option>

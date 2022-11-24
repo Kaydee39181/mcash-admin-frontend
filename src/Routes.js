@@ -64,7 +64,7 @@ class Routes extends Component {
                 component={Agents}
               />
               <AuthRequired
-                roleCode="ROLE_VIEW_DASHBOARD"
+                roleCode="ROLE_VIEW_ALL_AGENT"
                 path="/openAccount"
                 component={AccountOpening}
               />

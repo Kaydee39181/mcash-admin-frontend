@@ -122,7 +122,7 @@ const KycForm = ({
     handleSubmit(CreateAgentData);
   };
 
-  const handleSubmit = async (odata) => {
+  const handleSubmit = (odata) => {
     setClicked(true);
     setLoading(true);
     let req = new Date();
@@ -138,7 +138,8 @@ const KycForm = ({
       UserId: "22780625001",
       AgentWalletID: getToken.user.id,
     };
-    const data = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
+    console.log(ndata);
+    const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
     /*  let ndata = {
       ...odata,
       RequestId: `${req.getTime()}`,
@@ -156,25 +157,34 @@ const KycForm = ({
       ndata
     );
  */
-    data.then(async (res) => {
-      //console.log(res.data);
-      setLoading(false);
+    response.then((res) => {
+      console.log(res.data);
       setAccountDetails([res.data]);
       if (res?.data?.ResponseCode == "00") {
-        await axios
-          .post(`http://165.22.35.35:8000/api/gtaccounts/create-record`, {
-            agentCode: `${getToken.user.username}`,
-            accountCreated: `${res.data.AccountNumber}`,
-          })
+        axios
+          .post(
+            `https://account-opening-production.up.railway.app/api/gtaccounts/create-record`,
+            {
+              agentCode: `${getToken.user.username}`,
+              accountCreated: `${res.data.AccountNumber}`,
+            }
+          )
           .then((data) => {
+            setLoading(false);
             console.log(data);
+          })
+          .catch((e) => {
+            setLoading(false);
+            console.log(e);
           });
+      } else {
+        setLoading(false);
       }
     });
 
     //console.log(data);
   };
-  //console.log(accountDetails);
+  console.log(accountDetails);
   return (
     <div>
       {loading && (
@@ -186,13 +196,14 @@ const KycForm = ({
             show={clicked}
             onHide={() => {
               setClicked(false);
+              window.location.reload();
             }}
           >
             <Modal.Header closeButton>
               <Modal.Title>Account Created</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <p>Your Account Number is : ${accountDetails[0].AccountNumber}</p>
+              <p>Your Account Number is : {accountDetails[0].AccountNumber}</p>
               <p>
                 Please use your POS to fund your new account with at least 1000
                 naira
@@ -203,6 +214,7 @@ const KycForm = ({
                 variant="primary"
                 onClick={() => {
                   setClicked(false);
+                  window.location.reload();
                 }}
               >
                 Close
@@ -214,17 +226,19 @@ const KycForm = ({
             show={clicked}
             onHide={() => {
               setClicked(false);
+              window.location.reload();
             }}
           >
             <Modal.Header closeButton>
               <Modal.Title>Error!</Modal.Title>
             </Modal.Header>
-            <Modal.Body>An Error Occurred. Please try again later</Modal.Body>
+            <Modal.Body>{accountDetails[0].ResponseDescription}</Modal.Body>
             <Modal.Footer>
               <Button
                 variant="primary"
                 onClick={() => {
                   setClicked(false);
+                  window.location.reload();
                 }}
               >
                 Close
@@ -351,7 +365,7 @@ const KycForm = ({
               </Form.Group>
             </Col>
           </Row>
-          <h6>Business Information</h6>
+          <h6>Contact Information</h6>
           <br />
           <Row>
             <Col md={4} sm={12}>
@@ -399,7 +413,7 @@ const KycForm = ({
             </Col>
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
-                <Form.Label>State</Form.Label>
+                <Form.Label>State of Origin</Form.Label>
                 <Form.Control
                   required
                   name="stateOfOrigin"

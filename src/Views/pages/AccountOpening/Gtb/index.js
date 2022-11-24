@@ -41,7 +41,7 @@ const Gtb = () => {
             <Form.Control as="select" name="Gender" onChange={updateInput}>
               <option>Select Operation</option>
               <option value={"B"}>Open account with BVN</option>
-              <option value={"F"}>Open account with manually</option>
+              <option value={"F"}>Open account without BVN</option>
               <option value={"O"}>Link your Tier 1 card to your account</option>
             </Form.Control>
           </Form.Group>

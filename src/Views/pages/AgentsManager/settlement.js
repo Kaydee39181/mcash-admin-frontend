@@ -28,10 +28,10 @@ const FetchAgentsSettlement = (props) => {
     agentSettleTotal,
   } = props;
 
-  const [nextPage, setNextPage] = useState(0);
+  const [nextPage, setNextPage] = useState(1);
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
-
+  console.log(settlement);
   const initialState = {
     username: "",
     month: "",
@@ -41,7 +41,7 @@ const FetchAgentsSettlement = (props) => {
 
   useEffect(() => {
     FetchSettlements(nextPage, length, initialState);
-  }, [nextPage, length, filterValues]);
+  }, []);
   const closeExport = () => {
     showExportModals(false);
   };
@@ -80,7 +80,11 @@ const FetchAgentsSettlement = (props) => {
 
   const item = settlement.map((settle) => [
     settle.ambassador.user.fullName,
-    settle.ambassador.accountName +" | " + settle.ambassador.accountNumber +" | " +settle.ambassador.bank.name,
+    settle.ambassador.accountName +
+      " | " +
+      settle.ambassador.accountNumber +
+      " | " +
+      settle.ambassador.bank.name,
     settle.amountAccrued,
     settle.month,
     settle.year,
@@ -174,7 +178,16 @@ const FetchAgentsSettlement = (props) => {
         handleFilterValue={_handleFilterValue}
         submitFilter={onFilterSubmit}
       />
-      <ExportModal show={ExportModalActives} close={closeExport} filename='Settlement file' title={title} headers={headers} item={item} products={products} columns={columns}/>
+      <ExportModal
+        show={ExportModalActives}
+        close={closeExport}
+        filename="Settlement file"
+        title={title}
+        headers={headers}
+        item={item}
+        products={products}
+        columns={columns}
+      />
     </div>
   );
 };
