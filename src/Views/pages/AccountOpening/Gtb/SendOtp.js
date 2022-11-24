@@ -88,6 +88,9 @@ const SendOtp = ({
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       <h5>Link your card to your Account</h5>
+      <p>
+        This service is only for GTBank Mobile Wallet and Tier 1 customers only
+      </p>
       <hr />
       <Form onSubmit={handleSubmit}>
         <h6>Account Details</h6>
