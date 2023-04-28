@@ -1,0 +1,24 @@
+.header-wrapper {
+  display: flex;
+  position: relative;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.header span {
+  padding-right: 10px;
+}
+
+.header img {
+  padding-right: 15px;
+}
+
+.divider {
+  border: 1px solid #dfe0eb;
+}
+@media screen and (max-width: 600px) {
+  .header-wrapper .header {
+    font-size: 0.8rem;
+  }
+}

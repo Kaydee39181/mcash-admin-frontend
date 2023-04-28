@@ -1,0 +1,59 @@
+.manage-agent span{
+    margin: 18px 18px 18px 0px;
+    padding: 0px;
+}
+
+.nav-tabs .nav-item.nav-link.active{
+    background: #00249C;
+    /* Stroke/1 */
+    
+    border: 1px solid #DFE0EB;
+    box-sizing: border-box;
+    border-radius: 10px;
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.2px;
+    padding: 7px 16px 10px 16px;
+    color: #FFFFFF;
+    margin: 10px 10px 10px 0px;
+}
+.nav-tabs .nav-item.nav-link{
+    background: #FFFFFF;
+    border: 1px solid #DFE0EB;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 7px 16px 10px 16px;
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 18px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    letter-spacing: 0.2px;
+    color: #52575C;
+    margin: 10px 10px 10px 0px;
+    padding: 7px 16px 10px 16px;
+
+}
+
+.modal-header{
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+
+    color: #00249C;
+    border: none;
+}
+
+.header-wrappre{
+    border-bottom: 1px solid black;
+}

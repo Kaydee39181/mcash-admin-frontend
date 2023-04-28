@@ -1,0 +1,183 @@
+.profile-wrapper {
+  background: #ffffff;
+  width: 65%;
+  height: 490px;
+  margin-top: 20px;
+}
+.butn {
+  background: #00249c;
+  width: 5rem;
+  font-size: 1rem;
+}
+.header {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  color: #00249c;
+  margin: 10px 0 0 10px;
+}
+.biodata {
+  margin: 2rem 2rem 0 2rem;
+  /* background: cornflowerblue; */
+}
+.info {
+  margin: 3rem;
+}
+.address {
+  display: flex;
+  margin-top: 1rem;
+}
+.emailgender {
+  display: flex;
+  width: 100%;
+  margin-top: 1rem;
+}
+.email {
+  width: 70%;
+  background: #f9f9fa;
+}
+h6 {
+  font-weight: bolder;
+}
+p {
+  font: #25282b;
+  font-weight: 900;
+  font-size: 14px;
+}
+label {
+  color: #88898a;
+}
+.gender {
+  width: 30%;
+  background: #f9f9fa;
+  margin-left: 1.5rem;
+}
+.bank {
+  display: flex;
+  width: 100%;
+  margin-top: 1rem;
+}
+.bank-name {
+  background: #f9f9fa;
+  width: 40%;
+}
+.bank-acct {
+  background: #f9f9fa;
+  width: 60%;
+  margin-left: 1.5rem;
+}
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+}
+.btns {
+  margin: 1rem 0rem 0 0;
+  color: #ffffff;
+  border-radius: 5px;
+  height: 2rem;
+  border: none;
+  text-align: center;
+}
+.btn1 {
+  background: #be4d00;
+}
+.btn2 {
+  background: #00249c;
+}
+.btn3 {
+  background: #1ab759;
+}
+.edit {
+  position: absolute;
+  width: 2rem;
+  height: 2rem;
+  left: 440px;
+  top: 470px;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1rem;
+  background: #9fa2b4;
+  align-items: center;
+}
+
+.okaybotton {
+  align-items: right;
+
+  background-color: #7cd1f9;
+  color: #fff;
+  border: none;
+  box-shadow: none;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 24px;
+  margin: 0;
+  cursor: pointer;
+  width: 50%;
+}
+.profile-image {
+  position: relative;
+}
+.edit {
+  position: absolute;
+  top: 150px;
+  left: 108px;
+}
+@media screen and (max-width: 600px) {
+  .profile-wrapper {
+    width: 100%;
+    margin-top: 20px;
+    height: 80%;
+  }
+  .biodata {
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    /* background: cornflowerblue; */
+  }
+  .address {
+    flex-direction: column;
+  }
+  .profile-image {
+    margin: 10px auto;
+  }
+  .info {
+    margin: 1rem auto;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .emailgender {
+    flex-direction: column;
+    width: 100%;
+    background: none;
+  }
+  .email {
+    background: none;
+    width: 100%;
+  }
+  .gender {
+    margin: 0;
+    background: none;
+    width: 100%;
+  }
+  .bank {
+    flex-direction: column;
+    background: none;
+    width: 100%;
+  }
+  .bank-name {
+    background: none;
+    width: 100%;
+  }
+  .btn-group {
+    flex-direction: column;
+  }
+  .bank-acct {
+    background: none;
+    width: 100%;
+    margin: 0;
+  }
+}
+.hideAction{
+  display: none;
+}

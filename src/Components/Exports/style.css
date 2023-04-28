@@ -1,0 +1,28 @@
+.export-btn{
+    margin-right: 15px;
+    margin-left: 20px;
+    height: 40px;
+    font-size: small;
+}
+.btn{
+   color: #ffffff;
+}
+
+
+.pdf{
+    background-color:#00249C ;
+}
+
+
+.excel{
+    background-color:#BE4D00 ;
+}
+.csv{
+    background-color:#00249C ;
+}
+.clip{
+    background-color:transparent ;
+    border: 1px solid #00249C;
+    color: #00249C;
+}
+ 

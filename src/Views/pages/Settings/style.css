@@ -1,0 +1,219 @@
+.settings-header {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 32px;
+  letter-spacing: 0.2px;
+  color: #00249c;
+}
+
+.settings-text {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.2px;
+
+  color: #52575c;
+}
+
+.side-tab {
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 7px;
+  height: 80vh;
+}
+
+.tab-navs {
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+}
+.tab-navs p {
+  margin: 0px;
+  padding: 0px;
+}
+.tab-navs img {
+  padding-right: 20px;
+}
+.role {
+  background: #00249c;
+  font-size: small;
+  width: 200px;
+}
+
+.nav-item a.nav-link.active {
+  background: #00249c;
+  opacity: 0.7;
+  /* Stroke */
+
+  border: 1px solid #e2e2e2;
+  box-sizing: border-box;
+  /* DS 5 */
+
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.06);
+  border-radius: 7px;
+}
+.main-tabs {
+  background: #ffffff;
+  /* Stroke */
+
+  border: 1px solid #e2e2e2;
+  box-sizing: border-box;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 7px;
+  padding: 50px 100px;
+  height: 550px;
+}
+
+.form-note {
+  background: #7ba4db;
+  padding: 15px;
+  /* opacity: 0.15 1.0;       */
+  border-radius: 8px;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  /* or 133% */
+  margin-bottom: 20px;
+  letter-spacing: 0.2px;
+
+  /* Secondary Text */
+
+  color: #52575c;
+}
+
+div.custom-switch {
+  display: inline-block;
+  /*ie7 -- start*/
+  *display: inline;
+  zoom: 1;
+}
+
+div.custom-switch > label {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.Role-overview-wrapper {
+  display: grid;
+  grid-template-columns: 33% 33% 33%;
+  grid-gap: 20px;
+}
+
+.role-box {
+  background: #ffffff;
+  /* Stroke/1 */
+
+  border: 0.5px solid #ffffff;
+  box-sizing: border-box;
+  border-radius: 5px;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  margin: 10px 0 10px 5px;
+  /* margin-top: 10px; */
+  /* justify-content: space-between; */
+
+  padding: 15px;
+}
+.role-box h5 {
+  font-weight: 900;
+}
+.role-number {
+  font-weight: bolder;
+}
+
+@media screen and (max-width: 600px) {
+  .settings-header {
+    font-size: 18px;
+  }
+  .settings-text {
+    font-size: 14px;
+  }
+  .tabs-wrap {
+    /* background: crimson; */
+    width: 100%;
+  }
+  .settings-role-button {
+    margin: 1rem auto;
+  }
+  .side-tab {
+    margin: 0 2rem 1rem 1rem;
+    height: 50%;
+  }
+  .main-tabs {
+    margin-bottom: 1rem;
+    padding: 0;
+    height: auto;
+  }
+  .main-tabs form {
+    margin: 2rem;
+  }
+  .profile-submit-btn {
+    width: 100%;
+  }
+  .role {
+    width: 100%;
+  }
+  .Role-overview-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 1rem auto;
+    justify-content: center;
+  }
+  .role-box {
+    flex-wrap: wrap;
+    line-height: 20px;
+    margin: 0;
+    height: 120px;
+    width: 100%;
+    padding: 5px;
+  }
+  .col-sm-6 {
+    margin: 0 1rem;
+    padding: 0;
+  }
+  .tab-content {
+    margin-right: 1rem;
+  }
+}
+@media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
+  .tabs-wrap {
+    width: 100%;
+  }
+  .side-tab {
+    /* margin: 0 2rem 1rem 1rem;
+    height: 50%; */
+    width: 50%;
+  }
+  .col-sm-6 {
+    margin: 0 1rem;
+    padding: 0;
+  }
+  .col-sm-3 {
+    max-width: 30% !important;
+  }
+  .main-tabs {
+    padding: 30px 50px;
+    height: 80vh;
+  }
+  .role-box {
+    flex-wrap: wrap;
+    line-height: 20px;
+
+    height: 120px;
+    width: 100%;
+    padding: 5px;
+  }
+}

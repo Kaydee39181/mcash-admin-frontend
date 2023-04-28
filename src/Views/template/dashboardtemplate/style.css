@@ -1,0 +1,33 @@
+.sidenavWrapper {
+  position: fixed;
+  height: 100%;
+  width: 17%;
+}
+.dashboardTemplate-wrap {
+  margin: 0;
+  padding: 0px;
+  /* height: 100vh; */
+  width: 100vw;
+}
+
+.mainwrapper {
+  background: #e5e5e5;
+  margin-left: 20%;
+  padding-top: 12px;
+  width: 80%;
+}
+
+@media screen and (max-width: 767px) {
+  .mainwrapper {
+    margin-left: 10%;
+    width: 90%;
+    overflow-y: scroll;
+  }
+}
+@media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
+  .mainwrapper {
+    margin-left: 50px;
+    width: 90%;
+    overflow-y: scroll;
+  }
+}

@@ -1,0 +1,445 @@
+.cashout-dot {
+  background: #6f52ed;
+  border-radius: 100%;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.fundtransfer-dot {
+  background: #ff4c61;
+  border-radius: 100%;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.creditpurse-dot {
+  background: #ffb800;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.gotv-dot {
+  background: #000000;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.recharge-dot {
+  background: #33d69f;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.startime-dot {
+  background: #56ccf2;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+.Agentransfer-dot {
+  background: #2f80ed;
+  height: 8px;
+  width: 8px;
+  border-radius: 100%;
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.person-background {
+  background: rgba(113, 59, 219, 0.05);
+  border-radius: 100%;
+  width: 70px;
+  height: 70px;
+  background-position: 50% 50%;
+  background-image: url(../../../Assets/img/person.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  margin: 10px;
+}
+
+.underperform-background {
+  background: rgba(255, 76, 97, 0.05);
+  border-radius: 100%;
+  width: 70px;
+  height: 70px;
+  background-position: 50% 50%;
+  background-image: url(../../../Assets/img/person.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  margin: 10px 10px 10px 10px;
+}
+
+.mark-background {
+  background: rgba(51, 214, 159, 0.07);
+  border-radius: 100%;
+  width: 70px;
+  height: 70px;
+  background-position: 50% 50%;
+  background-image: url(../../../Assets/img/mark.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  margin: 10px 10px 10px 10px;
+}
+
+.book-background {
+  background: rgba(76, 184, 255, 0.07);
+  border-radius: 100%;
+  width: 70px;
+  height: 70px;
+  background-position: 50% 50%;
+  background-image: url(../../../Assets/img/book.png);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  margin: 10px 10px 10px 10px;
+}
+
+.dashboard-box {
+  display: grid;
+  grid-template-columns: repeat (4, 20%);
+  grid-gap: 50px;
+  align-items: center;
+}
+
+.header-title h3 {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 32px;
+  letter-spacing: 0.2px;
+  color: #00249c;
+}
+.dashboard-wrapper {
+  padding: 0px 62px 0px 23px;
+  max-height: 100vh;
+  width: 100%;
+}
+
+.header-title p {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.2px;
+  color: #52575c;
+}
+.graphs-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* grid-template-columns: 1fr;
+  grid-template-rows: 110px, 255px, 1fr; */
+  /* grid-gap: 22px; */
+  height: 100%;
+}
+.Dashboard-overview-wrapper {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  /* grid-template-columns: 1fr 1fr 1fr 1fr; */
+  /* grid-gap: 10px; */
+  font-size: small;
+}
+
+.flex-box {
+  background: #ffffff;
+  /* Stroke/1 */
+  padding:10px;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  width: 33%;
+  /* height: 80%; */
+}
+
+.transaction-graph-wrapper {
+  /* background-color: red; */
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.line-and-details {
+  border-radius: 10px;
+  display: flex;
+  flex-direction:column ;
+  /* grid-template-columns: 1fr 1fr 1fr 250px; */
+  /* grid-gap: 5px;
+  grid-row: 2; */
+  width: 100%;
+}
+
+.chart-bg {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  background: #ffffff;
+
+  /* Stroke/1 */
+  padding: 30px;
+  border: 1px solid #e2e2e2;
+  box-sizing: border-box;
+  /* grid-column: 1 / span 2; */
+  /* border-radius: 10px; */
+  height: 100%;
+  width: 70%;
+}
+.transaction-graph-inner {
+  height: 100%;
+  width: 40%;
+
+  margin-left: -10px;
+}
+.a {
+  border-top-right-radius: 10px;
+}
+.b {
+  border-bottom-right-radius: 10px;
+}
+.transaction-details {
+  border: 1px solid #dfe0eb;
+  padding: 10px 0px 20px 0px;
+  background: #ffffff;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 24px;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+  letter-spacing: 0.1px;
+  height: 33.3%;
+  /* Text/Secondary */
+  color: #52575c;
+}
+.barchart-bg {
+  background: #ffffff;
+  border: 1px solid #e2e2e2;
+  box-sizing: border-box;
+  border-radius: 10px;
+  /* grid-column: 1; */
+  height: 85%;
+  width: 100%;
+}
+
+.success-text {
+  color: #1ab759;
+  font-size: 16px;
+}
+.failure-text {
+  color: #e93c3c;
+  font-size: 16px;
+}
+.chart-status{
+  display: flex;
+  width:100%;
+  height: 350px;
+  margin: 2rem 0 ;
+}
+.bar-graph-wrapper {
+  width: 50%;
+}
+
+.graph-upper-wrapper {
+  padding-top: 20px;
+  width: 100%;
+}
+
+.daily-per-agent {
+  background: #ffffff;
+  border: 1px solid #e2e2e2;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+.daily-per-agent li {
+  padding: 15px 20px 10px 20px;
+  font-size: small;
+}
+
+.daily-per-agent #daily-header {
+  padding: 10px 0px 7px;
+  border-bottom: 1px solid #eef0f7;
+  text-align: center;
+  font-size: small;
+}
+
+.dougnut-wrapper {
+ 
+  background: #ffffff;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
+  font-size: small;
+  width: 45%;
+}
+.dougnut-wrapper h2 {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 24px;
+  /* identical to box height, or 133% */
+  /* padding: 30px; */
+  letter-spacing: 0.2px;
+  border-bottom: 1px solid #eef0f7;
+  color: #25282b;
+}
+
+.transaction-types-wrapper {
+  margin-top: 10px;
+  justify-content: space-between;
+  padding: 9px;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 300;
+  font-size: smaller;
+  line-height: 24px;
+  /* max-width: 100%; */
+  /* identical to box height, or 150% */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  color: #52575c;
+}
+.dough-agent{
+  display: flex;
+  flex-wrap: wrap;
+  width:100%;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+}
+@media screen and (max-width: 767px) {
+  .header-title h3 {
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+  }
+  .header-title p {
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 12px;
+    letter-spacing: 0.2px;
+  }
+
+  .dashboard-wrapper {
+    padding: 0px 1rem;
+  }
+
+  .graphs-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .flex-box {
+    height: 30%;
+  }
+  
+  .flex-box{
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+  }
+
+  .bar-graph-wrapper {
+   width: 100%;
+  }
+  .chart-status{
+    margin: 1rem 0;
+    height: fit-content;
+    flex-direction: column;
+  }
+  .chart-bg {
+    width: 100%;
+    overflow-x: scroll;
+    height: fit-content;
+    border-radius: 10px;
+  }
+  .transaction-graph-inner {
+    margin-left: 0;
+    height: fit-content;
+    width: 100%;
+     margin-top:1rem;
+  }
+  .transaction-details{border-radius: 10px;}
+  .dougnut-wrapper {
+    height: fit-content;
+    width: 100%;
+  }
+
+  .daily-per-agent {
+    margin-top: 1rem;
+    margin-left: 0px;
+    height: fit-content;
+    width: 100%;
+  }
+}
+@media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
+  .dashboard-wrapper {
+    padding: 0 1rem;
+  }
+  .graphs-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    margin-right: 1rem;
+  }
+  
+  .Dashboard-overview-wrapper {
+    margin-right: 1rem;
+  }
+  .line-and-details {
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+  .chart-bg {
+    width: 70%;
+    height: fit-content;
+  }
+  .transaction-graph-inner {
+    width: 30%;
+    height: 288px;
+  }
+  .dougnut-wrapper {
+    height: fit-content;
+    width: 300px;
+    /* margin-bottom: 1rem; */
+  }
+  .bar-graph-wrapper {
+    flex-wrap: wrap;
+  }
+  .barchart-bg {
+    width: 100%;
+    padding: 0 auto;
+    margin-right: 1rem;
+  }
+  .daily-per-agent {
+    margin-top: 2rem;
+    margin-left: 0;
+    width: 300px;
+  }
+}

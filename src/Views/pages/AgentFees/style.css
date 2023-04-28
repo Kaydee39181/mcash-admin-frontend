@@ -1,0 +1,133 @@
+.manage-agent span {
+  margin: 18px 18px 18px 0px;
+  padding: 0px;
+}
+
+.nav-tabs .nav-item.nav-link.active {
+  background: #00249c;
+  /* Stroke/1 */
+  border: 1px solid #dfe0eb;
+  box-sizing: border-box;
+  border-radius: 10px;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.2px;
+  padding: 7px 16px 10px 16px;
+  color: #ffffff;
+  margin: 10px 10px 10px 0px;
+}
+
+.nav-tabs .nav-item.nav-link {
+  background: #ffffff;
+  border: 1px solid #dfe0eb;
+  box-sizing: border-box;
+  border-radius: 10px;
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.2px;
+  color: #52575c;
+  margin: 10px 10px 10px 0px;
+  padding: 7px 16px 10px 16px;
+}
+
+.modal-header {
+  font-family: Montserrat;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 15px;
+  color: #00249c;
+  border: none;
+}
+
+.header-wrappre {
+  border-bottom: 1px solid black;
+}
+
+.addbtn {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1rem;
+}
+
+.note {
+  display: flex;
+  /* justify-content: space-between; */
+  color: #ff0000;
+  font-size: small;
+  margin: 1rem 0;
+}
+
+.note p {
+  margin-right: 1rem;
+}
+
+.notebtn {
+  background: #00249c;
+  border-color: #00249c;
+}
+
+.transaction-table {
+  width: 100%;
+}
+
+.transaction-table-header {
+  /* display: flex; */
+  /* justify-content: space-around; */
+  background: #00249c;
+  color: #ffffff;
+}
+
+.transaction-table thead th {
+  color: #ffffff;
+}
+
+.transaction-table-body {
+  background: #cecccc;
+}
+
+.transaction-table-body select {
+  background: none;
+  outline: none;
+  border: none;
+}
+
+.errormessage {
+  color: red;
+  font-size: 9px;
+}
+
+@media screen and (max-width: 600px) {
+  .nav-tabs .nav-item.nav-link.active,
+  .nav-tabs .nav-item.nav-link {
+    padding: 0.5rem !important;
+    margin: 0.5rem !important;
+    width: 100%;
+  }
+  .addbtn {
+    width: 100%;
+    margin: 1rem 0;
+  }
+  .btn-success {
+    width: 100%;
+  }
+  .note {
+    flex-direction: column;
+    margin: 0 auto;
+  }
+  .notebtn {
+    margin: 1rem 0;
+    width: 100%;
+  }
+}

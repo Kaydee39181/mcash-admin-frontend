@@ -1,0 +1,36 @@
+.bar-wrap{
+    padding: 20px 5px ;
+    font-family: Montserrat;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 24px;
+    /* identical to box height, or 133% */
+   
+
+    letter-spacing: 0.2px;
+    
+    /* Text/General */
+    
+    color: #25282B;
+}
+.bar-wrap .success-green{
+    background: #1AB759;
+    height: 5px;
+    width: 5px;
+    border-radius: 100%;
+    display: inline-block;
+    margin-left: 40px;
+    margin-right: 8px;
+
+}
+
+.bar-wrap .failure-red{
+    background: #E93C3C;
+    height: 5px;
+    width: 5px;
+    border-radius: 100%;
+    display: inline-block;
+    margin-left: 20px;
+    margin-right: 8px;
+}
