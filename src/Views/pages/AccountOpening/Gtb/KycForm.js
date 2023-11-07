@@ -64,6 +64,7 @@ const KycForm = ({
     LocalGovtArea: "",
     MothersMaidenName: "",
     PCCode: "",
+    NDPRConsentFlag: "",
     AgentWalletID: "",
   });
   const [allAgents, setAllAgents] = useState();
@@ -362,6 +363,21 @@ const KycForm = ({
                   }}
                   onChange={updateInput}
                 />
+              </Form.Group>
+            </Col>
+            <Col md={4} sm={12}>
+              <Form.Group controlId="exampleForm.ControlSelect1">
+                <Form.Label> NDPR Consent</Form.Label>
+                <Form.Control
+                  required
+                  as="select"
+                  name="NDPRConsentFlag"
+                  onChange={updateInput}
+                  
+                >
+                  <option value={"YES"}>Yes</option>
+                  <option value={"NO"}>No</option>
+                </Form.Control>
               </Form.Group>
             </Col>
           </Row>

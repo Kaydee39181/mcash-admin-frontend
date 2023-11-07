@@ -38,6 +38,7 @@ export const AgentConstant = {
   CREATE_PIN: `${BASE_URL}/api/v1/agent/transaction/pin/create`,
   RESET_PIN: `${BASE_URL}/api/v1/agent/transaction/pin/reset`,
   FETCH_ALL_AGENT_MANAGERS: `${BASE_URL}/api/v1/agent/manager`,
-  OPEN_GTB_ACCOUNT: `https://collection.gtbank.com/SANEF/AccountOpening/Api/AccountOpening3`,
+  //OPEN_GTB_ACCOUNT: `https://collection.gtbank.com/SANEF/AccountOpening/Api/AccountOpening3`,
+  OPEN_GTB_ACCOUNT: `http://gtapitest.gtbank.com/Webapis/PubEncrypt_bam/AccountOpening_Pub/Api/AccountOpening3`,
   FETCH_BVN: `https://collection.gtbank.com/AppServices/GTBRequestService/Api/GetSingleBVN`,
 };
