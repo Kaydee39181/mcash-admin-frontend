@@ -66,6 +66,7 @@ const EditBvnDetails = ({
     LocalGovtArea: data?.lgaOfOrigin,
     MothersMaidenName: "",
     PCCode: "",
+    NDPRConsentFlag: "",
     AgentWalletID: "",
   });
   console.log(data);
@@ -352,6 +353,20 @@ const EditBvnDetails = ({
                   name="PCCode"
                   onChange={updateInput}
                 />
+              </Form.Group>
+            </Col>
+            <Col md={4} sm={12}>
+              <Form.Group controlId="exampleForm.ControlSelect1">
+                <Form.Label> NDPR Consent</Form.Label>
+                <Form.Control
+                  required
+                  as="select"
+                  name="NDPRConsentFlag"
+                  onChange={updateInput}
+                >
+                  <option value={"YES"}>Yes</option>
+                  <option value={"NO"}>No</option>
+                </Form.Control>
               </Form.Group>
             </Col>
           </Row>

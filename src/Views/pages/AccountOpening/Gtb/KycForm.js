@@ -371,7 +371,7 @@ const KycForm = ({
                 <Form.Control
                   required
                   as="select"
-                  name="NDPRConsentFlag"
+                  name="NDPRConsentF clag"
                   onChange={updateInput}
                   
                 >
