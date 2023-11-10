@@ -12,6 +12,7 @@ import AgentsManager from "./Views/pages/AgentsManager";
 import AgentFees from "./Views/pages/AgentFees";
 import Purse from "./Views/pages/Purse";
 import Audit from "./Views/pages/Audit";
+import SelectSwitch from "./Views/pages/SelectSwitch";
 import AppVersion from "./Views/pages/AppVersion";
 import Settings from "./Views/pages/Settings";
 import Login from "./Views/pages/Login";
@@ -92,6 +93,11 @@ class Routes extends Component {
                 roleCode="ROLE_VIEW_AUDIT_LOG"
                 path="/audit"
                 component={Audit}
+              />
+              <AuthRequired
+                roleCode="ROLE_VIEW_AUDIT_LOG"
+                path="/selectSwitch"
+                component={SelectSwitch}
               />
               <AuthRequired
                 roleCode="ROLE_VIEW_ALL_AGENT"

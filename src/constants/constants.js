@@ -40,4 +40,6 @@ export const AgentConstant = {
   FETCH_ALL_AGENT_MANAGERS: `${BASE_URL}/api/v1/agent/manager`,
   OPEN_GTB_ACCOUNT: `https://collection.gtbank.com/SANEF/AccountOpening/Api/AccountOpening3`,
   FETCH_BVN: `https://collection.gtbank.com/AppServices/GTBRequestService/Api/GetSingleBVN`,
+  GET_CASHOUT_SWITCH: `http://localhost:8085/Filyago/switch`,
+  SET_CASHOUT_SWITCH: `http://localhost:8085/Filyago/switch1/`
 };

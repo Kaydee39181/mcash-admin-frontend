@@ -189,6 +189,18 @@ class SideNav extends Component {
                     </span>
                   </li>
                 </NavLink>
+                <NavLink
+                  to="/selectSwitch"
+                  activeClassName="current"
+                  onClick={this.forceUpdateHandler}
+                >
+                  <li className="list-group-item ">
+                    <img src={Settings} alt="" />
+                    <span className="list-group-item-text">
+                      Select Processor{" "}
+                    </span>
+                  </li>
+                </NavLink>
                 <div className="list-group footer">
                   <NavLink to="/settings" activeClassName="current">
                     <li className="list-group-item ">
