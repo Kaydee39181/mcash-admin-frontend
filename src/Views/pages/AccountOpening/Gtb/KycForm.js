@@ -64,7 +64,7 @@ const KycForm = ({
     LocalGovtArea: "",
     MothersMaidenName: "",
     PCCode: "",
-    NDPRConsentFlag: "",
+    NDPRConsentFlag: "YES",
     AgentWalletID: "",
   });
   const [allAgents, setAllAgents] = useState();

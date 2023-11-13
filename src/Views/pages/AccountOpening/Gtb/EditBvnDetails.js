@@ -66,7 +66,7 @@ const EditBvnDetails = ({
     LocalGovtArea: data?.lgaOfOrigin,
     MothersMaidenName: "",
     PCCode: "",
-    NDPRConsentFlag: "",
+    NDPRConsentFlag: "YES",
     AgentWalletID: "",
   });
   console.log(data);
@@ -148,7 +148,7 @@ const EditBvnDetails = ({
       UserId: "22780625001",
       AgentWalletID: `${getToken.user.id}`,
     };
-    console.log(ndata);
+    console.log("dATA IS",ndata);
     const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
     response.then((res) => {
       console.log(res.data);
