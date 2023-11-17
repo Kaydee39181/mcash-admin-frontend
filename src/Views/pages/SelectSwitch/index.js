@@ -1,24 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { AgentConstant } from "../../../constants/constants";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import { Form, Row, Col, Button } from "react-bootstrap";
 import ConfirmationModal from "./confirmationModal";
-
-
-//import { useHistory } from "react-router-dom";
+import Loader from "../../../Components/secondLoader";
 
 export default function SelectSwitch() {
   const [currentProcessor, setCurrentProcessor] = useState('');
   const [selectedProcessor, setSelectedProcessor] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const processors = {
+    "POSTBRIDGE":"Interswitch",
+    "UP":"Unified Payment",
+    "3LINE":"3 Line Card"
+  }
 
   useEffect(() => {
-    // Fetch the current switch setting when the component mounts
-    fetch(`${AgentConstant.GET_CASHOUT_SWITCH}`) // Replace with your actual API endpoint
+    const url = "https://cashout.mcashpoint.com/processor/all";
+    fetch(url)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
-        setCurrentProcessor(data.currentSWitch); // Set the current switch in state
+        for (let i = 0;i<data.length;i++){
+          if (data[i].environment === "LIVE" && data[i].active === true){
+            setCurrentProcessor(data[i].route);
+          }
+        }
       })
       .catch((error) => {
         console.error('Error fetching current switch:', error);
@@ -27,18 +34,14 @@ export default function SelectSwitch() {
 
   const handleConfirmation = (confirmed) => {
         if (confirmed) {
-          // Make the API call to change the switch setting
-          const seturl = `${AgentConstant.SET_CASHOUT_SWITCH}${selectedProcessor}`;
-          console.log("set: ",seturl)
-          fetch(seturl, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          })
+          setLoading(true);          
+          const seturl = `https://cashout.mcashpoint.com/processor/activate?processor=${selectedProcessor}`;
+          fetch(seturl)
             .then((response) => {
               if (response.ok){
                 setCurrentProcessor(selectedProcessor);
+                setLoading(false);
+                alert(`Successfully Switched to ${processors[selectedProcessor]}`)
               }
             })
             .catch((error) => {
@@ -50,7 +53,13 @@ export default function SelectSwitch() {
 
 
   const handleShowModal = () => {
-    setShowConfirmation(true);
+    if (selectedProcessor !== currentProcessor) {
+      setShowConfirmation(true);
+    } else {
+      // If the selected switch is the same as the current switch, show a different pop-up
+      alert('No change to make');
+    }
+   
   };
 
   const handleYes = () => {
@@ -66,30 +75,31 @@ export default function SelectSwitch() {
   };
 
   const handleSwitchChange = (newProcessor) => {
-    if (newProcessor !== currentProcessor) {
-      setSelectedProcessor(newProcessor)
-    } else {
-      // If the selected switch is the same as the current switch, show a different pop-up
-      alert('No change to make');
-    }
+    setSelectedProcessor(newProcessor);
   };
     return (
       <div>
+        {loading && (
+        <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
+      )}
      
-
   <DashboardTemplate>
       <Row>
+        <div className="header-title" style={{margin:"40px"}}>
+          <h3><span style={{fontSize:"20px"}}>Current Processor: </span>{processors[currentProcessor]}</h3>
+        </div>
+      </Row>
+      <Row>
           <Col md={4} sm={12} style={{margin:"40px"}}>
-          <div className="header-title">
-            <h3>Current Processor: {currentProcessor}</h3>
-          </div>
+          
             <Form.Group controlId="exampleForm.ControlSelect1">
-              <Form.Label>Select an action</Form.Label>
+              <Form.Label>Switch</Form.Label>
               <Form.Control as="select" name={selectedProcessor} onChange={(e) => handleSwitchChange(e.target.value)}>
                 <option>Select Processor</option>
-                <option value="Interswitch">Interswitch</option>
-                <option value="UP">Unified Payment</option>
-                <option value="3Line">3Line Card</option>
+                <option value="POSTBRIDGE">{processors.POSTBRIDGE}</option>
+                <option value="UP">{processors.UP}</option>
+                <option value="3LINE">{processors["3LINE"]}</option>
+
               </Form.Control>
               <Button variant="primary" className="text-white " type="submit" style={{margin:"20px"}} onClick={handleShowModal}>
                 Confirm
@@ -100,7 +110,7 @@ export default function SelectSwitch() {
       
         {showConfirmation && <ConfirmationModal
           show={showConfirmation}
-          message= {`Are you sure you want to switch from ${currentProcessor} to ${selectedProcessor}?`}
+          message= {`Are you sure you want to switch from ${processors[currentProcessor]} to ${processors[selectedProcessor]}?`}
           onYes={handleYes}
           onNo={handleNo}
           onClose={handleCloseModal}

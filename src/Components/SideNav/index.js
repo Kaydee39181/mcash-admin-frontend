@@ -189,6 +189,7 @@ class SideNav extends Component {
                     </span>
                   </li>
                 </NavLink>
+                {isVisibleToUser("ROLE_VIEW_AUDIT_LOG", token.user) && (
                 <NavLink
                   to="/selectSwitch"
                   activeClassName="current"
@@ -201,6 +202,7 @@ class SideNav extends Component {
                     </span>
                   </li>
                 </NavLink>
+                )}
                 <div className="list-group footer">
                   <NavLink to="/settings" activeClassName="current">
                     <li className="list-group-item ">
