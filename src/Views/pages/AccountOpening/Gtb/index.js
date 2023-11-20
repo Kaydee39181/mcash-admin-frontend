@@ -34,7 +34,7 @@ const Gtb = () => {
 
   return (
     <DashboardTemplate>
-      <Row>
+      <Row style={{marginLeft:"30px"}}>
         <Col md={4} sm={12}>
           <Form.Group controlId="exampleForm.ControlSelect1">
             <Form.Label>Select an action</Form.Label>
@@ -47,9 +47,12 @@ const Gtb = () => {
           </Form.Group>
         </Col>
       </Row>
+      <div style={{marginLeft:"30px"}}>
       {selected == "F" && <KycForm />}
       {selected == "B" && <BVNForm />}
       {selected == "O" && <SendOtp />}
+      </div>
+      
     </DashboardTemplate>
   );
 };
