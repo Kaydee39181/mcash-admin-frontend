@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
+// import DatePicker from "react-datepicker";
 import {
   Modal,
   Form,
-  Container,
+  // Container,
   Button,
-  Image,
+  // Image,
   Row,
   Col,
   Alert,
 } from "react-bootstrap";
 //import Cancel from "../../../Assets/img/x.png";
 import { connect } from "react-redux";
-import PropTypes from "prop-types";
+// import PropTypes from "prop-types";
 import {
   FetchState,
   FetchLga,
@@ -23,7 +23,7 @@ import "./style.css";
 import moment from "moment";
 import axios from "axios";
 import { AgentConstant } from "../../../../constants/constants";
-import AsyncSelect from "react-select/async";
+// import AsyncSelect from "react-select/async";
 
 const EditBvnDetails = ({
   create,
@@ -42,7 +42,7 @@ const EditBvnDetails = ({
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
   const [accountDetails, setAccountDetails] = useState([]);
-  const [logvt, setIsLogvt] = useState({});
+  // const [logvt, setIsLogvt] = useState({});
   const [loading, setLoading] = useState(false);
   const [CreateAgentData, setCreateAgentData] = useState({
     RequestId: "",
@@ -64,16 +64,16 @@ const EditBvnDetails = ({
     UserId: "",
     stateOfOrigin: data?.stateOfOrigin,
     LocalGovtArea: data?.lgaOfOrigin,
-    MothersMaidenName: "",
+    MotherMaiden: "",
     PCCode: "",
     NDPRConsentFlag: "YES",
     AgentWalletID: "",
   });
   console.log(data);
-  const [allAgents, setAllAgents] = useState();
+  // const [allAgents, setAllAgents] = useState();
   const getToken = JSON.parse(localStorage.getItem("data"));
   const [clicked, setClicked] = useState(false);
-  const { access_token } = getToken;
+  // const { access_token } = getToken;
   useEffect(() => {
     FetchStates();
     FetchBankS();
@@ -106,26 +106,26 @@ const EditBvnDetails = ({
       [event.target.name]: event.target.value,
     });
   };
-  const updatedob = (e) => {
-    setCreateAgentData({
-      ...CreateAgentData,
-      [e.target.name]: moment(e.target.value).locale("en").format("MM/DD/YYYY"),
-    });
-  };
-  const _handleSelectState = (e) => {
-    const optionValue = JSON.parse(e.target.value);
-    setCreateAgentData({
-      ...CreateAgentData,
-      [e.target.name]: optionValue.stateName,
-    });
-    FetchLgas(optionValue.stateCode);
-  };
+  // const updatedob = (e) => {
+  //   setCreateAgentData({
+  //     ...CreateAgentData,
+  //     [e.target.name]: moment(e.target.value).locale("en").format("MM/DD/YYYY"),
+  //   });
+  // };
+  // const _handleSelectState = (e) => {
+  //   const optionValue = JSON.parse(e.target.value);
+  //   setCreateAgentData({
+  //     ...CreateAgentData,
+  //     [e.target.name]: optionValue.stateName,
+  //   });
+  //   FetchLgas(optionValue.stateCode);
+  // };
 
   const onSubmit = (event) => {
     event.preventDefault();
     const newData = {
       ...CreateAgentData,
-      Gender: CreateAgentData.Gender == "Male" ? "M" : "F",
+      Gender: CreateAgentData.Gender === "Male" ? "M" : "F",
       DateOfBirth: moment(new Date(CreateAgentData.DateOfBirth))
         .locale("en")
         .format("MM/DD/YYYY"),
@@ -153,7 +153,7 @@ const EditBvnDetails = ({
     response.then((res) => {
       console.log(res.data);
       setAccountDetails([res.data]);
-      if (res?.data?.ResponseCode == "00") {
+      if (res?.data?.ResponseCode === "00") {
         axios
           .post(
             `https://account-opening-production.up.railway.app/api/gtaccounts/create-record`,
@@ -182,7 +182,7 @@ const EditBvnDetails = ({
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && accountDetails.length > 0 ? (
-        accountDetails[0]?.ResponseCode == "00" ? (
+        accountDetails[0]?.ResponseCode === "00" ? (
           <Modal
             show={clicked}
             onHide={() => {
@@ -194,7 +194,11 @@ const EditBvnDetails = ({
               <Modal.Title>Account Created</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Your Account Number is : {accountDetails[0].AccountNumber}
+              <p>Your Account Number is : {accountDetails[0].AccountNumber}</p>
+              <p>
+                Please use your POS to fund your new account with at least 1000
+                naira
+              </p>
             </Modal.Body>
             <Modal.Footer>
               <Button
@@ -260,7 +264,6 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Middle Name</Form.Label>
                 <Form.Control
-                  required
                   type="text"
                   placeholder="Enter middle name"
                   name="MiddleName"
@@ -303,7 +306,6 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
-                  required
                   type="email"
                   placeholder="Enter email address"
                   name="EmailAddress"
@@ -320,7 +322,7 @@ const EditBvnDetails = ({
                   as="select"
                   name="Gender"
                   onChange={updateInput}
-                  value={CreateAgentData.Gender == "Male" ? "M" : "F"}
+                  value={CreateAgentData.Gender === "Male" ? "M" : "F"}
                 >
                   <option>Select Gender</option>
                   <option value={"M"}>MALE</option>
@@ -337,7 +339,7 @@ const EditBvnDetails = ({
                   required
                   type="text"
                   placeholder="Enter Mother's Maiden Name"
-                  name="MothersMaidenName"
+                  name="MotherMaiden"
                   onChange={updateInput}
                   value={CreateAgentData.MothersMaidenName}
                 />
@@ -377,7 +379,6 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Street Name</Form.Label>
                 <Form.Control
-                  required
                   type="text"
                   placeholder="Enter street name"
                   name="StreetName"

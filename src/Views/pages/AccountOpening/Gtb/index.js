@@ -41,16 +41,16 @@ const Gtb = () => {
             <Form.Control as="select" name="Gender" onChange={updateInput}>
               <option>Select Operation</option>
               <option value={"B"}>Open account with BVN</option>
-              <option value={"F"}>Open account without BVN</option>
+              {/* <option value={"F"}>Open account without BVN</option> */}
               <option value={"O"}>Link your Tier 1 card to your account</option>
             </Form.Control>
           </Form.Group>
         </Col>
       </Row>
       <div style={{marginLeft:"30px"}}>
-      {selected == "F" && <KycForm />}
-      {selected == "B" && <BVNForm />}
-      {selected == "O" && <SendOtp />}
+      {selected === "F" && <KycForm />}
+      {selected === "B" && <BVNForm />}
+      {selected === "O" && <SendOtp />}
       </div>
       
     </DashboardTemplate>

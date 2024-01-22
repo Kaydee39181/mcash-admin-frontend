@@ -62,7 +62,7 @@ const KycForm = ({
     UserId: "",
     stateOfOrigin: "",
     LocalGovtArea: "",
-    MothersMaidenName: "",
+    MotherMaiden: "",
     PCCode: "",
     NDPRConsentFlag: "YES",
     AgentWalletID: "",
@@ -130,16 +130,19 @@ const KycForm = ({
 
     let ndata = {
       ...odata,
-      RequestId: req.getTime(),
+      RequestId: req.getTime().toString(),
       Channel: "TP-MICROSYSTEMS",
       AccountOpeningBalance: "0",
       AgentAcc: "227806250",
+      //AgentAcc: "032023211588", //this is for test
       AuthMode: "MPIN",
       AuthValue: "1234",
       UserId: "22780625001",
-      AgentWalletID: getToken.user.id,
+      //UserId: "20516781701", //this is for test
+      AgentWalletID: String(getToken.user.id),
+      //AgentWalletID: "56780011", //this is for test
     };
-    console.log(ndata);
+    console.log("ndata is",ndata);
     const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
     /*  let ndata = {
       ...odata,
@@ -159,9 +162,10 @@ const KycForm = ({
     );
  */
     response.then((res) => {
+      console.log("res is",res)
       console.log(res.data);
       setAccountDetails([res.data]);
-      if (res?.data?.ResponseCode == "00") {
+      if (res?.data?.ResponseCode === "00") {
         axios
           .post(
             `https://account-opening-production.up.railway.app/api/gtaccounts/create-record`,
@@ -311,7 +315,6 @@ const KycForm = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
-                  required
                   type="email"
                   placeholder="Enter email address"
                   name="EmailAddress"
@@ -343,7 +346,7 @@ const KycForm = ({
                   required
                   type="text"
                   placeholder="Enter Mother's Maiden Name"
-                  name="MothersMaidenName"
+                  name="MotherMaiden"
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -381,6 +384,21 @@ const KycForm = ({
               </Form.Group>
             </Col>
           </Row>
+          <Row>
+            <Col md={4} sm={12}>
+              <Form.Group controlId="exampleForm.ControlInput1">
+                <Form.Label>BVN</Form.Label>
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="Enter BVN"
+                  name="BankVerificationNumber"
+                  onChange={updateInput}
+                />
+              </Form.Group>
+            </Col>
+            
+          </Row>
           <h6>Contact Information</h6>
           <br />
           <Row>
@@ -388,7 +406,6 @@ const KycForm = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Street Name</Form.Label>
                 <Form.Control
-                  required
                   type="text"
                   placeholder="Enter street name"
                   name="StreetName"

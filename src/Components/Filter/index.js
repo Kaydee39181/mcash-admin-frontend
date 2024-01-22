@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Modal,
   Form,
   Container,
   Button,
-  Image,
   Row,
   Col,
 } from "react-bootstrap";
@@ -84,7 +83,7 @@ const Filter = ({ show, close, ...props }) => {
                     />
                   </Form.Group>
                 </Col>
-                {props.name == "transaction" ?
+                {props.name === "transaction" ?
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
                       <Form.Label>Select Status</Form.Label>
@@ -109,7 +108,7 @@ const Filter = ({ show, close, ...props }) => {
               </Row>
             }
 
-            {props.name == "transaction" || props.name == "centralpurse" ?
+            {props.name === "transaction" || props.name === "centralpurse" ?
               <Row>
 
 
@@ -151,7 +150,7 @@ const Filter = ({ show, close, ...props }) => {
               : ''
             }
             {
-              props.name == "transaction" ?
+              props.name === "transaction" ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
@@ -196,7 +195,7 @@ const Filter = ({ show, close, ...props }) => {
 
 
             {
-              props.name == "agent" || props.name == "agentmanager" || props.name == "centralpurse" ?
+              props.name === "agent" || props.name === "agentmanager" || props.name === "centralpurse" ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
@@ -210,7 +209,7 @@ const Filter = ({ show, close, ...props }) => {
                       />
                     </Form.Group>
                   </Col>
-                  {props.name == "centralpurse" ?
+                  {props.name === "centralpurse" ?
                     <Col md={4} sm={12}>
                       <Form.Group controlId="">
                         <Form.Label>Business Name</Form.Label>
@@ -255,7 +254,7 @@ const Filter = ({ show, close, ...props }) => {
 
 
             {
-              props.name == "transaction" ?
+              props.name === "transaction" ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">

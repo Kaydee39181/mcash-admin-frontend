@@ -33,6 +33,7 @@ const BVNForm = () => {
     await axios
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
+        console.log("data is it",data)
         setBvnData({ ...data.data.responseObject });
       })
       .catch((error) => console.log(error))
