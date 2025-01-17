@@ -68,7 +68,10 @@ const EditBvnDetails = ({
     PCCode: "",
     NDPRConsentFlag: "YES",
     AgentWalletID: "",
+    CustomerImage: "", // New field for Base64 passport image
+    CustomerSignature: "", // New field for Base64 signature image
   });
+  
   console.log(data);
   const [allAgents, setAllAgents] = useState();
   const getToken = JSON.parse(localStorage.getItem("data"));
@@ -121,6 +124,19 @@ const EditBvnDetails = ({
     FetchLgas(optionValue.stateCode);
   };
 
+  const handleImageUpload = (event, fieldName) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        updateInput({ target: { name: fieldName, value: base64String } });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
+
   const onSubmit = (event) => {
     event.preventDefault();
     const newData = {
@@ -130,6 +146,7 @@ const EditBvnDetails = ({
         .locale("en")
         .format("MM/DD/YYYY"),
     };
+    console.log("nnn",newData)
     handleSubmit(newData);
   };
 
@@ -260,7 +277,7 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Middle Name</Form.Label>
                 <Form.Control
-                  required
+                  
                   type="text"
                   placeholder="Enter middle name"
                   name="MiddleName"
@@ -303,7 +320,7 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
-                  required
+                  
                   type="email"
                   placeholder="Enter email address"
                   name="EmailAddress"
@@ -334,7 +351,7 @@ const EditBvnDetails = ({
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>Mother's Maiden Name</Form.Label>
                 <Form.Control
-                  required
+                  
                   type="text"
                   placeholder="Enter Mother's Maiden Name"
                   name="MothersMaidenName"
@@ -370,6 +387,33 @@ const EditBvnDetails = ({
               </Form.Group>
             </Col>
           </Row>
+          <Row>
+            <Col md={6} sm={12}>
+              <Form.Group controlId="customertImage">
+                <Form.Label>Passport Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  required
+                  accept="image/*"
+                  name="CustomerImage"
+                  onChange={(e) => handleImageUpload(e, "CustomerImage")}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6} sm={12}>
+              <Form.Group controlId="customerSIgnature">
+                <Form.Label>Signature Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  name="CustomerSIgnature"
+                  required
+                  onChange={(e) => handleImageUpload(e, "CustomerSIgnature")}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+
           <h6>Business Information</h6>
           <br />
           <Row>
@@ -414,14 +458,14 @@ const EditBvnDetails = ({
                 />
               </Form.Group>
             </Col>
-            <Col md={4} sm={12}>
+            {/* <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlInput1">
                 <Form.Label>State of Origin</Form.Label>
                 <Form.Control
                   required
                   type="text"
                   placeholder="Enter your state of origin"
-                  name="PhoneNumber"
+                  name="stateOfOrigin"
                   value={CreateAgentData.stateOfOrigin}
                   onChange={updateInput}
                 />
@@ -434,18 +478,19 @@ const EditBvnDetails = ({
                   required
                   type="text"
                   placeholder="Enter phone number"
-                  name="PhoneNumber"
+                  name="LocalGovtArea"
                   value={CreateAgentData.LocalGovtArea}
                   onChange={updateInput}
                 />
               </Form.Group>
-            </Col>
-            {/* <Col md={4} sm={12}>
+            </Col> */}
+            <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>State</Form.Label>
                 <Form.Control
                   name="stateOfOrigin"
                   as="select"
+                  required
                   onChange={_handleSelectState}
                 >
                   <option>Select your state</option>
@@ -461,8 +506,8 @@ const EditBvnDetails = ({
                   })}
                 </Form.Control>
               </Form.Group>
-            </Col> */}
-            {/* <Col md={4} sm={12}>
+            </Col> 
+            <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Local Govt Area</Form.Label>
                 <Form.Control
@@ -480,7 +525,7 @@ const EditBvnDetails = ({
                   })}
                 </Form.Control>
               </Form.Group>
-            </Col> */}
+            </Col> 
           </Row>
 
           <br />

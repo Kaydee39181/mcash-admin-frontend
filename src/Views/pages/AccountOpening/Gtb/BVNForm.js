@@ -62,7 +62,8 @@ const BVNForm = () => {
       {loading && (
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
-      <Form onSubmit={handleSubmit}>
+      {!clicked && !loading &&  Object.keys(bvnData).length < 1 && (
+        <Form onSubmit={handleSubmit}>
         <Row>
           <Col md={4} sm={12}>
             <Form.Group controlId="exampleForm.ControlInput1">
@@ -108,7 +109,7 @@ const BVNForm = () => {
             Submit
           </Button>
         </div>
-      </Form>
+      </Form>)}
       {loading && (
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
