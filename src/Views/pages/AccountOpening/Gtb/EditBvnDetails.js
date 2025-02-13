@@ -38,6 +38,7 @@ const EditBvnDetails = ({
   agentStates,
   agentLgas,
   data,
+  info,
 }) => {
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
@@ -65,11 +66,13 @@ const EditBvnDetails = ({
     stateOfOrigin: data?.stateOfOrigin,
     LocalGovtArea: data?.lgaOfOrigin,
     MothersMaidenName: "",
-    PCCode: "",
+    PCCode: info?.PcCode,
     NDPRConsentFlag: "YES",
+    NdprCode:"",
     AgentWalletID: "",
     CustomerImage: "", // New field for Base64 passport image
     CustomerSignature: "", // New field for Base64 signature image
+    ReferenceNumber: "",
   });
   
   console.log(data);
@@ -157,13 +160,15 @@ const EditBvnDetails = ({
     let ndata = {
       ...odata,
       RequestId: `${req.getTime()}`,
-      Channel: "TP-MICROSYSTEMS",
+      Channel: info?.Channel,//"TP-MICROSYSTEMS",
       AccountOpeningBalance: "0",
       AgentAcc: "227806250",
-      AuthMode: "MPIN",
-      AuthValue: "1234",
-      UserId: "22780625001",
-      AgentWalletID: `${getToken.user.id}`,
+      AuthMode: info?.AuthMode,//"MPIN",
+      AuthValue: info?.AuthValue,//"1234",
+      UserId: info?.UserId,//"22780625001",
+      AgentWalletID: info?.AgentId,//`${getToken.user.id}`,
+      ReferenceNumber: info?.ReferenceNumber,
+
     };
     console.log("dATA IS",ndata);
     const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
@@ -360,32 +365,36 @@ const EditBvnDetails = ({
                 />
               </Form.Group>
             </Col>
+            
             <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlInput1">
-                <Form.Label>PCCode</Form.Label>
-                <Form.Control
-                  required
-                  type="text"
-                  placeholder="Enter PCCode"
-                  name="PCCode"
-                  onChange={updateInput}
-                />
-              </Form.Group>
+                    <Form.Group controlId="exampleForm.ControlSelect1">
+                      <Form.Label> NDPR Consent</Form.Label>
+                        <Form.Control
+                          required
+                          as="select"
+                          name="NDPRConsentFlag"
+                          onChange={updateInput}
+                        >
+                      <option value={"YES"}>Yes</option>
+                      <option value={"NO"}>No</option>
+                    </Form.Control>
+                  </Form.Group>
+
             </Col>
             <Col md={4} sm={12}>
-              <Form.Group controlId="exampleForm.ControlSelect1">
-                <Form.Label> NDPR Consent</Form.Label>
-                <Form.Control
-                  required
-                  as="select"
-                  name="NDPRConsentFlag"
-                  onChange={updateInput}
-                >
-                  <option value={"YES"}>Yes</option>
-                  <option value={"NO"}>No</option>
-                </Form.Control>
-              </Form.Group>
+                  <Form.Group controlId="exampleForm.ControlInput1">
+                  <Form.Label>NDPR CODE</Form.Label>
+                  <Form.Control
+                    
+                    type="text"
+                    placeholder="Enter NDPR Consent Code"
+                    name="NdprCode"
+                    value={CreateAgentData.NdprCode}
+                    onChange={updateInput}
+                  />
+                </Form.Group>
             </Col>
+           
           </Row>
           <Row>
             <Col md={6} sm={12}>

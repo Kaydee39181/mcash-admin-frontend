@@ -42,4 +42,5 @@ export const AgentConstant = {
   //OPEN_GTB_ACCOUNT: `https://collection.gtbank.com/SANEF/AccountOpeningV2/Api/AccountOpening3`,
   OPEN_GTB_ACCOUNT: `https://collection.gtbank.com/SANEF/AccountOpening/Api/AccountOpening3`,
   FETCH_BVN: `https://collection.gtbank.com/AppServices/GTBRequestService/Api/GetSingleBVN`,
+  GET_NDPRCODE:`http://gtweb.gtbank.com/Imamat/AccountOpeningTestSanef2/Api/AccountOpeningConsent`
 };

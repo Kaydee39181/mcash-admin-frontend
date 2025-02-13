@@ -9,9 +9,14 @@ import Loader from "../../../../Components/secondLoader";
 const BVNForm = () => {
   const [bvn, setBvn] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [pcCode, setPcCode] = useState("");
   const [clicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bvnData, setBvnData] = useState({});
+  const getToken = JSON.parse(localStorage.getItem("data"));
+  const [auxInfo, setAuxInfo] = useState({}); 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     await fetchDetails();
@@ -20,7 +25,7 @@ const BVNForm = () => {
 
   const fetchDetails = async () => {
     setLoading(true);
-    const { UserId, RequestId, BVN, PhoneNumber } = handleEncryption();
+    const { UserId, RequestId, BVN, PhoneNumber, PcCode,ReferenceNumber,plainRequestId } = handleEncryption();
 
     const ndata = {
       Channel: "TP-MICROSYSTEMS",
@@ -29,7 +34,34 @@ const BVNForm = () => {
       PhoneNumber,
       RequestId,
     };
-    //console.log(ndata);
+
+    const cdata = {
+      Channel: "TP-MICROSYSTEMS",
+      AgentId: `${getToken.user.id}`,
+      ReferenceNumber,
+      PhoneNumber:phoneNumber,
+      PcCode,
+      UserId: "22780625001",
+      AuthMode: "MPIN",
+      AuthValue: "1234",
+      RequestId:plainRequestId
+    }
+    setAuxInfo(cdata);
+    //console.log('NDATA',ndata);
+    //console.log('CDATA',cdata);
+
+    const testData = {
+      "AgentId": "56780012",
+      "ReferenceNumber": "3366990814560720",
+      "PhoneNumber": "08100000000",
+      "Channel": "ITEX",
+      "PcCode": "3145",
+      "UserId": "282690989",
+      "AuthMode": "MPIN",
+      "AuthValue": "1234",
+      "RequestId": "3366990814560789"
+     }
+
     await axios
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
@@ -37,7 +69,17 @@ const BVNForm = () => {
       })
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
+
+      await axios
+      .post(`${AgentConstant.GET_NDPRCODE}`, testData)
+      .then((data) => {
+        console.log("mmm",data)
+      })
+      .catch((error) => console.log(error))
+      .finally(() => setLoading(false));
   };
+
+  
 
   const handleEncryption = () => {
     var encrypt = new JSEncrypt();
@@ -52,11 +94,15 @@ const BVNForm = () => {
     encrypt.setPublicKey(publicKey);
     let UserId = encrypt.encrypt("22780625001");
     let RequestId = encrypt.encrypt(req.getTime());
+    let plainRequestId  = req.getTime();
     let BVN = encrypt.encrypt(bvn);
     let PhoneNumber = encrypt.encrypt(phoneNumber);
+    let PcCode = pcCode;
+    let ReferenceNumber = `${req.getTime()}${getToken.user.id}`
 
-    return { UserId, RequestId, BVN, PhoneNumber };
+    return { UserId, RequestId, BVN, PhoneNumber, PcCode, ReferenceNumber,plainRequestId};
   };
+
   return (
     <div>
       {loading && (
@@ -103,6 +149,21 @@ const BVNForm = () => {
               />
             </Form.Group>
           </Col>
+          <Col md={4} sm={12}>
+                        <Form.Group controlId="exampleForm.ControlInput1">
+                          <Form.Label>PCCode</Form.Label>
+                          <Form.Control
+                            required
+                            type="text"
+                            placeholder="Enter PCCode"
+                            name="PCCode"
+                            onChange={(e) =>{
+                              setPcCode(e.target.value);
+                              setClicked(false);
+                            }}
+                          />
+                        </Form.Group>
+            </Col>
         </Row>
         <div>
           <Button variant="primary" className="text-white " type="submit">
@@ -114,11 +175,12 @@ const BVNForm = () => {
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && !loading && bvnData && Object.keys(bvnData).length > 0 && (
-        <EditBvnDetails data={bvnData} />
+        <EditBvnDetails data={bvnData} info={auxInfo} />
       )}
       {clicked && !loading && Object.keys(bvnData).length <= 0 && (
         <p style={{ marginTop: "10px", color: "red" }}>An Error Occurred</p>
       )}
+      
     </div>
   );
 };
