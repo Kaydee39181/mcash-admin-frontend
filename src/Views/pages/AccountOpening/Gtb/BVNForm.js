@@ -6,15 +6,13 @@ import axios from "axios";
 import EditBvnDetails from "./EditBvnDetails";
 import Loader from "../../../../Components/secondLoader";
 
-const BVNForm = () => {
+const BVNForm = ({auxInfo,ndprCode}) => {
   const [bvn, setBvn] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
+  //const [phoneNumber, setPhoneNumber] = useState("");
   const [pcCode, setPcCode] = useState("");
   const [clicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bvnData, setBvnData] = useState({});
-  const getToken = JSON.parse(localStorage.getItem("data"));
-  const [auxInfo, setAuxInfo] = useState({}); 
 
 
   const handleSubmit = async (e) => {
@@ -25,7 +23,7 @@ const BVNForm = () => {
 
   const fetchDetails = async () => {
     setLoading(true);
-    const { UserId, RequestId, BVN, PhoneNumber, PcCode,ReferenceNumber,plainRequestId } = handleEncryption();
+    const { UserId, RequestId, BVN, PhoneNumber } = handleEncryption();
 
     const ndata = {
       Channel: "TP-MICROSYSTEMS",
@@ -34,22 +32,6 @@ const BVNForm = () => {
       PhoneNumber,
       RequestId,
     };
-
-    const cdata = {
-      Channel: "TP-MICROSYSTEMS",
-      AgentId: `${getToken.user.id}`,
-      ReferenceNumber,
-      PhoneNumber:phoneNumber,
-      PcCode,
-      UserId: "22780625001",
-      AuthMode: "MPIN",
-      AuthValue: "1234",
-      RequestId:plainRequestId
-    }
-    setAuxInfo(cdata);
-    //console.log('NDATA',ndata);
-    //console.log('CDATA',cdata);
-
     const testData = {
       "AgentId": "56780012",
       "ReferenceNumber": "3366990814560720",
@@ -66,14 +48,7 @@ const BVNForm = () => {
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
         setBvnData({ ...data.data.responseObject });
-      })
-      .catch((error) => console.log(error))
-      .finally(() => setLoading(false));
-
-      await axios
-      .post(`${AgentConstant.GET_NDPRCODE}`, testData)
-      .then((data) => {
-        console.log("mmm",data)
+        console.log(data)
       })
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
@@ -83,7 +58,6 @@ const BVNForm = () => {
 
   const handleEncryption = () => {
     var encrypt = new JSEncrypt();
-    let req = new Date();
     const publicKey = `-----BEGIN PUBLIC KEY-----
     MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQClT/VkFXEgAFj1U1EM6KK5pdUw
     T7J7ckmBfeT4+JsGsZDg3KzgTR+3gBZLVYqOd0GcdWsUf9Tm/U5fCjOZ2hHJ7ceC
@@ -92,15 +66,12 @@ const BVNForm = () => {
   -----END PUBLIC KEY-----`;
     //console.log(req.getTime());
     encrypt.setPublicKey(publicKey);
-    let UserId = encrypt.encrypt("22780625001");
-    let RequestId = encrypt.encrypt(req.getTime());
-    let plainRequestId  = req.getTime();
-    let BVN = encrypt.encrypt(bvn);
-    let PhoneNumber = encrypt.encrypt(phoneNumber);
-    let PcCode = pcCode;
-    let ReferenceNumber = `${req.getTime()}${getToken.user.id}`
+    let UserId = encrypt.encrypt(auxInfo.UserId);
+    let RequestId = encrypt.encrypt(auxInfo.RequestId);
+    let BVN = encrypt.encrypt(bvn);    let PhoneNumber = encrypt.encrypt(auxInfo.PhoneNumber);
+    let ReferenceNumber = auxInfo.ReferenceNumber;
 
-    return { UserId, RequestId, BVN, PhoneNumber, PcCode, ReferenceNumber,plainRequestId};
+    return { UserId, RequestId, BVN, PhoneNumber, ReferenceNumber};
   };
 
   return (
@@ -130,25 +101,7 @@ const BVNForm = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={4} sm={12}>
-            <Form.Group controlId="exampleForm.ControlInput1">
-              <Form.Label>Phone Number</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter your phone number"
-                name="phonenumber"
-                onChange={(e) => {
-                  setPhoneNumber(e.target.value);
-                  setClicked(false);
-                }}
-                onKeyPress={(event) => {
-                  if (!/[0-9]/.test(event.key)) {
-                    event.preventDefault();
-                  }
-                }}
-              />
-            </Form.Group>
-          </Col>
+   
           <Col md={4} sm={12}>
                         <Form.Group controlId="exampleForm.ControlInput1">
                           <Form.Label>PCCode</Form.Label>
@@ -166,7 +119,7 @@ const BVNForm = () => {
             </Col>
         </Row>
         <div>
-          <Button variant="primary" className="text-white " type="submit">
+          <Button variant="primary" className="text-white " type="submit" >
             Submit
           </Button>
         </div>
@@ -175,12 +128,11 @@ const BVNForm = () => {
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && !loading && bvnData && Object.keys(bvnData).length > 0 && (
-        <EditBvnDetails data={bvnData} info={auxInfo} />
+        <EditBvnDetails data={bvnData} info={auxInfo} pcCode={pcCode} ndprCode={ndprCode}/>
       )}
       {clicked && !loading && Object.keys(bvnData).length <= 0 && (
         <p style={{ marginTop: "10px", color: "red" }}>An Error Occurred</p>
       )}
-      
     </div>
   );
 };

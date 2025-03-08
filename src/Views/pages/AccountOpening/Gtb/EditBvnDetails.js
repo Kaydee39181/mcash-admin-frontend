@@ -39,12 +39,15 @@ const EditBvnDetails = ({
   agentLgas,
   data,
   info,
+  pcCode,
+  ndprCode
 }) => {
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
   const [accountDetails, setAccountDetails] = useState([]);
   const [logvt, setIsLogvt] = useState({});
   const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(false);
   const [CreateAgentData, setCreateAgentData] = useState({
     RequestId: "",
     FirstName: data?.firstName,
@@ -66,16 +69,15 @@ const EditBvnDetails = ({
     stateOfOrigin: data?.stateOfOrigin,
     LocalGovtArea: data?.lgaOfOrigin,
     MothersMaidenName: "",
-    PCCode: info?.PcCode,
+    PCCode: pcCode,
     NDPRConsentFlag: "YES",
-    NdprCode:"",
+    NdprCode:ndprCode,
     AgentWalletID: "",
     CustomerImage: "", // New field for Base64 passport image
     CustomerSignature: "", // New field for Base64 signature image
     ReferenceNumber: "",
   });
   
-  console.log(data);
   const [allAgents, setAllAgents] = useState();
   const getToken = JSON.parse(localStorage.getItem("data"));
   const [clicked, setClicked] = useState(false);
@@ -111,6 +113,7 @@ const EditBvnDetails = ({
       ...CreateAgentData,
       [event.target.name]: event.target.value,
     });
+    console.log(CreateAgentData)
   };
   const updatedob = (e) => {
     setCreateAgentData({
@@ -142,6 +145,7 @@ const EditBvnDetails = ({
 
   const onSubmit = (event) => {
     event.preventDefault();
+    
     const newData = {
       ...CreateAgentData,
       Gender: CreateAgentData.Gender == "Male" ? "M" : "F",
@@ -156,10 +160,9 @@ const EditBvnDetails = ({
   const handleSubmit = (odata) => {
     setClicked(true);
     setLoading(true);
-    let req = new Date();
     let ndata = {
       ...odata,
-      RequestId: `${req.getTime()}`,
+      RequestId: info?.RequestId,
       Channel: info?.Channel,//"TP-MICROSYSTEMS",
       AccountOpeningBalance: "0",
       AgentAcc: "227806250",
@@ -168,9 +171,8 @@ const EditBvnDetails = ({
       UserId: info?.UserId,//"22780625001",
       AgentWalletID: info?.AgentId,//`${getToken.user.id}`,
       ReferenceNumber: info?.ReferenceNumber,
-
     };
-    console.log("dATA IS",ndata);
+    console.log("LLL",ndata)
     const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
     response.then((res) => {
       console.log(res.data);
@@ -365,39 +367,9 @@ const EditBvnDetails = ({
                 />
               </Form.Group>
             </Col>
-            
+          {/* </Row>
+          <Row> */}
             <Col md={4} sm={12}>
-                    <Form.Group controlId="exampleForm.ControlSelect1">
-                      <Form.Label> NDPR Consent</Form.Label>
-                        <Form.Control
-                          required
-                          as="select"
-                          name="NDPRConsentFlag"
-                          onChange={updateInput}
-                        >
-                      <option value={"YES"}>Yes</option>
-                      <option value={"NO"}>No</option>
-                    </Form.Control>
-                  </Form.Group>
-
-            </Col>
-            <Col md={4} sm={12}>
-                  <Form.Group controlId="exampleForm.ControlInput1">
-                  <Form.Label>NDPR CODE</Form.Label>
-                  <Form.Control
-                    
-                    type="text"
-                    placeholder="Enter NDPR Consent Code"
-                    name="NdprCode"
-                    value={CreateAgentData.NdprCode}
-                    onChange={updateInput}
-                  />
-                </Form.Group>
-            </Col>
-           
-          </Row>
-          <Row>
-            <Col md={6} sm={12}>
               <Form.Group controlId="customertImage">
                 <Form.Label>Passport Image</Form.Label>
                 <Form.Control
@@ -409,7 +381,7 @@ const EditBvnDetails = ({
                 />
               </Form.Group>
             </Col>
-            <Col md={6} sm={12}>
+            <Col md={4} sm={12}>
               <Form.Group controlId="customerSIgnature">
                 <Form.Label>Signature Image</Form.Label>
                 <Form.Control

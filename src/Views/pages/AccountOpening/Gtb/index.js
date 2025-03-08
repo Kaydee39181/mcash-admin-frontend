@@ -4,6 +4,8 @@ import BVNForm from "./BVNForm";
 import KycForm from "./KycForm";
 import DashboardTemplate from "../../../template/dashboardtemplate";
 import SendOtp from "./SendOtp";
+import LinkCard from "./LinkCard";
+import NDPRCOnsentPage from "./NDPRConsentPage";
 
 const Gtb = () => {
   const [selected, setSelected] = useState(null);
@@ -41,7 +43,7 @@ const Gtb = () => {
             <Form.Label>Select an action</Form.Label>
             <Form.Control as="select" name="Gender" onChange={updateInput}>
               <option>Select Operation</option>
-              <option value={"B"}>Open New account (BVN Required)</option>
+              <option value={"B"}>Open New account with BVN</option>
               {/* <option value={"F"}>Open account without BVN</option> */}
               <option value={"O"}>Link your Tier 1 card to your account</option>
             </Form.Control>
@@ -50,8 +52,9 @@ const Gtb = () => {
       </Row>
       <div style={{marginLeft:"30px"}}>
       {selected == "F" && <KycForm />}
-      {selected == "B" && <BVNForm />}
-      {selected == "O" && <SendOtp />}
+      {selected == "B" && <NDPRCOnsentPage IDtype={"BVN"} />}
+      {selected == "O" && <LinkCard />}
+      
       </div>
       
     </DashboardTemplate>
