@@ -32,7 +32,7 @@ const SelectBank = () => {
             />
             <Card.Body className="float mx-auto">
               <Card.Text>
-                Open an account with or without your BVN and also link your card
+                Open an account with your BVN and also link your card
                 to your account
               </Card.Text>
             </Card.Body>

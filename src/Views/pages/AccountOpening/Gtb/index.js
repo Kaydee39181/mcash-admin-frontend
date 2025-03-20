@@ -51,9 +51,9 @@ const Gtb = () => {
         </Col>
       </Row>
       <div style={{marginLeft:"30px"}}>
-      {selected == "F" && <KycForm />}
-      {selected == "B" && <NDPRCOnsentPage IDtype={"BVN"} />}
-      {selected == "O" && <LinkCard />}
+      {selected === "F" && <KycForm />}
+      {selected ==="B" && <NDPRCOnsentPage IDtype={"BVN"} />}
+      {selected === "O" && <LinkCard />}
       
       </div>
       

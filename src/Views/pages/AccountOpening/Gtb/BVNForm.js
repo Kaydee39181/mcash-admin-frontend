@@ -47,6 +47,7 @@ const BVNForm = ({auxInfo,ndprCode}) => {
     await axios
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
+        console.log("data is it",data)
         setBvnData({ ...data.data.responseObject });
         console.log(data)
       })

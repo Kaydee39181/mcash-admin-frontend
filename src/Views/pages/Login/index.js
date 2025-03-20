@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Nav, Form, Button } from "react-bootstrap";
+import {  Row, Col, Form, Button } from "react-bootstrap";
 import {
   loginUser,
-  UserChangePassword,
+  // UserChangePassword,
 } from "../../../Redux/requests/userRequest";
 import Loader from "../../../Components/secondLoader";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 // import {history} from '../../../utils/history'
 import ErrorAlert from "../../../Components/alerts";
-import { removeToken } from "../../../utils/localStorage";
+// import { removeToken } from "../../../utils/localStorage";
 import "./style.css";
 
 const Login = ({
