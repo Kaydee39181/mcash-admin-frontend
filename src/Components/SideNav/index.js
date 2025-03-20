@@ -94,6 +94,16 @@ class SideNav extends Component {
                     </li>
                   </NavLink>
                 )}
+                <NavLink
+                  to="/virtual-account"
+                  activeClassName="current"
+                  onClick={this.forceUpdateHandler}
+                >
+                  <li className="list-group-item ">
+                  <img src={Purse} alt="" />{" "}
+                  <span className="list-group-item-text">Virtual Account{" "}</span>
+                  </li>
+                </NavLink>
                 {isVisibleToUser("ROLE_VIEW_ALL_AGENT", token.user) &&
                   name != "AGENT" && (
                     <NavLink to="/agents" activeClassName="current">

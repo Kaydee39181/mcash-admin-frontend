@@ -7,6 +7,7 @@ import BVNForm from "./BVNForm";
 
 const NDPRCOnsentPage = ({ IDtype }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [pcCode, setPcCode] = useState("");
   const [clicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +37,7 @@ const NDPRCOnsentPage = ({ IDtype }) => {
       AgentId: `${getToken.user.id}`,
       ReferenceNumber: `${req.getTime()}${getToken.user.id}`,
       PhoneNumber: phoneNumber,
+      PcCOde: pcCode,
       UserId: "22780625001",
       AuthMode: "MPIN",
       AuthValue: "1234",
@@ -105,6 +107,21 @@ const NDPRCOnsentPage = ({ IDtype }) => {
                     }}
                     />
                 </Form.Group>
+                </Col>
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="exampleForm.ControlInput1">
+                    <Form.Label>PCCode</Form.Label>
+                    <Form.Control
+                      required
+                      type="text"
+                      placeholder="Enter PCCode"
+                      name="PCCode"
+                      onChange={(e) =>{
+                        setPcCode(e.target.value);
+                        setClicked(false);
+                      }}
+                    />
+                  </Form.Group>
                 </Col>
             </Row>
             <div>

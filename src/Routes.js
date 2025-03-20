@@ -28,6 +28,7 @@ import changePassword from "./Views/pages/userChangePassword";
 import AgentsAccount from "./Views/pages/AgentsAccount";
 import AccountOpening from "./Views/pages/AccountOpening";
 import Gtb from "./Views/pages/AccountOpening/Gtb";
+import VirtualAccount from "./Views/pages/Virtual Account";
 
 class Routes extends Component {
   render() {
@@ -58,6 +59,11 @@ class Routes extends Component {
                 roleCode="ROLE_VIEW_ALL_TRANSACTION"
                 path="/agenttransactions"
                 component={TransactionsSingle}
+              />
+             <AuthRequired
+                roleCode="ROLE_VIEW_ALL_AGENT"
+                path="/virtual-account"
+                component={VirtualAccount}
               />
               <AuthRequired
                 roleCode="ROLE_VIEW_ALL_AGENT"

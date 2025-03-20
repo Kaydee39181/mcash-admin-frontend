@@ -102,22 +102,6 @@ const BVNForm = ({auxInfo,ndprCode}) => {
               />
             </Form.Group>
           </Col>
-   
-          <Col md={4} sm={12}>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                          <Form.Label>PCCode</Form.Label>
-                          <Form.Control
-                            required
-                            type="text"
-                            placeholder="Enter PCCode"
-                            name="PCCode"
-                            onChange={(e) =>{
-                              setPcCode(e.target.value);
-                              setClicked(false);
-                            }}
-                          />
-                        </Form.Group>
-            </Col>
         </Row>
         <div>
           <Button variant="primary" className="text-white " type="submit" >
@@ -129,7 +113,7 @@ const BVNForm = ({auxInfo,ndprCode}) => {
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && !loading && bvnData && Object.keys(bvnData).length > 0 && (
-        <EditBvnDetails data={bvnData} info={auxInfo} pcCode={pcCode} ndprCode={ndprCode}/>
+        <EditBvnDetails data={bvnData} info={auxInfo} pcCode={auxInfo.pcCode} ndprCode={ndprCode}/>
       )}
       {clicked && !loading && Object.keys(bvnData).length <= 0 && (
         <p style={{ marginTop: "10px", color: "red" }}>An Error Occurred</p>
