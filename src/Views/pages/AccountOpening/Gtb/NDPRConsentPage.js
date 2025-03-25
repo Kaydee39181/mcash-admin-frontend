@@ -38,6 +38,7 @@ const NDPRCOnsentPage = ({ IDtype }) => {
       ReferenceNumber: `${req.getTime()}${getToken.user.id}`,
       PhoneNumber: phoneNumber,
       PcCode: pcCode,
+      PCCode:pcCode,
       UserId: "22780625001",
       AuthMode: "MPIN",
       AuthValue: "1234",

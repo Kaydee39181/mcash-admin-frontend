@@ -69,6 +69,7 @@ const EditBvnDetails = ({
     stateOfOrigin: data?.stateOfOrigin,
     LocalGovtArea: data?.lgaOfOrigin,
     MothersMaidenName: "",
+    PCCode: pcCode,
     PcCode: pcCode,
     NDPRConsentFlag: "YES",
     NdprCode:ndprCode,
