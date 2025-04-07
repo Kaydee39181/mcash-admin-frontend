@@ -114,7 +114,6 @@ const EditBvnDetails = ({
       ...CreateAgentData,
       [event.target.name]: event.target.value,
     });
-    console.log(CreateAgentData)
   };
   const updatedob = (e) => {
     setCreateAgentData({
@@ -154,7 +153,6 @@ const EditBvnDetails = ({
         .locale("en")
         .format("MM/DD/YYYY"),
     };
-    console.log("nnn",newData)
     handleSubmit(newData);
   };
 
@@ -173,10 +171,8 @@ const EditBvnDetails = ({
       AgentWalletID: info?.AgentId,//`${getToken.user.id}`,
       ReferenceNumber: info?.ReferenceNumber,
     };
-    console.log("LLL",ndata)
-    const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
+    const response = axios.post(`m${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
     response.then((res) => {
-      console.log(res.data);
       setAccountDetails([res.data]);
       if (res?.data?.ResponseCode === "00") {
         axios
@@ -189,7 +185,6 @@ const EditBvnDetails = ({
           )
           .then((data) => {
             setLoading(false);
-            console.log(data);
           })
           .catch((e) => {
             setLoading(false);
@@ -200,7 +195,6 @@ const EditBvnDetails = ({
       }
     });
   };
-  console.log(accountDetails);
   return (
     <div>
       {loading && (
@@ -542,7 +536,6 @@ const EditBvnDetails = ({
 };
 
 const mapStateToProps = (state) => (
-  console.log(state),
   {
     createAgent: state.agents.createAgent,
     agentStates: state.agentmanager.agentStates,

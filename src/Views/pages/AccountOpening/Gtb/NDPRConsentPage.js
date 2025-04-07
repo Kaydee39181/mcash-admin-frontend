@@ -37,8 +37,6 @@ const NDPRCOnsentPage = ({ IDtype }) => {
       AgentId: `${getToken.user.id}`,
       ReferenceNumber: `${req.getTime()}${getToken.user.id}`,
       PhoneNumber: phoneNumber,
-      PcCode: pcCode,
-      PCCode:pcCode,
       UserId: "22780625001",
       AuthMode: "MPIN",
       AuthValue: "1234",
@@ -57,7 +55,7 @@ const NDPRCOnsentPage = ({ IDtype }) => {
       AuthValue: "1234",
       RequestId: "3366990814560789",
     };
-    
+    console.log("lllllll",cdata)
     await axios
       .post(`${AgentConstant.GET_NDPRCODE}?${cdata.RequestId}`, cdata)
       .then((data) => {
@@ -164,7 +162,7 @@ const NDPRCOnsentPage = ({ IDtype }) => {
          
         </Form>
       )}
-      {switchPage && IDtype === "BVN" && <BVNForm auxInfo={auxInfo} ndprCode={ndprCode} />}
+      {switchPage && IDtype === "BVN" && <BVNForm auxInfo={auxInfo} pcCode={pcCode} ndprCode={ndprCode} />}
 
       {/* Terms & Conditions Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>

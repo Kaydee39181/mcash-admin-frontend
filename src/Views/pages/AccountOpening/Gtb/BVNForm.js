@@ -6,10 +6,9 @@ import axios from "axios";
 import EditBvnDetails from "./EditBvnDetails";
 import Loader from "../../../../Components/secondLoader";
 
-const BVNForm = ({auxInfo,ndprCode}) => {
+const BVNForm = ({auxInfo,ndprCode,pcCode}) => {
   const [bvn, setBvn] = useState("");
   //const [phoneNumber, setPhoneNumber] = useState("");
-  const [pcCode, setPcCode] = useState("");
   const [clicked, setClicked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bvnData, setBvnData] = useState({});
@@ -47,9 +46,8 @@ const BVNForm = ({auxInfo,ndprCode}) => {
     await axios
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
-        console.log("data is it",data)
         setBvnData({ ...data.data.responseObject });
-        console.log(data)
+
       })
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
@@ -113,7 +111,7 @@ const BVNForm = ({auxInfo,ndprCode}) => {
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && !loading && bvnData && Object.keys(bvnData).length > 0 && (
-        <EditBvnDetails data={bvnData} info={auxInfo} pcCode={auxInfo.pcCode} ndprCode={ndprCode}/>
+        <EditBvnDetails data={bvnData} info={auxInfo} pcCode={pcCode} ndprCode={ndprCode}/>
       )}
       {clicked && !loading && Object.keys(bvnData).length <= 0 && (
         <p style={{ marginTop: "10px", color: "red" }}>An Error Occurred</p>
