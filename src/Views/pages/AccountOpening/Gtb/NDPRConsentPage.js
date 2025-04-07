@@ -39,6 +39,8 @@ const NDPRCOnsentPage = ({ IDtype }) => {
       PhoneNumber: phoneNumber,
       UserId: "22780625001",
       AuthMode: "MPIN",
+      PCCode: pcCode,
+      PcCode: pcCode,
       AuthValue: "1234",
       RequestId: `MCS${req.getTime()}`,
     };
@@ -55,7 +57,6 @@ const NDPRCOnsentPage = ({ IDtype }) => {
       AuthValue: "1234",
       RequestId: "3366990814560789",
     };
-    console.log("lllllll",cdata)
     await axios
       .post(`${AgentConstant.GET_NDPRCODE}?${cdata.RequestId}`, cdata)
       .then((data) => {
