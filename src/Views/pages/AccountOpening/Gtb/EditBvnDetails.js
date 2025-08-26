@@ -110,6 +110,7 @@ const EditBvnDetails = ({
   }, [success]);
 
   const updateInput = (event) => {
+    //console.log(CreateAgentData)
     setCreateAgentData({
       ...CreateAgentData,
       [event.target.name]: event.target.value,
@@ -135,13 +136,16 @@ const EditBvnDetails = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result;
+        const base64String = reader.result.split(",")[1]; // remove "data:image/...;base64,"
         updateInput({ target: { name: fieldName, value: base64String } });
       };
       reader.readAsDataURL(file);
     }
   };
   
+  const cleanText = (input) =>{
+    return input.replace(/[^a-zA-Z0-9- ]/g, "");
+  }
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -152,6 +156,7 @@ const EditBvnDetails = ({
       DateOfBirth: moment(new Date(CreateAgentData.DateOfBirth))
         .locale("en")
         .format("MM/DD/YYYY"),
+        StreetName:cleanText(CreateAgentData.StreetName)
     };
     handleSubmit(newData);
   };

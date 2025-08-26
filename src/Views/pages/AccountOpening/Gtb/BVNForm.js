@@ -47,7 +47,6 @@ const BVNForm = ({auxInfo,ndprCode,pcCode}) => {
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {
         setBvnData({ ...data.data.responseObject });
-
       })
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
