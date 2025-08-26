@@ -171,7 +171,7 @@ const EditBvnDetails = ({
       AgentWalletID: info?.AgentId,//`${getToken.user.id}`,
       ReferenceNumber: info?.ReferenceNumber,
     };
-    const response = axios.post(`m${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
+    const response = axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, ndata);
     response.then((res) => {
       setAccountDetails([res.data]);
       if (res?.data?.ResponseCode === "00") {
