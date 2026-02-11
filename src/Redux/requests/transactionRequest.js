@@ -23,6 +23,7 @@ export const FetchTransaction = (
     pan,
     stan,
     agentId,
+    agentManagerName,
     draw,
   }
 ) => (dispatch) => {
@@ -34,9 +35,9 @@ export const FetchTransaction = (
     .get(
       `${
         AgentConstant.FETCH_TRANSACTIONS_URL
-      }startPage=${page}&length=${length}&agentId=${agentId}&startDate=${
+      }startPage=${page}&length=${length}&agentId=${agentId}&agentManagerName=${agentManagerName}&startDate=${
         startDate ? startDate : ""
-      }&endDate=${endDate}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}`,
+      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}`,
       {
         headers: {
           Authorization: `bearer ${token.access_token}`,
@@ -101,6 +102,7 @@ export const FetchTransactionSingle = (
     pan,
     stan,
     agentId,
+    agentManagerName,
     draw,
   }
 ) => (dispatch) => {
@@ -115,7 +117,7 @@ export const FetchTransactionSingle = (
         AgentConstant.FETCH_TRANSACTIONS_URL
       }startPage=${page}&length=${length}&agentId=${agentIde}&startDate=${
         startDate ? startDate : ""
-      }&endDate=${endDate}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}`,
+      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}&agentManagerName=${agentManagerName}`,
       {
         headers: {
           Authorization: `bearer ${token.access_token}`,

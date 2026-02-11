@@ -1,17 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { Modal, Form, Container, Button, Row } from "react-bootstrap";
-import { CSVLink, CSVDownload } from "react-csv";
+import { CSVLink } from "react-csv";
 import Cancel from "../../Assets/img/x.png";
 import "./style.css";
 import XLSX from "xlsx";
-import ReactHTMLTableToExcel from "react-html-table-to-excel";
 
-import ReactExport from "react-export-excel";
-const ExcelFile = ReactExport.ExcelFile;
-const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
-const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
+/**
+ * Exports an array of objects to an Excel file using xlsx.
+ * - rows: Array<object>
+ * - fileName: string (should end with .xlsx)
+ * - sheetName: string
+ */
+const exportToExcel = (rows, fileName = "export.xlsx", sheetName = "Sheet1") => {
+  const safeRows = Array.isArray(rows) ? rows : [];
+  const ws = XLSX.utils.json_to_sheet(safeRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  XLSX.writeFile(wb, fileName);
+};
 
 const ExportLink = ({
   show,
@@ -21,54 +29,45 @@ const ExportLink = ({
   item,
   products,
   filename,
-  columns,
+  columns, // kept for compatibility even if unused
 }) => {
   const exportPDF = () => {
     const unit = "pt";
-    const size = "A4"; // Use A1, A2, A3 or A4
-    const orientation = "portrait"; // portrait or landscape
-
+    const size = "A4";
+    const orientation = "portrait";
     const marginLeft = 40;
-    const doc = new jsPDF(orientation, unit, size);
 
+    const doc = new jsPDF(orientation, unit, size);
     doc.setFontSize(15);
-    let content = {
+
+    const content = {
       startY: 50,
-      head: headers,
-      body: item,
+      head: headers, // should be like: [["Col1","Col2",...]]
+      body: item, // should be like: [[v1,v2,...], ...]
     };
 
-    doc.text(title, marginLeft, 40);
+    doc.text(title || "Export", marginLeft, 40);
     doc.autoTable(content);
-    doc.save(`${filename}.pdf`);
+    doc.save(`${filename || "export"}.pdf`);
   };
-  // const handleFile = (file) => {
-  //   /* Boilerplate to set up FileReader */
-  //   const reader = new FileReader();
-  //   const rABS = !!reader.readAsBinaryString;
-  //   reader.onload = (e) => {
-  //     /* Parse data */
-  //     const bstr = e.target.result;
-  //     const wb = XLSX.read(bstr, { type: rABS ? "binary" : "array" });
-  //     /* Get first worksheet */
-  //     const wsname = wb.SheetNames[0];
-  //     const ws = wb.Sheets[wsname];
-  //     /* Convert array of arrays */
-  //     const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-  //     /* Update state */
-  //     this.setState({ data: data, cols: make_cols(ws["!ref"]) });
-  //   };
-  //   if (rABS) reader.readAsBinaryString(file);
-  //   else reader.readAsArrayBuffer(file);
-  // };
-  const exportFile = (file) => {
-    /* convert state to workbook */
-    const ws = XLSX.utils.aoa_to_sheet(products);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "SheetJS");
-    /* generate XLSX file and send to client */
-    XLSX.writeFile(wb, "sheetjs.xlsx");
+
+  const exportExcel = () => {
+    // Use the same data you already export to CSV
+    const safeName = filename ? `${filename}.xlsx` : "export.xlsx";
+    exportToExcel(products, safeName, "Report");
   };
+
+  const copyToClipboard = async () => {
+    try {
+      const text = JSON.stringify(products ?? [], null, 2);
+      await navigator.clipboard.writeText(text);
+      alert("Copied to clipboard ✅");
+    } catch (e) {
+      console.error(e);
+      alert("Copy failed ❌ (browser blocked clipboard access)");
+    }
+  };
+
   return (
     <Modal
       size="lg"
@@ -80,87 +79,52 @@ const ExportLink = ({
     >
       <Modal.Body>
         <Container>
-          <div
-            className="header-wrapper d-flex justify-content-between align-item-center  justify-content-center"
-            justify-content-center
-          >
+          <div className="header-wrapper d-flex justify-content-between align-item-center justify-content-center">
             <div className="modal-header">Export</div>
-            <div onClick={close}>
-              <img src={Cancel} />
+            <div onClick={close} style={{ cursor: "pointer" }}>
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>
+
         <hr />
 
         <Container>
           <h3>Select Export Type</h3>
+
           <Form>
             <Row>
               <Button
-                onClick={() => exportPDF()}
+                onClick={exportPDF}
                 className="pdf export-btn"
                 variant="light"
-                type="submit"
+                type="button"
               >
                 Export PDF
               </Button>
-              {/* <DragDropFile handleFile={handleFile}>
-                <div className="row">
-                  <div className="col-xs-12">
-                    <DataInput handleFile={handleFile} />
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-xs-12">
-                    <button
-                      disabled={!products.length}
-                      className="btn btn-success"
-                      onClick={exportFile}
-                    >
-                      Export
-                    </button>
-                  </div>
-                </div>
-                <div className="row">
-                  <div className="col-xs-12">
-                    <OutTable data={this.state.data} cols={columns} />
-                  </div>
-                </div>
-              </DragDropFile> */}
-              {/* <ExcelFile filename="test" element={<button className="excel export-btn btn">Export Excel</button>}>
-                <ExcelSheet data={item} name="Test" >
-                  {item.map((ite) => {
-                    return <ExcelColumn label={ite} value={ite} />;
-                  })}
-                </ExcelSheet>
-              </ExcelFile>  */}
-              {/* <ReactHTMLTableToExcel
-                className="btn excel export-btn"
-                table="emp"
-                filename="ReportExcel"
-                sheet="Sheet"
-                buttonText="Export excel"
-              /> */}
-              {/* <Button
+
+              <Button
                 className="excel export-btn"
                 variant="light"
-                type="submit"
-                onClick={() => exportFile()}
-
+                type="button"
+                onClick={exportExcel}
               >
                 Export Excel
-              </Button> */}
-              {/* <Button className="csv export-btn" variant="light" type="submit"> */}
+              </Button>
+
               <CSVLink
-                variant="light"
-                filename={`${filename}.csv`}
+                filename={`${filename || "export"}.csv`}
                 className="btn csv export-btn"
-                data={products}
+                data={products || []}
               >
                 Export CSV
               </CSVLink>
-              ;{/* </Button> */}
-              <Button className="clip export-btn" type="submit">
+
+              <Button
+                className="clip export-btn"
+                type="button"
+                onClick={copyToClipboard}
+              >
                 Copy to Clipboard
               </Button>
             </Row>
@@ -170,4 +134,5 @@ const ExportLink = ({
     </Modal>
   );
 };
+
 export default ExportLink;

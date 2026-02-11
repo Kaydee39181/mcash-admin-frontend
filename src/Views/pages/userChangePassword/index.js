@@ -1,151 +1,205 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Nav, Form, Button ,Alert} from "react-bootstrap";
+import { Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { UserChangePassword } from "../../../Redux/requests/userRequest";
 import Loader from "../../../Components/secondLoader";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-// import {history} from '../../../utils/history'
 import ErrorAlert from "../../../Components/alerts";
 import { removeToken } from "../../../utils/localStorage";
 import "./style.css";
 
 const ChangePasswords = ({
-    history,
-    UserChangePassword: handlePassword,
-    loading,
-    success,
-    errorMessage,
-    error,
+  history,
+  UserChangePassword: handlePassword,
+  loading,
+  success,
+  errorMessage,
+  error,
 }) => {
-    const [userPassword, setUserPassword] = useState({
-        oldPassword: null,
-        password: null,
-        confirmPassword: null
-    });
-    const [errors, setErrors] = useState([]);
-    const [successMessage, SetSuccessMessage] = useState(['please change Password']);
+  const [userPassword, setUserPassword] = useState({
+    oldPassword: "",
+    password: "",
+    confirmPassword: "",
+  });
 
+  const [errors, setErrors] = useState([]);
+  const [infoMessage, setInfoMessage] = useState("Please change your password.");
+  const [showPasswords, setShowPasswords] = useState(false);
 
-    function handleInputChange(event) {
-        console.log(event);
-        setErrors([]);
-        setUserPassword({
-            ...userPassword,
-            [event.target.name]: event.target.value,
-        });
-        console.log(userPassword);
+  const handleInputChange = (event) => {
+    setErrors([]);
+    setInfoMessage("");
+    const { name, value } = event.target;
+    setUserPassword((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle backend errors
+  useEffect(() => {
+    if (error || errorMessage) {
+      const msg =
+        errorMessage?.error ||
+        error?.error?.response?.data?.responseMessage ||
+        "There was an error sending your request, please try again later.";
+
+      setErrors([msg]);
+      setInfoMessage("");
     }
+  }, [error, errorMessage]);
 
-   useEffect(() => { 
-        if(errorMessage){
-            SetSuccessMessage([])
+  // Handle success
+  useEffect(() => {
+    if (success) {
+      setErrors([]);
+      setInfoMessage("Password changed successfully. Please login again.");
 
-          if (error && errorMessage.error!="Old Password is incorrect"){
-            return setErrors(['There was an error sending your request, please try again later.']) ;
-        }else if(errorMessage){
-          return setErrors([errorMessage.error]);
-        }
-        }
-       
-      }, [error, errorMessage]);
+      // ✅ VERY IMPORTANT: remove token so app doesn't auto-auth to dashboard
+      removeToken();
 
-    useEffect(() => {
-        console.log(success)
-        if (success) {
-            history.push("/");
-        }
-    }, [success]);
+      // ✅ Replace so back button doesn't go to protected route
+      setTimeout(() => {
+        history.replace("/");
+      }, 800);
+    }
+  }, [success, history]);
+
+  const onSubmit = async (event) => {
+    event.preventDefault();
 
     const { oldPassword, password, confirmPassword } = userPassword;
 
-    const onSubmit = async (event) => {
-        event.preventDefault();
-        if (password !== confirmPassword) return setErrors(['Passwords do not match']),SetSuccessMessage();
-        console.log(userPassword)
-        const result = await handlePassword(userPassword);
-        console.log(result)
+    if (!oldPassword || !password || !confirmPassword) {
+      setErrors(["All fields are required."]);
+      return;
+    }
 
-    };
-    return (
-        <div className="d-flex justify-content-center align-items-center login-wrapper">
-            <Form className="form-wrapper" onSubmit={onSubmit}>
-                {loading && (
-                    <Loader
-                        type="TailSpin"
-                        type="Oval"
-                        height={60}
-                        width={60}
-                        color="#1E4A86"
-                    />
-                )}
+    if (password !== confirmPassword) {
+      setErrors(["Passwords do not match."]);
+      return;
+    }
 
-                <div className="logo"></div>
-                
-               { error ||errorMessage ?<ErrorAlert errors={errors} />: <Alert variant="success">{successMessage}</Alert>}
-                <Row>
-                    <Col md={12} sm={12}>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Password </Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="oldPassword"
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col md={12} sm={12}>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>New Password </Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="password"
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col md={12} sm={12}>
-                        <Form.Group controlId="exampleForm.ControlInput1">
-                            <Form.Label>Confirm Password</Form.Label>
-                            <Form.Control
-                                type="password"
-                                name="confirmPassword"
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                        <div className=" text-center pt-3">
-                            <Button
-                                variant="primary"
-                                className="text-white button-wrap"
-                                type="submit"
-                            >
-                                Submit
-                             </Button>
-                        </div>
-                    </Col>
-                </Row>
-            </Form>
+    await handlePassword({ oldPassword, password, confirmPassword });
+  };
+
+  const goToLoginAndLogout = () => {
+    removeToken();
+    // ✅ replace prevents “back to dashboard” weirdness
+    history.replace("/");
+  };
+
+  const handleBack = (e) => {
+    e.preventDefault();
+    goToLoginAndLogout();
+  };
+
+  const handleCancel = (e) => {
+    e.preventDefault();
+    goToLoginAndLogout();
+  };
+
+  return (
+    <div className="d-flex justify-content-center align-items-center login-wrapper">
+      <Form className="form-wrapper" onSubmit={onSubmit}>
+        {loading && <Loader type="Oval" height={60} width={60} color="#1E4A86" />}
+
+        <div className="logo"></div>
+
+        <div className="mb-3">
+          <Button variant="secondary" type="button" onClick={handleBack}>
+            ← Back
+          </Button>
         </div>
-    );
-};
-ChangePasswords.propTypes = {
-    // changePasswords: PropTypes.func.isRequired,
-    history: PropTypes.object.isRequired,
-    loading: PropTypes.bool.isRequired,
+
+        {errors.length > 0 ? (
+          <ErrorAlert errors={errors} />
+        ) : (
+          <Alert variant="info">{infoMessage}</Alert>
+        )}
+
+        <Row>
+          <Col md={12}>
+            <Form.Group>
+              <Form.Label>Old Password</Form.Label>
+              <Form.Control
+                type={showPasswords ? "text" : "password"}
+                name="oldPassword"
+                value={userPassword.oldPassword}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+          </Col>
+
+          <Col md={12}>
+            <Form.Group>
+              <Form.Label>New Password</Form.Label>
+              <Form.Control
+                type={showPasswords ? "text" : "password"}
+                name="password"
+                value={userPassword.password}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+          </Col>
+
+          <Col md={12}>
+            <Form.Group>
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control
+                type={showPasswords ? "text" : "password"}
+                name="confirmPassword"
+                value={userPassword.confirmPassword}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Check
+              type="checkbox"
+              label="Show passwords"
+              checked={showPasswords}
+              onChange={() => setShowPasswords((s) => !s)}
+              className="mb-3"
+            />
+
+            <div className="text-center">
+              <Button
+                variant="primary"
+                className="text-white button-wrap mr-2"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : "Submit"}
+              </Button>
+
+              <Button
+                variant="outline-secondary"
+                type="button"
+                onClick={handleCancel}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </Form>
+    </div>
+  );
 };
 
-const mapStateToProps = (state) =>(
-    console.log(state),
-    {
-    loading: state.users.loading,
-    user: state.users.user,
-    error: state.users.error,
-    errorMessage:state.users.errorMessage,
-    success: state.users.success,
+ChangePasswords.propTypes = {
+  history: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
+  UserChangePassword: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  loading: state.users.loading,
+  user: state.users.user,
+  error: state.users.error,
+  errorMessage: state.users.errorMessage,
+  success: state.users.success,
 });
 
-export default connect(mapStateToProps, {
-    UserChangePassword,
-})(ChangePasswords);
+export default connect(mapStateToProps, { UserChangePassword })(ChangePasswords);

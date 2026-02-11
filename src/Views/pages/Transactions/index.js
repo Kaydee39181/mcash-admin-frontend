@@ -1,33 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
+
 import Upload from "../../../Assets/img/upload.png";
 import Filter from "../../../Assets/img/filter.png";
 import Print from "../../../Assets/img/printer.png";
+
 import DashboardTemplate from "../../template/dashboardtemplate";
 import "react-toastify/dist/ReactToastify.css";
-// import {
-//   ToastsContainer,
-//   ToastsStore,
-//   ToastsContainerPosition,
-// } from "react-toasts";
+
 import { ToastContainer, toast } from "react-toastify";
 import {
   FetchTransaction,
   FetchTransactionTypes,
   FetchTransactionStatus,
 } from "../../../Redux/requests/transactionRequest";
+
 import Loader from "../../../Components/secondLoader";
 import ExportModal from "../../../Components/Exports";
 import FilterModal from "../../../Components/Filter";
-import {
-  Nav,
-  NavItem,
-  NavLink,
-  DropdownButton,
-  Dropdown,
-} from "react-bootstrap";
+
+import { DropdownButton, Dropdown } from "react-bootstrap";
 import Pagination from "react-js-pagination";
 import ViewReceipts from "../../../Components/viewReceipt";
 
@@ -35,7 +29,6 @@ import { connect } from "react-redux";
 import moment from "moment";
 
 import "./style.css";
-// import ExportLink from '../Exports/index';
 
 const Transactions = (props) => {
   const {
@@ -45,19 +38,18 @@ const Transactions = (props) => {
     transaction,
     loading,
     transactionTotal,
-    successTransaction,
     transactionsType,
     transactionStatus,
   } = props;
-  const [alltransactions, setTransactions] = useState([FetchTransactions]);
-  const [totalSize, setTransactionsTotal] = useState(0);
-  const [status, setStatus] = useState([FetchTransactions]);
+
   const [exportModalActive, showExportModal] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
+
   const [nextPage, setNextPage] = useState(0);
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
-  const [viewReceipt, setViewReceipt] = useState("");
+
+  const [viewReceipt, setViewReceipt] = useState(null);
   const [receiptview, showReceiptView] = useState(false);
 
   const initialState = {
@@ -73,31 +65,34 @@ const Transactions = (props) => {
     agentId: "",
     draw: "",
   };
+
   const [filterValues, setFilterValues] = useState(initialState);
 
   const QueryTransaction = (transactId) => {
     const token = JSON.parse(localStorage.getItem("data"));
     const loadings = toast.loading("Please wait...");
+
     const apiUrl = `https://api.mcashpoint.com/api/v1/transfer/query?transactionId=${transactId}`;
+
     fetch(apiUrl, {
       headers: {
-        Authorization: `bearer ${token.access_token}`,
+        Authorization: `bearer ${token?.access_token}`,
         "Content-Type": "application/json",
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.responseCode == "00") {
-          if (data.data.responseCode == "00") {
+        if (data?.responseCode === "00") {
+          if (data?.data?.responseCode === "00") {
             toast.update(loadings, {
-              render: data.data.responseMessage,
+              render: data?.data?.responseMessage || "Success",
               type: "success",
               isLoading: false,
               autoClose: 8000,
             });
           } else {
             toast.update(loadings, {
-              render: data.data.responseMessage,
+              render: data?.data?.responseMessage || "Query failed",
               type: "error",
               isLoading: false,
               autoClose: 8000,
@@ -105,18 +100,16 @@ const Transactions = (props) => {
           }
         } else {
           toast.update(loadings, {
-            render: data.responseMessage,
+            render: data?.responseMessage || "Query failed",
             type: "error",
             isLoading: false,
             autoClose: 8000,
           });
-
-          toast.error();
         }
       })
       .catch((error) => {
         toast.update(loadings, {
-          render: error.message,
+          render: error?.message || "Network error",
           type: "error",
           isLoading: false,
           autoClose: 8000,
@@ -125,51 +118,68 @@ const Transactions = (props) => {
   };
 
   const _handleFilterValue = (event) => {
-    console.log(event);
-    setFilterValues({
-      ...filterValues,
-      [event.target.name]: event.target.value,
-    });
+    const { name, value } = event.target;
+
+    setFilterValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
     setNextPage(0);
     showExportModal(false);
   };
 
-  // const resetFilter = (event) => {
-  //   event.preventDefault();
-
-  //   setFilterValues({...initialState});
-  // };
   const onFilterSubmit = (event) => {
     event.preventDefault();
-    FetchTransactions(nextPage, length, filterValues);
-    closeFilter();
+    FetchTransactions(0, length, filterValues);
     setNextPage(0);
+    showFilterModal(false);
   };
+
   const ViewReceipt = (details) => {
-    console.log(details);
-    showReceiptView(true);
+    
+    if (!details) return;
     setViewReceipt(details);
+    showReceiptView(true);
   };
 
   const closeViewReceipt = () => {
     showReceiptView(false);
+    setViewReceipt(null); 
   };
 
   useEffect(() => {
     FetchTransactions(nextPage, length, filterValues);
     FetchTransactionType();
     FetchTransactionStatuses();
-  }, [nextPage, length, filterValues]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nextPage, length]);
 
   const handleSelect = (e) => {
-    setLength(e);
+    setLength(Number(e));
+    setNextPage(0);
+    setActivePage(1);
   };
 
+  const closeExport = () => showExportModal(false);
+  const closeFilter = () => showFilterModal(false);
+
+  const OpenFilter = () => {
+    showFilterModal(true);
+    setFilterValues(initialState);
+  };
+
+  
+  // EXPORT DATA (PDF/CSV/XLSX)
+  
   const title = "Transactions page";
+
+  
   const headers = [
     [
       "Date",
       "Agent",
+      "Agent Manager",
       "Transaction ID",
       "Type",
       "Terminal ID",
@@ -178,102 +188,87 @@ const Transactions = (props) => {
       "Agent Fee",
       "Stamp Duty",
       "RRN",
-      "Pre Balance",
       "Post Balance",
+      "Pre Balance",
     ],
   ];
 
-  const item = transaction.map((transact) => [
-    transact.systemTime,
-    transact.agent.businessName,
-    transact.transactionId,
-    transact.transactionType.type,
-    transact.agent.bankTerminal === null
-      ? ""
-      : transact.agent.bankTerminal.terminalId,
-    transact.amount,
-    transact.totalAmount,
-    transact.statusCode,
-    transact.agentFee,
-    transact.stampDuty,
-    transact.rrn,
-    transact.prePurseBalance.toFixed(2),
-    transact.postPurseBalance.toFixed(2),
+  const item = (Array.isArray(transaction) ? transaction : []).map((transact) => [
+    transact?.systemTime || "",
+    transact?.agent?.businessName || "",
+    transact?.agent?.agentManager?.accountName || "—",
+    transact?.transactionId || "",
+    transact?.transactionType?.type || "",
+    transact?.agent?.bankTerminal?.terminalId || "",
+    transact?.amount ?? "",
+    transact?.statusCode || "",
+    transact?.agentFee ?? "",
+    transact?.stampDuty ?? "",
+    transact?.rrn || "",
+    Number(transact?.postPurseBalance ?? 0).toFixed(2), //  Pre Balance shows Post value
+    Number(transact?.prePurseBalance ?? 0).toFixed(2),  //  Post Balance shows Pre value
   ]);
-  Date.prototype.addHours = function (h) {
-    this.setTime(this.getTime() + h * 60 * 60 * 1000);
-    return this;
-  };
-  const products = transaction.map((transact) => {
-    //console.log(transact.agent.agentManager);
-    let time = new Date(transact.systemTime);
-    let ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
-    /* console.log(ntime); */
+
+
+  const products = (Array.isArray(transaction) ? transaction : []).map((transact) => {
+
+    const time = new Date(transact?.systemTime);
+    const ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+
     return {
-      transact: transact,
-      id: transact.agent.id === "undefined" ? "" : transact.id,
-      Date: transact.systemTime === "undefined" ? "" : ntime,
-      Agent:
-        transact.agent.businessName === "undefined"
-          ? ""
-          : transact.agent.businessName,
-      TransactionID:
-        transact.transactionId === "undefined" ? "" : transact.transactionId,
-      Type:
-        transact.transactionType.type === "undefined"
-          ? ""
-          : transact.transactionType.type,
-      TerminalID:
-        transact.agent.bankTerminal === null
-          ? ""
-          : transact.agent.bankTerminal.terminalId,
-      Amount: transact.amount === "undefined" ? "" : transact.amount,
-      Status: transact.statusCode,
-      accountNumber: transact.accountNumber ? transact.accountNumber : "-----",
-      accountName: transact.accountName ? transact.accountName : "----",
-      bankName: transact.bankName ? transact.bankName : "-----",
-      ConvenienceFee: transact.convenienceFee,
-      AgentFee: transact.agentFee === "undefined" ? "" : transact.agentFee,
-      StampDuty: transact.stampDuty === "undefined" ? "" : transact.stampDuty,
-      RRN: transact.rrn === "undefined" ? "" : transact.rrn,
-      STAN: transact.stan === "undefined" ? "" : transact.stan,
-      // CardDetails:transact.rrn === 'undefined' ? '':transact.rrn ,
-      PreBalance:
-        transact.prePurseBalance.toFixed(2) === "undefined"
-          ? ""
-          : transact.prePurseBalance.toFixed(2),
-      PostBalance:
-        transact.postPurseBalance.toFixed(2) === "undefined"
-          ? ""
-          : transact.postPurseBalance.toFixed(2),
-      AppVersion:
-        transact.appVersion === "undefined" ? "" : transact.appVersion,
+      transact,
+      id: transact?.id ?? "",
+      Date: transact?.systemTime ? ntime : "",
+      Agent: transact?.agent?.businessName || "",
+      AgentManager: transact?.agent?.agentManager?.accountName || "—",
+      TransactionID: transact?.transactionId || "",
+      Type: transact?.transactionType?.type || "",
+      TerminalID: transact?.agent?.bankTerminal?.terminalId || "",
+      Amount: transact?.amount ?? "",
+      Status: transact?.statusCode || "",
+      accountNumber: transact?.accountNumber || "-----",
+      accountName: transact?.accountName || "----",
+      bankName: transact?.bankName || "-----",
+      ConvenienceFee: transact?.convenienceFee ?? "",
+      AgentFee: transact?.agentFee ?? "",
+      StampDuty: transact?.stampDuty ?? "",
+      RRN: transact?.rrn || "",
+      STAN: transact?.stan || "",
+
+      //  swapped data meanings below (Post first, then Pre)
+      PreBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
+      PostBalance: Number(transact?.prePurseBalance ?? 0).toFixed(2),
+
+
+      AppVersion: transact?.appVersion || "",
       totalAmount:
-        transact.totalAmount === "undefined"
-          ? ""
-          : parseInt(transact.totalAmount).toLocaleString(),
+        transact?.totalAmount != null
+          ? Number(transact.totalAmount).toLocaleString()
+          : "",
     };
   });
+
+  // TABLE COLUMNS
 
   const columns = [
     { dataField: "Date", text: "Date" },
     {
       dataField: "Agent",
       text: "Agent",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
-      bodyStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", color: "#00249C" };
-      },
+      headerStyle: () => ({ width: "150px", textAlign: "center", padding: "10px" }),
+      bodyStyle: () => ({ width: "150px", textAlign: "center", color: "#00249C" }),
+    },
+    {
+    dataField: "AgentManager",
+    text: "Agent Manager",
+    headerStyle: () => ({ width: "200px", textAlign: "center" }),
+    bodyStyle: () => ({ width: "200px", textAlign: "center", color: "#555" }),
     },
     {
       dataField: "TransactionID",
       text: "Transaction ID",
       style: { width: "15em", whiteSpace: "normal", wordWrap: "break-word" },
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center" };
-      },
+      headerStyle: () => ({ width: "150px", textAlign: "center" }),
     },
     { dataField: "Type", text: "Type" },
     { dataField: "TerminalID", text: "Terminal ID" },
@@ -282,32 +277,25 @@ const Transactions = (props) => {
       dataField: "Status",
       text: "Status",
       style: { width: "20em", whiteSpace: "normal", wordWrap: "normal" },
-      headerStyle: (colum, colIndex) => {
-        return { width: "550px", textAlign: "center" };
-      },
-      bodyStyle: (colum, colIndex) => {
-        return { width: "550px", textAlign: "center", wordWrap: "normal" };
-      },
+      headerStyle: () => ({ width: "550px", textAlign: "center" }),
+      bodyStyle: () => ({ width: "550px", textAlign: "center", wordWrap: "normal" }),
       formatter: (cellContent, row) => {
-        let statusMessage = "";
-        let statusColor = "";
-        switch (row.Status) {
+        let statusMessage = row?.transact?.statusMessage || row?.Status || "";
+        let statusColor = "failure";
+
+        switch (row?.Status) {
           case "00":
-            console.log(row);
-            statusMessage = row.transact.statusMessage;
             statusColor = "successful";
             break;
           case "PP":
           case "09":
-            statusMessage = row.transact.statusMessage;
             statusColor = "pending";
             break;
-
           default:
-            statusMessage = row.transact.statusMessage;
             statusColor = "failure";
             break;
         }
+
         return (
           <h5>
             <span className={`${statusColor}`}> {statusMessage}</span>
@@ -322,52 +310,47 @@ const Transactions = (props) => {
       dataField: "RRN",
       text: "RRN",
       style: { width: "10em", whiteSpace: "normal", wordWrap: "break-word" },
-      headerStyle: (colum, colIndex) => {
-        return { width: "100px", textAlign: "center" };
-      },
+      headerStyle: () => ({ width: "100px", textAlign: "center" }),
     },
     {
       dataField: "STAN",
       text: "STAN",
       style: { width: "10em", whiteSpace: "normal", wordWrap: "break-word" },
-      headerStyle: (colum, colIndex) => {
-        return { width: "100px", textAlign: "center" };
-      },
+      headerStyle: () => ({ width: "100px", textAlign: "center" }),
     },
-    // { dataField: 'CardDetails', text: 'Card Details'},
-    { dataField: "PreBalance", text: "Pre-Balance" },
+
+    // SWAPPED DISPLAY TEXT (and order)
     { dataField: "PostBalance", text: "Post-Balance" },
+    { dataField: "PreBalance", text: "Pre-Balance" },
+
     { dataField: "accountName", text: "Beneficiary A/C Name" },
     { dataField: "accountNumber", text: "Beneficiary A/C No" },
     { dataField: "bankName", text: "Beneficiary Bank" },
-    { dataField: "App Version", text: "App Version" },
+    { dataField: "AppVersion", text: "App Version" },
+
     {
       dataField: "ViewReceipt",
       text: "View Receipt",
       formatter: (cellContent, row) => {
         return (
           <h5>
-            <button
-              type="button"
-              onClick={() => ViewReceipt(row)}
-              className="viewTransac"
-            >
+            <button type="button" onClick={() => ViewReceipt(row)} className="viewTransac">
               View Receipt
             </button>
           </h5>
         );
       },
     },
-
     {
       dataField: "QueryTrans",
-      text: "Query Tansaction",
+      text: "Query Transaction",
       formatter: (cellContent, row) => {
-        console.log("row", row);
+        const t = row?.transact?.transactionType?.type;
+        const canQuery = t === "Funds Transfer" || t === "Agent Transfer";
+
         return (
           <h5>
-            {row.transact.transactionType.type == "Funds Transfer" ||
-            row.transact.transactionType.type == "Agent Transfer" ? (
+            {canQuery ? (
               <button
                 type="button"
                 onClick={() => QueryTransaction(row.TransactionID)}
@@ -382,72 +365,53 @@ const Transactions = (props) => {
         );
       },
     },
-
-    // { dataField: 'BeneficiaryDetails', text: 'Beneficiary Details'},
   ];
 
   const defaultSorted = [
     {
-      dataField: "name",
+      dataField: "Date",
       order: "desc",
     },
   ];
-
-  // const _handlePageChange = (pageNumber) => {
-  //   console.log(pageNumber);
-  //   setActivePage(pageNumber);
-  //   setNextPage((prev) => prev + 10);
-  // };
 
   const _handlePageChange = (pageNumber) => {
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
   };
 
-  const closeExport = () => {
-    showExportModal(false);
-  };
-  const closeFilter = () => {
-    showFilterModal(false);
-  };
-
-  const OpenFilter = () => {
-    showFilterModal(true);
-    setFilterValues(initialState);
-  };
-
   return (
     <DashboardTemplate>
       <div className="transact-wrapper">
-        {loading && (
-          <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
-        )}
+        {loading && <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />}
+
         <div className="header-title">
           <h3>Transactions</h3>
         </div>
+
         <div className="agent-transact-header">
           <div>An overview of all transactions on mCashPoint</div>
+
           <div className="actions">
-            <span
-            // onclick={()=> window.print()}
-            >
-              <img src={Print} />
+            <span onClick={() => window.print()}>
+              <img src={Print} alt="print" />
               Print
             </span>
 
-            <span onClick={() => OpenFilter()}>
-              <img src={Filter} />
+            <span onClick={OpenFilter}>
+              <img src={Filter} alt="filter" />
               Filter
             </span>
 
             <span onClick={() => showExportModal(true)}>
-              <img src={Upload} />
+              <img src={Upload} alt="export" />
               Export
             </span>
           </div>
         </div>
+
         <div className="table-wrapper">
           <h4>All Transactions</h4>
+
           <BootstrapTable
             bootstrap4
             keyField="id"
@@ -455,17 +419,17 @@ const Transactions = (props) => {
             columns={columns}
             defaultSorted={defaultSorted}
             bordered={false}
-            // pagination={pagination(length,totalSize)}
             hover
             condensed
           />
         </div>
       </div>
-      <ViewReceipts
-        details={viewReceipt}
-        show={receiptview}
-        close={closeViewReceipt}
-      />
+
+      /* render receipt modal ONLY when we actually have details  */
+      {receiptview && viewReceipt && (
+        <ViewReceipts details={viewReceipt} show={receiptview} close={closeViewReceipt} />
+      )}
+
       <FilterModal
         type={"Transaction"}
         typetext={"Enter Transaction Type"}
@@ -481,6 +445,7 @@ const Transactions = (props) => {
         transactionsType={transactionsType}
         transactionStatus={transactionStatus}
       />
+
       <ExportModal
         show={exportModalActive}
         close={closeExport}
@@ -491,6 +456,7 @@ const Transactions = (props) => {
         products={products}
         columns={columns}
       />
+
       <div className="pagination_wrap">
         <DropdownButton
           menuAlign="right"
@@ -503,15 +469,15 @@ const Transactions = (props) => {
           <Dropdown.Item eventKey="30">30</Dropdown.Item>
           <Dropdown.Item eventKey="50">50</Dropdown.Item>
           <Dropdown.Item eventKey="100">100</Dropdown.Item>
-          <Dropdown.Item
-            eventKey={transactionTotal ? String(transactionTotal) : "0"}
-          >
+          <Dropdown.Item eventKey={transactionTotal ? String(transactionTotal) : "0"}>
             All
           </Dropdown.Item>
         </DropdownButton>
+
         <p>
           Showing 1 to {length} of {transactionTotal}
         </p>
+
         <div className="pagination">
           <Pagination
             activePage={activePage}
@@ -522,22 +488,21 @@ const Transactions = (props) => {
           />
         </div>
       </div>
+
       <ToastContainer autoClose={8000} />
     </DashboardTemplate>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
-    transaction: state.transactions.transactions,
-    transactionsType: state.transactions.transactionsType,
-    transactionStatus: state.transactions.transactionStatus,
-    loading: state.transactions.loading,
-    error: state.transactions.error,
-    transactionTotal: state.transactions.transactionTotal,
-    successTransaction: state.transactions.successTransaction,
-  }
-);
+
+const mapStateToProps = (state) => ({
+  transaction: state.transactions.transactions,
+  transactionsType: state.transactions.transactionsType,
+  transactionStatus: state.transactions.transactionStatus,
+  loading: state.transactions.loading,
+  error: state.transactions.error,
+  transactionTotal: state.transactions.transactionTotal,
+  successTransaction: state.transactions.successTransaction,
+});
 
 export default connect(mapStateToProps, {
   FetchTransaction,
