@@ -12,22 +12,22 @@
 
 .mainwrapper {
   background: #e5e5e5;
-  margin-left: 20%;
+  margin-left: 17%;
   padding-top: 12px;
-  width: 80%;
+  width: 83%;
 }
 
 @media screen and (max-width: 767px) {
   .mainwrapper {
-    margin-left: 10%;
-    width: 90%;
+    margin-left: 50px;
+    width: calc(100% - 50px);
     overflow-y: scroll;
   }
 }
 @media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
   .mainwrapper {
     margin-left: 50px;
-    width: 90%;
+    width: calc(100% - 50px);
     overflow-y: scroll;
   }
 }

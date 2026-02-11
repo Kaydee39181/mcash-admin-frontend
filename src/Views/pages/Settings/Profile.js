@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col, Nav, Form, Button } from "react-bootstrap";
+import {Row, Col, Form, Button } from "react-bootstrap";
 
 function Profile() {
   return (

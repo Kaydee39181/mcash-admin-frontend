@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Row, Col, Card, Button } from "react-bootstrap";
+import React, { useState } from "react";
+import { Row, Col, Card } from "react-bootstrap";
 import GtImage from "../../../Assets/img/guaranty-trust-bank-gtbank-vector-logo .svg";
 import { useHistory } from "react-router-dom";
 
 const SelectBank = () => {
   const history = useHistory();
-  const [selected, setSelected] = useState("");
   return (
     <div>
       <Row>

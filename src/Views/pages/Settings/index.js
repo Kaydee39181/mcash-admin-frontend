@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React from "react";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import Tab from "react-bootstrap/Tab";
-import { Container, Row, Col, Nav, Form, Button } from "react-bootstrap";
+import { Row, Col, Nav } from "react-bootstrap";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import Profile from "../../../Assets/img/settingsuser.png";
 import Password from "../../../Assets/img/settingslocked.png";
@@ -18,7 +18,6 @@ import CreatePin from "./CreatePin";
 import ResetPIN from "./ResetPIN";
 
 const Settings = () => {
-  const [key, setKey] = React.useState("first");
   const token = JSON.parse(localStorage.getItem("data"));
 
   const { name } = token.user.roleGroup;
@@ -33,18 +32,18 @@ const Settings = () => {
         <p className="settings-text">Set controls on mCashPoint</p>
 
         <div className="tabs-wrap">
-          <Tab.Container id="left-tabs-example" defaultActiveKey={key}>
+          <Tab.Container id="left-tabs-example" defaultActiveKey="first">
             <Row>
               <Col sm={3} className="side-tab">
                 <Nav variant="pills" className="flex-column">
-                  {name == "ADMIN" ||
-                  name == "Senior Management " ||
-                  name == "Product" ? (
+                  {name === "ADMIN" ||
+                  name === "Senior Management " ||
+                  name === "Product" ? (
                     <Nav.Item>
                       <Nav.Link eventKey="first">
                         <div className="tab-navs">
                           <div>
-                            <img src={Profile} />
+                            <img src={Profile} alt="Profile" />
                           </div>
                           <div>
                             <p>Profile</p>
@@ -61,7 +60,7 @@ const Settings = () => {
                     <Nav.Link eventKey="second">
                       <div className="tab-navs">
                         <div>
-                          <img src={Password} />
+                          <img src={Password} alt="Password" />
                         </div>
                         <div>
                           <p>Password</p>
@@ -75,7 +74,7 @@ const Settings = () => {
                       <Nav.Link eventKey="third">
                         <div className="tab-navs">
                           <div>
-                            <img src={Role} />
+                            <img src={Role} alt="Role Groups" />
                           </div>
                           <div>
                             <p>Role Groups</p>
@@ -121,7 +120,7 @@ const Settings = () => {
                       <Nav.Link eventKey="fourth">
                         <div className="tab-navs">
                           <div>
-                            <img src={Notifications} />
+                            <img src={Notifications} alt="Notifications" />
                           </div>
                           <div>
                             <p>Notifications</p>
@@ -137,9 +136,9 @@ const Settings = () => {
               </Col>
               <Col sm={6}>
                 <Tab.Content>
-                  {name == "ADMIN" ||
-                  name == "Senior Management " ||
-                  name == "Product" ? (
+                  {name === "ADMIN" ||
+                  name === "Senior Management " ||
+                  name === "Product" ? (
                     <Tab.Pane eventKey="first">
                       <ProfileSettings></ProfileSettings>
                     </Tab.Pane>
@@ -154,9 +153,9 @@ const Settings = () => {
                       <RoleGroups></RoleGroups>
                     </Tab.Pane>
                   )}
-                  {name == "ADMIN" ||
-                  name == "Senior Management " ||
-                  name == "Product" ? (
+                  {name === "ADMIN" ||
+                  name === "Senior Management " ||
+                  name === "Product" ? (
                     <Tab.Pane eventKey="fourth">
                       <NotificationSettings></NotificationSettings>
                     </Tab.Pane>

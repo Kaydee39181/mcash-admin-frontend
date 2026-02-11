@@ -1,6 +1,4 @@
-import React, { Component, useEffect } from "react";
-import Tabs from "react-bootstrap/Tabs";
-import Tab from "react-bootstrap/Tab";
+import React, { useEffect } from "react";
 import { Button } from "react-bootstrap";
 import RoleModal from "./RoleModal";
 import UpdateModal from "./updateRole";
@@ -15,15 +13,10 @@ const RoleGroups = ({ FetchRoleGroup: FetchRoleGroups, roleGroups }) => {
   const [EditModal, showEditModal] = React.useState(false);
   const [udatedetails, Setudatedetails] = React.useState([]);
 
-  const [active, showActive] = React.useState("home");
-
   useEffect(() => {
     FetchRoleGroups();
-  }, []);
+  }, [FetchRoleGroups]);
   console.log(roleGroups);
-  useEffect(() => {
-    console.log(active);
-  }, [active]);
 
   const onclose = () => {
     showCreateModal(false);
@@ -70,16 +63,16 @@ const RoleGroups = ({ FetchRoleGroup: FetchRoleGroups, roleGroups }) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     roleGroups: state.settings.roleGroups,
     loading: state.settings.loading,
     error: state.settings.error,
     success: state.settings.successRoleGroup,
     erroMessage: state.settings.errorMessage,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchRoleGroup,

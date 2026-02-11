@@ -1,11 +1,8 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import DashboardTemplate from "../../template/dashboardtemplate";
-import Tabs from "react-bootstrap/Tabs";
-import Tab from "react-bootstrap/Tab";
 import { Button, Table } from "react-bootstrap";
 import {
   FetchRangeMax,
@@ -32,13 +29,7 @@ const AgentFees = (props) => {
     conviencefees,
     successCreatefees
   } = props;
-  const [createModalActive, showCreateModal] = React.useState(false);
-  const [active, showActive] = React.useState("home");
-  const [ExportModalActive, showExportModal] = React.useState(false);
-  const [transtype, setTransType] = React.useState("");
   const [rangetype, setRangeType] = React.useState([]);
-  const [FilterModalActive, showFilterModal] = React.useState(false);
-  const [newfees, setNewFees] = React.useState([]);
   const [editfee, showEditFeeModal] = useState(false);
   const [feeDetails, setFeeDetails] = useState([]);
   const [indexes, setIndexes] = React.useState([]);
@@ -75,7 +66,7 @@ const AgentFees = (props) => {
 
 
   useEffect(() => {
-    Object.keys(transactionMap).map(key => {
+    Object.keys(transactionMap).forEach(key => {
       const keyData = transactionMap[key]
       keyData.forEach((data, index) => {
         const prevTransaction = keyData[index - 1] || {}
@@ -87,15 +78,14 @@ const AgentFees = (props) => {
         }
       })
     })
-  }, [transactionMap])
+  }, [transactionMap, setValue])
 
   useEffect(() => {
     FetchTransactionType();
     FetchRangeMaxs();
     FetchConvieneceFees();
     handleAdd();
-    // setIndexes()
-  }, []);
+  }, [FetchTransactionType, FetchRangeMaxs, FetchConvieneceFees, handleAdd]);
 
   useEffect(() => {
     if (successCreatefees) {
@@ -108,7 +98,7 @@ const AgentFees = (props) => {
   }, [successCreatefees]);
 
   useEffect(() => {
-    if (successCreatefees == false) {
+    if (successCreatefees === false) {
       setTitle("FEES CANT BE CREATED")
       setDanger(true)
       setSucess(false)
@@ -159,9 +149,6 @@ const AgentFees = (props) => {
   //   setTransType(e.target.value)
   //   FetchRangeMaxs(e.target.value)
   // }
-  const handleSelectRangeType = (e) => {
-    setRangeType(e.target.value);
-  };
 
   const EditFees = (details) => {
     showEditFeeModal(true);
@@ -425,16 +412,16 @@ const AgentFees = (props) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     transactionsType: state.transactions.transactionsType,
     maxrange: state.agentfees.maxrange,
     conviencefees: state.agentfees.conviencefees,
     loading: state.agentfees.loading,
     successCreatefees: state.agentfees.successCreatefees
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchTransactionTypes,

@@ -4,6 +4,16 @@ import { connect } from "react-redux";
 import { isLoggedIn } from "../../utils/isLoggedIn";
 import DashboardTemplate from "../../Views/template/dashboardtemplate";
 
+const safeGetToken = () => {
+  const raw = localStorage.getItem("data");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
 const AuthRequired = ({
   component: Component,
   role,
@@ -11,27 +21,34 @@ const AuthRequired = ({
   adminRequred,
   ...rest
 }) => {
-  const token = JSON.parse(localStorage.getItem("data"));
-  let { name } = token.user.roleGroup;
-  isLoggedIn() 
-  if(name === "AMBASSADOR"){
-    token.user.roleGroup.role = [{roleCode:"ROLE_VIEW_ALL_AGENT" }]
-  }
-  if(name === "AGENT"){
-    token.user.roleGroup.role = [{roleCode:"ROLE_VIEW_ALL_AGENT" },{roleCode:"ROLE_VIEW_ALL_TRANSACTION" }]
-  }
-  if (token) {
-    const { name, role:roles } = token.user.roleGroup;
-    console.log('roles', roles)
-    if (adminRequred && name !== "ADMIN") {
-      return <Redirect to="/" />;
-    }
+  const token = safeGetToken();
+  if (!token?.user?.roleGroup) return <Redirect to="/" />;
 
-    if(!roles.some(role => role.roleCode === roleCode)) {
-      return <DashboardTemplate><h2>You do not have permissions to view this page</h2></DashboardTemplate>
-    }
-  } else {
+  const roleGroup = token.user.roleGroup;
+  const name = roleGroup.name;
+
+  if (name === "AMBASSADOR") {
+    roleGroup.role = [{ roleCode: "ROLE_VIEW_ALL_AGENT" }];
+  }
+  if (name === "AGENT") {
+    roleGroup.role = [
+      { roleCode: "ROLE_VIEW_ALL_AGENT" },
+      { roleCode: "ROLE_VIEW_ALL_TRANSACTION" },
+    ];
+  }
+
+  const roles = Array.isArray(roleGroup.role) ? roleGroup.role : [];
+
+  if (adminRequred && name !== "ADMIN") {
     return <Redirect to="/" />;
+  }
+
+  if (!roles.some((role) => role.roleCode === roleCode)) {
+    return (
+      <DashboardTemplate>
+        <h2>You do not have permissions to view this page</h2>
+      </DashboardTemplate>
+    );
   }
 
   return (
@@ -52,4 +69,4 @@ const mapStateToProps = (state) => ({
   role: state.users.role,
 });
 
-export default connect(() => mapStateToProps, {})(AuthRequired);
+export default connect(mapStateToProps, {})(AuthRequired);

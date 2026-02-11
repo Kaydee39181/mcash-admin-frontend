@@ -12,7 +12,7 @@ import Cancel from "../../Assets/img/x.png";
 import "./style.css";
 
 const Filter = ({ show, close, ...props }) => {
-  const { nextPage, length, loadPage, handleFilterValue, submitFilter, transactionStatus } = props;
+  const { handleFilterValue, submitFilter, transactionStatus } = props;
   console.log(props.name)
   return (
     <Modal
@@ -31,7 +31,7 @@ const Filter = ({ show, close, ...props }) => {
           >
             <div className="modal-header">Filter by</div>
             <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>

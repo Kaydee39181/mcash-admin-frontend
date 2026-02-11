@@ -7,7 +7,7 @@ import {
   PURSE_BALANCE_SUMMARY
 } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from "../../utils/history";
+// import { history } from "../../utils/history";
 
 export const FetchAgentPurse = (page, length, { businessName }) => (
   dispatch
@@ -66,7 +66,7 @@ export const FetchCentralPurse = (length, page,
       .then((res) => {
         console.log(res.data)
         const response = res.data;
-        if (res.status == 200) {
+        if (res.status === 200) {
           dispatch(
             asyncActions(CENTRAL_PURSE).success(response.data ? response : "")
           );

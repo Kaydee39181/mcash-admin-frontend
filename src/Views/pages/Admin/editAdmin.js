@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
+// import DatePicker from "react-datepicker";
 import {
   Modal,
   Form,
   Container,
   Button,
-  Image,
+  // Image,
   Row,
   Col,
   Alert,
@@ -109,7 +109,7 @@ const EditAdminModal = ({
         {load && (
           <Loader
             type="TailSpin"
-            type="Oval"
+            // type="Oval"
             height={60}
             width={60}
             color="#1E4A86"

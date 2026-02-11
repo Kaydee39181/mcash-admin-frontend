@@ -1,7 +1,5 @@
-import React, { Component, useEffect } from "react";
+import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import Upload from "../../../Assets/img/upload.png";
@@ -20,7 +18,6 @@ const AgentsPurses = (props) => {
   const [key, showActive] = React.useState("centralPurse");
 
   const { FetchPurseBalance: FetchPurseBalances, centralPurseBalance } = props;
-  const [createModalActive, showCreateModal] = React.useState(false);
   const [ExportModalActive, showExportModal] = React.useState(false);
   const [FilterModalActive, showFilterModal] = React.useState(false);
   const [ExportModalActive2, showExportModal2] = React.useState(false);
@@ -40,13 +37,9 @@ const AgentsPurses = (props) => {
 
   useEffect(() => {
     FetchPurseBalances()
-  }, []);
+  }, [FetchPurseBalances]);
 
   //console.log(key)
-  const onclose = () => {
-    showActive("centralPurse");
-    showCreateModal(false);
-  };
   const OpenFilter = () => {
     console.log(key)
     if (key === "centralPurse") {
@@ -103,17 +96,17 @@ const AgentsPurses = (props) => {
           </div>
           <div className="manage-agent">
             <span>
-              <img src={Print} />
+              <img src={Print} alt="Print" />
               Print
             </span>
 
             <span onClick={() => OpenFilter()}>
-              <img src={Filter} />
+              <img src={Filter} alt="Filter" />
               Filter
             </span>
 
             <span onClick={() => OpenModal()}>
-              <img src={Upload} />
+              <img src={Upload} alt="Export" />
               Export
             </span>
           </div>
@@ -147,13 +140,15 @@ const AgentsPurses = (props) => {
       </div>
     </DashboardTemplate>
   );
-}; const mapStateToProps = (state) => (
-  console.log(state),
-  {
+}; 
+
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     loading: state.purse.loading,
     error: state.purse.error,
     centralPurseBalance: state.purse.centralPurseBalance,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, { FetchPurseBalance })(AgentsPurses);

@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 // import ToolkitProvider, {  CSVExport } from 'react-bootstrap-table2-toolkit';
 
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
@@ -18,9 +17,6 @@ import Loader from "../../../Components/secondLoader";
 import ExportModal from "../../../Components/Exports";
 import FilterModal from "../../../Components/Filter";
 import {
-  Nav,
-  NavItem,
-  NavLink,
   DropdownButton,
   Dropdown,
 } from "react-bootstrap";
@@ -40,11 +36,9 @@ const Transactions = (props) => {
     transaction,
     loading,
     transactionTotal,
-    successTransaction,
     transactionsType,
   } = props;
   console.log(transactionsType);
-  const [totalSize, setTransactionsTotal] = useState(0);
   const [exportModalActive, showExportModal] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
   const [nextPage, setNextPage] = useState(0);
@@ -93,7 +87,7 @@ const Transactions = (props) => {
     FetchTransactionSingles(nextPage, length, filterValues);
     FetchTransactionType();
     FetchTransactionStatuses();
-  }, [nextPage, length, filterValues]);
+  }, [nextPage, length, filterValues, FetchTransactionSingles, FetchTransactionType, FetchTransactionStatuses]);
 
   const title = "Transactions page";
   const headers = [
@@ -293,7 +287,6 @@ const Transactions = (props) => {
         {loading && (
           <Loader
             type="TailSpin"
-            type="Oval"
             height={60}
             width={60}
             color="#1E4A86"
@@ -305,20 +298,18 @@ const Transactions = (props) => {
         <div className="agent-transact-header">
           <div>An overview of all transactions on mCashPoint</div>
           <div>
-            <span
-            // onclick={()=> window.print()}
-            >
-              <img src={Print} />
+            <span>
+              <img src={Print} alt="Print" />
               Print
             </span>
 
             <span onClick={() => OpenFilter()}>
-              <img src={Filter} />
+              <img src={Filter} alt="Filter" />
               Filter
             </span>
 
             <span onClick={() => showExportModal(true)}>
-              <img src={Upload} />
+              <img src={Upload} alt="Export" />
               Export
             </span>
           </div>
@@ -395,18 +386,17 @@ const Transactions = (props) => {
     </DashboardTemplate>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     transaction: state.transactions.transactions,
     transactionsType: state.transactions.transactionsType,
     transactionStatus: state.transactions.transactionStatus,
     loading: state.transactions.loading,
     error: state.transactions.error,
     transactionTotal: state.transactions.transactionTotal,
-    successTransaction: state.transactions.successTransaction,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchTransactionSingle,

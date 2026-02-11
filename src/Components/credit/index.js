@@ -17,8 +17,8 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
     reason: "" ,
     transactionId: "" ,
   });
-  const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
+  const [errors, setErrors] = useState([]);
 
 
   useEffect(() => { 
@@ -29,8 +29,8 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
 
   useEffect(() => { 
     if(success){
-      return SetSuccessMessage(['operatrion Successful']);
-
+      SetSuccessMessage(['operatrion Successful']);
+      setErrors([]);
     }
 }, [success]);
 
@@ -61,7 +61,6 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
       {loading && (
             <Loader
               type="TailSpin"
-              type="Oval"
               height={60}
               width={60}
               color="#1E4A86"
@@ -74,7 +73,7 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
           >
             <div className="modal-header">Credit/Debit Purse</div>
             <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>
@@ -86,7 +85,7 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
             success ? <Alert variant="success">{successMessage}</Alert> : null
           }
           {
-            error ? <Alert variant="danger">{error}</Alert> : null
+            error ? <Alert variant="danger">{errors}</Alert> : null
           }
             <Row>
               <Col>
@@ -189,13 +188,15 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
   );
 };
 
-const mapStateToProps = state => (console.log(state),{
-  agentPurse:state.purse.agentPurse,
-  loading:state.purse.loading,
-  error:state.purse.error,
-  success:state.purse.cdsuccess
-  
-});
+const mapStateToProps = state => {
+  console.log(state);
+  return {
+    agentPurse:state.purse.agentPurse,
+    loading:state.purse.loading,
+    error:state.purse.error,
+    success:state.purse.cdsuccess
+  };
+};
 
 export default connect(
   mapStateToProps,

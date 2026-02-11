@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Nav, Form, Button, Alert } from "react-bootstrap";
-import { ChangePassword } from "../../../Redux/requests/settingsRequest";
+import React, { useState } from "react";
+import { Form, Button, Alert, Row, Col } from "react-bootstrap";
 import Loader from "../../../Components/secondLoader";
 import "./style.css";
 import axios from "axios";

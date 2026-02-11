@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
+// import DatePicker from "react-datepicker";
 import {
-  Modal,
   Form,
-  Container,
   Button,
-  Image,
   Row,
   Col,
   Alert,
 } from "react-bootstrap";
-import Cancel from "../../../Assets/img/x.png";
+// import Cancel from "../../../Assets/img/x.png";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import {
@@ -43,10 +40,10 @@ const CreateAgentModal = ({
   agentBanks,
   createAgent,
 }) => {
-  const [isPublic, setIsPublic] = useState(true);
+  // const [isPublic, setIsPublic] = useState(true);
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
-  const [logvt, setIsLogvt] = useState({});
+  // const [logvt, setIsLogvt] = useState({});
   const [CreateAgentData, setCreateAgentData] = useState({
     accountNumber: "",
     accountName: "",
@@ -65,33 +62,31 @@ const CreateAgentModal = ({
     lgaId: "",
     bankId: "",
   });
-  const [allAgents, setAllAgents] = useState();
   const getToken = JSON.parse(localStorage.getItem("data"));
   const { access_token } = getToken;
 
   useEffect(() => {
     FetchStates();
     FetchBankS();
-  }, []);
+  }, [FetchStates, FetchBankS]);
 
   useEffect(() => {
     if (erroMessage) {
       if (error && erroMessage.error !== "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
+        SetSuccessMessage([]);
       } else if (erroMessage) {
-        return setErrors(erroMessage.error);
+        setErrors(erroMessage.error);
       }
     }
   }, [error, erroMessage]);
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -427,9 +422,9 @@ CreateAgentModal.propTypes = {
   create: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     createAgent: state.agents.createAgent,
     agentStates: state.agentmanager.agentStates,
     agentLgas: state.agentmanager.agentLga,
@@ -438,8 +433,8 @@ const mapStateToProps = (state) => (
     erroMessage: state.agents.errorMessage,
     success: state.agents.createAgentsuccess,
     error: state.agents.error,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchState,

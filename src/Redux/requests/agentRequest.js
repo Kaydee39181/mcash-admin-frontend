@@ -13,7 +13,6 @@ import {
   UPDATE_AGENT,
 } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from "../../utils/history";
 
 export const FetchAgent =
   (
@@ -37,8 +36,8 @@ export const FetchAgent =
         }
       )
       .then((res) => {
-        console.log(res.status == 200);
-        if (res.status == 200) {
+        console.log(res.status === 200);
+        if (res.status === 200) {
           dispatch(asyncActions(FETCH_AGENTS).success(res.data));
         }
       })
@@ -64,8 +63,8 @@ export const FetchSingleAgent = (username) => (dispatch) => {
     )
     .then((res) => {
       console.log(res);
-      console.log(res.status == 200);
-      if (res.status == 200) {
+      console.log(res.status === 200);
+      if (res.status === 200) {
         dispatch(asyncActions(FETCH_AGENTS).success(res.data));
       }
     })
@@ -107,8 +106,8 @@ export const FetchambassadorAgent =
         }
       )
       .then((res) => {
-        console.log(res.status == 200);
-        if (res.status == 200) {
+        console.log(res.status === 200);
+        if (res.status === 200) {
           dispatch(asyncActions(FETCH_AMBASSADOR_AGENTS).success(res.data));
         }
       })

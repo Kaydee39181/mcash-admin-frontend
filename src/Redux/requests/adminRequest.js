@@ -10,10 +10,6 @@ import {
 import {
     AgentConstant
 } from "../../constants/constants";
-import {
-    history
-} from '../../utils/history'
-
 
 export const FetchAdmin = (
     page,

@@ -425,7 +425,7 @@ const Transactions = (props) => {
         </div>
       </div>
 
-      /* render receipt modal ONLY when we actually have details  */
+      {/* render receipt modal ONLY when we actually have details  */}
       {receiptview && viewReceipt && (
         <ViewReceipts details={viewReceipt} show={receiptview} close={closeViewReceipt} />
       )}

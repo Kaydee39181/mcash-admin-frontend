@@ -61,99 +61,97 @@ const Login = ({ history, loginUser: handleLogin, loading, success, error }) => 
 
   return (
     <div className="d-flex justify-content-center align-items-center login-wrapper">
-      <Form className="form-wrapper" onSubmit={onSubmit}>
-        {loading && (
-          <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
-        )}
+      <div className="login-card">
+        <div className="login-brand">
+          <div className="logo" aria-hidden="true" />
+          <h2>Welcome back</h2>
+          <p>Secure access to agents, transactions, and operations.</p>
+          <div className="brand-badges">
+            <span>Secure</span>
+            <span>Fast</span>
+            <span>Reliable</span>
+          </div>
+        </div>
 
-        <div className="logo"></div>
+        <Form className="form-wrapper login-form" onSubmit={onSubmit}>
+          {loading && (
+            <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
+          )}
 
-        <ErrorAlert errors={errors} />
+          <div className="login-title">
+            <h3>Sign in</h3>
+            <span>Use your admin credentials</span>
+          </div>
 
-        <Row>
-          <Col md={12} sm={12}>
-            <Form.Group controlId="loginUsername">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                name="username"
-                value={userCredentials.username}
-                onChange={handleInputChange}
-                autoComplete="username"
-                required
-              />
-            </Form.Group>
-          </Col>
+          <ErrorAlert errors={errors} />
 
-          <Col md={12} sm={12}>
-            <Form.Group controlId="loginPassword">
-              <Form.Label>Password</Form.Label>
-
-              <div style={{ position: "relative" }}>
+          <Row>
+            <Col md={12} sm={12}>
+              <Form.Group controlId="loginUsername">
+                <Form.Label>Username</Form.Label>
                 <Form.Control
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={userCredentials.password}
+                  type="text"
+                  name="username"
+                  value={userCredentials.username}
                   onChange={handleInputChange}
-                  autoComplete="current-password"
+                  autoComplete="username"
                   required
                 />
+              </Form.Group>
+            </Col>
+
+            <Col md={12} sm={12}>
+              <Form.Group controlId="loginPassword">
+                <Form.Label>Password</Form.Label>
+
+                <div className="password-field">
+                  <Form.Control
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={userCredentials.password}
+                    onChange={handleInputChange}
+                    autoComplete="current-password"
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="password-toggle"
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </Form.Group>
+
+              <div className="login-actions">
+                <Form.Group controlId="formBasicCheckbox" className="remember">
+                  <Form.Check type="checkbox" label="Remember me" />
+                </Form.Group>
 
                 <button
                   type="button"
-                  onClick={() => setShowPassword((s) => !s)}
-                  style={{
-                    position: "absolute",
-                    right: 10,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    border: "none",
-                    background: "transparent",
-                    cursor: "pointer",
-                    fontSize: 14,
-                    color: "#1E4A86",
-                    fontWeight: 600,
-                  }}
+                  onClick={goToChangePassword}
+                  className="forgot-text"
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  Forgot your password?
                 </button>
               </div>
-            </Form.Group>
 
-            <div className="d-flex justify-content-between">
-              <Form.Group controlId="formBasicCheckbox">
-                <Form.Check type="checkbox" label="Remember me" />
-              </Form.Group>
-
-              {/* ✅ clickable */}
-              <button
-                type="button"
-                onClick={goToChangePassword}
-                className="forgot-text"
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  padding: 0,
-                  cursor: "pointer",
-                }}
-              >
-                Forgot your password?
-              </button>
-            </div>
-
-            <div className="text-center pt-3">
-              <Button
-                variant="primary"
-                className="text-white button-wrap"
-                type="submit"
-                disabled={loading}
-              >
-                {loading ? "Logging in..." : "login"}
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      </Form>
+              <div className="text-center pt-3">
+                <Button
+                  variant="primary"
+                  className="text-white button-wrap"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? "Logging in..." : "Login"}
+                </Button>
+              </div>
+            </Col>
+          </Row>
+        </Form>
+      </div>
     </div>
   );
 };

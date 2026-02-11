@@ -7,7 +7,7 @@ import {
     CREATE_CONVIENCE_FEE
 } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from "../../utils/history";
+// import { history } from "../../utils/history";
 
 export const FetchRangeMax = (transactionTypeId) => async (dispatch) => {
     try {

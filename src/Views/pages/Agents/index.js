@@ -1,12 +1,9 @@
-import React, { Component, useEffect, useState } from "react";
-import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
+import React, { useState } from "react";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import Upload from "../../../Assets/img/upload.png";
 import Filter from "../../../Assets/img/filter.png";
 import Print from "../../../Assets/img/printer.png";
-import Plus from "../../../Assets/img/+.png";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
@@ -52,7 +49,7 @@ const AgentsWrapper = () => {
       defaultActiveKey={active}
       id="uncontrolled-tab-example"
       onSelect={(key) => {
-        key == "profile" ? showCreateModal(true) : showActive("home");
+        key === "profile" ? showCreateModal(true) : showActive("home");
       }}
     >
       <Tab eventKey={"home"} title="View Agents">
@@ -88,19 +85,19 @@ const AgentsWrapper = () => {
           </div>
           <div className="manage-agent">
             <span>
-              <img src={Print} />
+              <img src={Print} alt="Print" />
               Print
             </span>
 
             <span
               onClick={() =>OpenFilter()}
             >
-              <img src={Filter} />
+              <img src={Filter} alt="Filter" />
               Filter
             </span>
 
             <span onClick={() => showExportModal(true)}>
-              <img src={Upload} />
+              <img src={Upload} alt="Export" />
               Export
             </span>
           </div>

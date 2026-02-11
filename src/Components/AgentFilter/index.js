@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Modal,
   Form,
   Container,
   Button,
-  Image,
   Row,
   Col,
 } from "react-bootstrap";
@@ -14,12 +13,8 @@ import "./style.css";
 
 const Filter = ({ show, close, ...props }) => {
   const {
-    nextPage,
-    length,
-    loadPage,
     handleFilterValue,
     submitFilter,
-    transactionStatus,
   } = props;
   console.log(props.name);
   return (
@@ -39,7 +34,7 @@ const Filter = ({ show, close, ...props }) => {
           >
             <div className="modal-header">Filter by</div>
             <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>

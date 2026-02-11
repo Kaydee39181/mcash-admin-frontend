@@ -7,7 +7,7 @@ import {
   FETCH_TRANSACTIONS_STATUS,
 } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from "../../utils/history";
+// import { history } from "../../utils/history";
 
 export const FetchTransaction = (
   page,
@@ -46,7 +46,7 @@ export const FetchTransaction = (
       }
     )
     .then((res) => {
-      if (res.status == 200) {
+      if (res.status === 200) {
         dispatch(asyncActions(FETCH_TRANSACTIONS).success(res.data));
       }
     })
@@ -72,7 +72,7 @@ export const FetchTransactionTypes = () => (dispatch) => {
       const response = res.data;
 
       console.log(response);
-      if (res.status == 200) {
+      if (res.status === 200) {
         console.log(response.data);
 
         dispatch(
@@ -126,7 +126,7 @@ export const FetchTransactionSingle = (
       }
     )
     .then((res) => {
-      if (res.status == 200) {
+      if (res.status === 200) {
         dispatch(asyncActions(FETCH_TRANSACTIONS_SINGLE).success(res.data));
       }
     })
@@ -152,7 +152,7 @@ export const FetchTransactionStatus = () => (dispatch) => {
       const response = res.data;
 
       console.log(response);
-      if (res.status == 200) {
+      if (res.status === 200) {
         dispatch(
           asyncActions(FETCH_TRANSACTIONS_STATUS).success(
             response.data ? response : ""

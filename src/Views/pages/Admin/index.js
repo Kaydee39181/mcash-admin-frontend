@@ -1,16 +1,13 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import Upload from "../../../Assets/img/upload.png";
-import Filter from "../../../Assets/img/filter.png";
 import Print from "../../../Assets/img/printer.png";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import Tabs from "react-bootstrap/Tabs";
 import Tab from "react-bootstrap/Tab";
 import CreateAgentModal from "./createAdmin";
 import FetchAgentsManager from "./allAdmin";
-import ExportModal from "../../../Components/Exports/index";
-import FilterModal from "../../../Components/Filter/index";
 
 import "./style.css";
 
@@ -31,15 +28,11 @@ const AdminUsers = (props) => {
   useEffect(() => {
     console.log(active);
     renderTab();
-  }, [active]);
+  }, [active, renderTab]);
 
   const onclose = () => {
     showActive("home");
     showCreateModal(false);
-  };
-  const OpenFilter = () => {
-    showFilterModal(true);
-    setFilterValues(initialState);
   };
 
   const renderTab = () => (
@@ -47,7 +40,7 @@ const AdminUsers = (props) => {
       defaultActiveKey={active}
       id="uncontrolled-tab-example"
       onSelect={(key) => {
-        key == "profile" ? showCreateModal(true) : showActive("home");
+        key === "profile" ? showCreateModal(true) : showActive("home");
       }}
     >
       <Tab eventKey={"home"} title="View All Admin's">
@@ -84,7 +77,7 @@ const AdminUsers = (props) => {
           </div>
           <div className="manage-agent">
             <span>
-              <img src={Print} />
+              <img src={Print} alt="Print" />
               Print
             </span>
 
@@ -94,7 +87,7 @@ const AdminUsers = (props) => {
             </span> */}
 
             <span onClick={() => showExportModal(true)}>
-              <img src={Upload} />
+              <img src={Upload} alt="Export" />
               Export
             </span>
           </div>

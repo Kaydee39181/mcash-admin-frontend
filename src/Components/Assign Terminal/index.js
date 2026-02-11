@@ -1,10 +1,9 @@
-import React, { useState, useEffect ,useRef} from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Form,
   Container,
   Button,
-  Alert,
   Row,
   Col,
 } from "react-bootstrap";
@@ -35,7 +34,7 @@ useEffect(() => {
     reload()
     close()
   }
-}, [success,unassignSuccess]);
+}, [success, unassignSuccess, show, reload, close]);
 
   return (
     <Modal
@@ -50,7 +49,6 @@ useEffect(() => {
       {load && (
               <Loader
                 type="TailSpin"
-                type="Oval"
                 height={60}
                 width={60}
                 color="#1E4A86"
@@ -63,7 +61,7 @@ useEffect(() => {
           >
             <div className="modal-header">Assign Terminal</div>
             <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>
@@ -164,16 +162,16 @@ useEffect(() => {
     </Modal>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     assignTerminal: state.agents.assignTerminal,
     loading: state.agents.loading,
     error: state.agents.error,
     success: state.agents.assignSuccess,
     unassignSuccess: state.agentsunassignSuccess
-  }
-);
+  };
+};
 
 export default connect(
   mapStateToProps,

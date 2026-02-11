@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import "./style.css";
-import LineChart from "../../../Components/lineChart";
 import Barchart from "../../../Components/barchart";
 import Doughnut from "../../../Components/dougnut";
 import {
@@ -21,7 +20,6 @@ const DashBoard = (props) => {
     transactionTypeBreakdown,
     numberOfAgents,
     loading,
-    role,
   } = props;
   const { successful_value, failed_volume, successful_volume, failed_value } =
     dashboardBreakdown;
@@ -30,7 +28,7 @@ const DashBoard = (props) => {
   useEffect(() => {
     DashboardBreakdowns();
     DashboardDetail();
-  }, []);
+  }, [DashboardBreakdowns, DashboardDetail]);
 
   let result = transactionTypeBreakdown.reduce(function (tot, arr) {
     return tot + arr.volume;
@@ -64,7 +62,6 @@ const DashBoard = (props) => {
         {loading && (
           <Loader
             type="TailSpin"
-            type="Oval"
             height={60}
             width={60}
             color="#1E4A86"
@@ -78,10 +75,10 @@ const DashBoard = (props) => {
 
         <div className="graphs-wrapper">
           <div className="Dashboard-overview-wrapper">
-            {name == "ADMIN" ||
-            name == "Senior Management" ||
-            name == "AMBASSADOR" || 
-            name == "Product" ? (
+            {name === "ADMIN" ||
+            name === "Senior Management" ||
+            name === "AMBASSADOR" || 
+            name === "Product" ? (
               <div className="flex-box ">
                 <div className="person-background"></div>
                 <div>
@@ -120,7 +117,7 @@ const DashBoard = (props) => {
           </div>
 
           {/* <div className="transaction-graph-wrapper"> */}
-          {   name == "AMBASSADOR" ? '': (
+          {   name === "AMBASSADOR" ? '': (
           <div className="line-and-details">
            <div className="chart-status">
               <div className="chart-bg">
@@ -164,9 +161,9 @@ const DashBoard = (props) => {
               {/* <div className="barchart-bg">
                 <Barchart />
               </div> */}
-              {name == "ADMIN" ||
-              name == "Senior Management " ||
-              name == "Product" ? (
+              {name === "ADMIN" ||
+              name === "Senior Management " ||
+              name === "Product" ? (
                 <div className="daily-per-agent">
                   <div id="daily-header">Daily Top Performing Agents</div>
 
@@ -194,9 +191,9 @@ const DashBoard = (props) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     dashboardBreakdown: state.dashboard.dashboardBreakdown,
     dashboardDetails: state.dashboard.dashboardDetails,
     mostPerformingAgent: state.dashboard.mostPerformingAgent,
@@ -204,9 +201,8 @@ const mapStateToProps = (state) => (
     numberOfAgents: state.dashboard.numberOfAgents,
     loading: state.dashboard.loading,
     error: state.dashboard.error,
-    role: state.users.role,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   DashboardBreakdown,

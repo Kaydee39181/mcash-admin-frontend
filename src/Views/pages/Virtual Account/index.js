@@ -10,7 +10,7 @@ export default function VirtualAccount() {
     <DashboardTemplate>
       <div className="d-flex flex-column align-items-center justify-content-center bg-gradient">
         <div className="card shadow-lg text-center mb-5 p-5">
-          <h3>🚀 Introducing !!!</h3>
+          <h3> Introducing !!!</h3>
 
           <Card.Img
             variant="top"

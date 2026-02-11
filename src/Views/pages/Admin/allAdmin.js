@@ -9,8 +9,6 @@ import ExportModal from "../../../Components/Exports/index";
 import FilterModal from "../../../Components/Filter/index";
 import Pagination from "react-js-pagination";
 import EditUser from "./editAdmin";
-// import {history} from '../../../utils/history'
-import { Link } from "react-router-dom";
 
 import "./style.css";
 
@@ -26,13 +24,13 @@ const AdminFetch = (props) => {
     showExportModal,
     ExportModalActive,
     agentManagerTotal,
-    initialState,
+    // initialState,
     filterValues,
     setFilterValues,
-    history,
+    // history,
   } = props;
   const [nextPage, setNextPage] = useState(0);
-  const [length, setLength] = useState(10);
+  const [length] = useState(10);
   const [activePage, setActivePage] = useState(1);
   const [adminDetails, setAdminDetails] = useState([]);
 
@@ -43,7 +41,7 @@ const AdminFetch = (props) => {
 
   useEffect(() => {
     FetchAdmins(nextPage, length, filterValues);
-  }, [nextPage, length, filterValues]);
+  }, [FetchAdmins, nextPage, length, filterValues]);
 
   const closeExport = () => {
     showExportModal(false);
@@ -171,7 +169,7 @@ const AdminFetch = (props) => {
       {loading && (
         <Loader
           type="TailSpin"
-          type="Oval"
+          // type="Oval"
           height={60}
           width={60}
           color="#1E4A86"
@@ -211,7 +209,7 @@ const AdminFetch = (props) => {
         close={closeFilter}
         nextPage={nextPage}
         length={length}
-        loadPage={FetchAdmin}
+        loadPage={FetchAdmins}
         handleFilterValue={_handleFilterValue}
         submitFilter={onFilterSubmit}
       />
@@ -225,15 +223,15 @@ const AdminFetch = (props) => {
     </div>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     allAdmin: state.admins.allAdmin,
     loading: state.admins.loading,
     error: state.admins.error,
     allAdminTotal: state.admins.allAdminTotal,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchAdmin,

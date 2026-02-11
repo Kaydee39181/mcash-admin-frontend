@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { Modal, Container, Button } from "react-bootstrap";
 import ReactToPdf from "react-to-pdf";
 
@@ -25,7 +25,7 @@ const ViewReceipt = ({ show, close, details }) => {
           >
             <div className="modal-header">Transaction Receipt</div>
             <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>

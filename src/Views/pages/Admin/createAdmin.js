@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import {
-  Modal,
   Form,
-  Container,
   Button,
-  Image,
   Row,
   Col,
   Alert,
@@ -42,21 +39,18 @@ const CreateAdminModal = ({
     FetchRoleGroups();
     SetSuccessMessage([])
 
-  }, []);
+  }, [FetchRoleGroups, SetSuccessMessage]);
 
 console.log(roleGroups)
   useEffect(() => {
     console.log(error, erroMessage);
     if (erroMessage) {
-      if (error && erroMessage.error != "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+      if (error && erroMessage.error !== "Already registered user") {
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
       } else if (erroMessage) {
-        return setErrors(erroMessage.error);
+        setErrors(erroMessage.error);
       }
     }
   }, [error, erroMessage]);
@@ -91,7 +85,6 @@ console.log(roleGroups)
       {loading && (
         <Loader
           type="TailSpin"
-          type="Oval"
           height={60}
           width={60}
           color="#1E4A86"

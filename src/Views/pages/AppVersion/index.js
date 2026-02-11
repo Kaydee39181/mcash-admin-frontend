@@ -20,8 +20,6 @@ const AppVersion = ({
   success,
   deleteApiSuccess
 }) => {
-  const [errors, setErrors] = useState([]);
-  const [successMessage, SetSuccessMessage] = useState([]);
   const [version, setVersions] = useState("");
   // const [register, setDeleteVersions] = useState([]);
   const { register, handleSubmit } = useForm();
@@ -55,7 +53,6 @@ console.log(success,deleteApiSuccess)
       {loading && (
         <Loader
           type="TailSpin"
-          type="Oval"
           height={60}
           width={60}
           color="#1E4A86"
@@ -114,15 +111,15 @@ console.log(success,deleteApiSuccess)
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     apiVersions: state.apiversions.apiVersions,
     loading: state.apiversions.loading,
     success: state.apiversions.createApiSuccess,
     deleteApiSuccess: state.apiversions.deleteApiSuccess
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   AllApiVersion,
