@@ -4,7 +4,7 @@ import {
   Form,
   Container,
   Button,
-  Image,
+  // Image,
   Row,
   Col,
   Alert,
@@ -135,7 +135,7 @@ const CreateAgentModal = ({
           >
             <div className="modal-header">Add Agent Manager</div>
             <div onClick={() => close()} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>
@@ -430,9 +430,9 @@ CreateAgentModal.propTypes = {
   create: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     agentStates: state.agentmanager.agentStates,
     agentLgas: state.agentmanager.agentLga,
     agentBanks: state.agentmanager.agentBanks,
@@ -440,8 +440,8 @@ const mapStateToProps = (state) => (
     errorMessage: state.agentmanager.errorMessage,
     success: state.agentmanager.createAgentMansuccess,
     error: state.agentmanager.error,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchState,

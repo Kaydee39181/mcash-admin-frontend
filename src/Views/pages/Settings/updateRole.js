@@ -47,7 +47,7 @@ const EditRole = ({
   useEffect(() => {
     console.log(error, erroMessage);
     if (erroMessage) {
-      if (error && erroMessage.error != "RoleGroup does not exist.") {
+      if (error && erroMessage.error !== "RoleGroup does not exist.") {
         return setErrors([
           "There was an error sending your request, please try again later.",
         ]);
@@ -80,7 +80,7 @@ const EditRole = ({
         {loading && (
           <Loader
             type="TailSpin"
-            type="Oval"
+            // type="Oval"
             height={60}
             width={60}
             color="#1E4A86"
@@ -93,7 +93,7 @@ const EditRole = ({
           >
             <div className="modal-header">Create Role Group</div>
             <div onClick={() => close()} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>
@@ -150,16 +150,16 @@ const EditRole = ({
     </Modal>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     roles: state.settings.roles,
     loading: state.settings.loading,
     error: state.settings.error,
     success: state.settings.successUpdateRole,
     erroMessage: state.settings.errorMessage,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchRole,
