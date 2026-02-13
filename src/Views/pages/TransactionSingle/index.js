@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-// import ToolkitProvider, {  CSVExport } from 'react-bootstrap-table2-toolkit';
 
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
@@ -91,22 +90,21 @@ const Transactions = (props) => {
 
   const title = "Transactions page";
   const headers = [
-    [
-      "Date",
-      "Agent",
-      "Transaction ID",
-      "Type",
-      "Terminal ID",
-      "Amount",
-      "Status",
-      "Agent Fee",
-      "Stamp Duty",
-      "RRN",
-      "Pre Balance",
-      "Post Balance",
-    ],
-  ];
-
+  [
+    "Date",
+    "Agent",
+    "Transaction ID",
+    "Type",
+    "Terminal ID",
+    "Amount",
+    "Status",
+    "Agent Fee",
+    "Stamp Duty",
+    "RRN",
+    "Post Balance",
+    "Pre Balance",
+  ],
+];
   const item = transaction.map((transact) => [
     transact.systemTime,
     transact.agent.businessName,
@@ -150,15 +148,20 @@ const Transactions = (props) => {
       StampDuty: transact.stampDuty === "undefined" ? "" : transact.stampDuty,
       RRN: transact.rrn === "undefined" ? "" : transact.rrn,
       STAN: transact.stan === "undefined" ? "" : transact.stan,
+      
       // CardDetails:transact.rrn === 'undefined' ? '':transact.rrn ,
-      PreBalance:
-        transact.postPurseBalance.toFixed(2) === "undefined"
-          ? ""
-          : transact.postPurseBalance.toFixed(2),
-      PostBalance:
-        transact.postPurseBalance.toFixed(2) === "undefined"
-          ? ""
-          : transact.prePurseBalance.toFixed(2),
+      // PreBalance:
+      //   transact.postPurseBalance.toFixed(2) === "undefined"
+      //     ? ""
+      //     : transact.postPurseBalance.toFixed(2),
+      // PostBalance:
+      //   transact.postPurseBalance.toFixed(2) === "undefined"
+      //     ? ""
+      //     : transact.prePurseBalance.toFixed(2),
+
+      PreBalance: transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
+      PostBalance: transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
+
       AppVersion:
         transact.appVersion === "undefined" ? "" : transact.appVersion,
     };
@@ -244,8 +247,8 @@ const Transactions = (props) => {
       },
     },
     // { dataField: 'CardDetails', text: 'Card Details'},
-    { dataField: "PreBalance", text: "Pre-Balance" },
-    { dataField: "PostBalance", text: "Post-Balance" },
+    { dataField: "PreBalance", text: "Post-Balance" },
+    { dataField: "PostBalance", text: "Pre-Balance" },
     { dataField: "App Version", text: "App Version" },
 
     // { dataField: 'BeneficiaryDetails', text: 'Beneficiary Details'},
