@@ -101,8 +101,8 @@ const Transactions = (props) => {
     "Agent Fee",
     "Stamp Duty",
     "RRN",
-    "Post Balance",
     "Pre Balance",
+    "Post Balance",
   ],
 ];
   const item = transaction.map((transact) => [
@@ -118,8 +118,8 @@ const Transactions = (props) => {
     transact.agentFee,
     transact.stampDuty,
     transact.rrn,
-    transact.postPurseBalance.toFixed(2),
     transact.prePurseBalance.toFixed(2),
+    transact.postPurseBalance.toFixed(2),
   ]);
 
   const products = transaction.map((transact) => {
@@ -159,8 +159,8 @@ const Transactions = (props) => {
       //     ? ""
       //     : transact.prePurseBalance.toFixed(2),
 
-      PreBalance: transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
       PostBalance: transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
+      PreBalance: transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
 
       AppVersion:
         transact.appVersion === "undefined" ? "" : transact.appVersion,
@@ -247,8 +247,8 @@ const Transactions = (props) => {
       },
     },
     // { dataField: 'CardDetails', text: 'Card Details'},
-    { dataField: "PreBalance", text: "Post-Balance" },
     { dataField: "PostBalance", text: "Pre-Balance" },
+    { dataField: "PreBalance", text: "Post-Balance" },
     { dataField: "App Version", text: "App Version" },
 
     // { dataField: 'BeneficiaryDetails', text: 'Beneficiary Details'},

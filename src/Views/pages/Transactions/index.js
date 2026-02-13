@@ -188,8 +188,8 @@ const Transactions = (props) => {
       "Agent Fee",
       "Stamp Duty",
       "RRN",
-      "Post Balance",
       "Pre Balance",
+      "Post Balance",
     ],
   ];
 
@@ -205,8 +205,8 @@ const Transactions = (props) => {
     transact?.agentFee ?? "",
     transact?.stampDuty ?? "",
     transact?.rrn || "",
-    Number(transact?.postPurseBalance ?? 0).toFixed(2), //  Pre Balance shows Post value
     Number(transact?.prePurseBalance ?? 0).toFixed(2),  //  Post Balance shows Pre value
+    Number(transact?.postPurseBalance ?? 0).toFixed(2), //  Pre Balance shows Post value
   ]);
 
 
@@ -236,8 +236,8 @@ const Transactions = (props) => {
       STAN: transact?.stan || "",
 
       //  swapped data meanings below (Post first, then Pre)
-      PreBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
       PostBalance: Number(transact?.prePurseBalance ?? 0).toFixed(2),
+      PreBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
 
 
       AppVersion: transact?.appVersion || "",
@@ -320,8 +320,8 @@ const Transactions = (props) => {
     },
 
     // SWAPPED DISPLAY TEXT (and order)
-    { dataField: "PostBalance", text: "Post-Balance" },
     { dataField: "PreBalance", text: "Pre-Balance" },
+    { dataField: "PostBalance", text: "Post-Balance" },
 
     { dataField: "accountName", text: "Beneficiary A/C Name" },
     { dataField: "accountNumber", text: "Beneficiary A/C No" },
