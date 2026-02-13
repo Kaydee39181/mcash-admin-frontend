@@ -63,7 +63,7 @@ const Login = ({ history, loginUser: handleLogin, loading, success, error }) => 
     <div className="d-flex justify-content-center align-items-center login-wrapper">
       <div className="login-card">
         <div className="login-brand">
-          <div className="logo" aria-hidden="true" />
+          <div className="login-logo" aria-hidden="true" />
           <h2>Welcome back</h2>
           <p>Secure access to agents, transactions, and operations.</p>
           <div className="brand-badges">
