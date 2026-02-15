@@ -54,6 +54,7 @@ const Transactions = (props) => {
     pan: "",
     stan: "",
     agentId: "",
+    agentManagerName: "",
     draw: "",
   };
   const [filterValues, setFilterValues] = useState(initialState);
@@ -89,10 +90,44 @@ const Transactions = (props) => {
   }, [nextPage, length, filterValues, FetchTransactionSingles, FetchTransactionType, FetchTransactionStatuses]);
 
   const title = "Transactions page";
+  const transactions = Array.isArray(transaction) ? transaction : [];
+
+  const getManagerName = (transact) =>
+    transact?.agent?.agentManager?.accountName ||
+    transact?.agent?.agentManager?.user?.fullName ||
+    transact?.agentManager?.accountName ||
+    transact?.agentManager?.user?.fullName ||
+    transact?.agentManagerName ||
+    "";
+
+  const managerByAgentId = transactions.reduce((acc, transact) => {
+    const agentId = transact?.agent?.id;
+    const managerName = getManagerName(transact);
+
+    if (agentId != null && managerName && !acc.has(String(agentId))) {
+      acc.set(String(agentId), managerName);
+    }
+
+    return acc;
+  }, new Map());
+
+  const resolveManagerName = (transact) => {
+    const managerName = getManagerName(transact);
+    if (managerName) return managerName;
+
+    const agentId = transact?.agent?.id;
+    if (agentId != null) {
+      return managerByAgentId.get(String(agentId)) || "—";
+    }
+
+    return "—";
+  };
+
   const headers = [
   [
     "Date",
     "Agent",
+    "Agent Manager",
     "Transaction ID",
     "Type",
     "Terminal ID",
@@ -105,49 +140,51 @@ const Transactions = (props) => {
     "Post Balance",
   ],
 ];
-  const item = transaction.map((transact) => [
-    transact.systemTime,
-    transact.agent.businessName,
-    transact.transactionId,
-    transact.transactionType.type,
-    transact.agent.bankTerminal == null
+  const item = transactions.map((transact) => [
+    transact?.systemTime || "",
+    transact?.agent?.businessName || "",
+    resolveManagerName(transact),
+    transact?.transactionId || "",
+    transact?.transactionType?.type || "",
+    transact?.agent?.bankTerminal == null
       ? ""
-      : transact.agent.bankTerminal.terminalId,
-    transact.amount,
-    transact.statusCode,
-    transact.agentFee,
-    transact.stampDuty,
-    transact.rrn,
-    transact.prePurseBalance.toFixed(2),
-    transact.postPurseBalance.toFixed(2),
+      : transact?.agent?.bankTerminal?.terminalId,
+    transact?.amount ?? "",
+    transact?.statusCode || "",
+    transact?.agentFee ?? "",
+    transact?.stampDuty ?? "",
+    transact?.rrn || "",
+    transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
+    transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
   ]);
 
-  const products = transaction.map((transact) => {
+  const products = transactions.map((transact) => {
     return {
       transact: transact,
-      id: transact.agent.id === "undefined" ? "" : transact.id,
-      Date: transact.systemTime === "undefined" ? "" : transact.systemTime,
+      id: transact?.agent?.id === "undefined" ? "" : transact?.id,
+      Date: transact?.systemTime === "undefined" ? "" : transact?.systemTime,
       Agent:
-        transact.agent.businessName === "undefined"
+        transact?.agent?.businessName === "undefined"
           ? ""
-          : transact.agent.businessName,
+          : transact?.agent?.businessName,
+      AgentManager: resolveManagerName(transact),
       TransactionID:
-        transact.transactionId === "undefined" ? "" : transact.transactionId,
+        transact?.transactionId === "undefined" ? "" : transact?.transactionId,
       Type:
-        transact.transactionType.type === "undefined"
+        transact?.transactionType?.type === "undefined"
           ? ""
-          : transact.transactionType.type,
+          : transact?.transactionType?.type,
       TerminalID:
-        transact.agent.bankTerminal === null
+        transact?.agent?.bankTerminal === null
           ? ""
-          : transact.agent.bankTerminal.terminalId,
-      Amount: transact.amount === "undefined" ? "" : transact.amount,
-      Status: transact.statusCode,
-      ConvenienceFee: transact.convenienceFee,
-      AgentFee: transact.agentFee === "undefined" ? "" : transact.agentFee,
-      StampDuty: transact.stampDuty === "undefined" ? "" : transact.stampDuty,
-      RRN: transact.rrn === "undefined" ? "" : transact.rrn,
-      STAN: transact.stan === "undefined" ? "" : transact.stan,
+          : transact?.agent?.bankTerminal?.terminalId,
+      Amount: transact?.amount === "undefined" ? "" : transact?.amount,
+      Status: transact?.statusCode,
+      ConvenienceFee: transact?.convenienceFee,
+      AgentFee: transact?.agentFee === "undefined" ? "" : transact?.agentFee,
+      StampDuty: transact?.stampDuty === "undefined" ? "" : transact?.stampDuty,
+      RRN: transact?.rrn === "undefined" ? "" : transact?.rrn,
+      STAN: transact?.stan === "undefined" ? "" : transact?.stan,
       
       // CardDetails:transact.rrn === 'undefined' ? '':transact.rrn ,
       // PreBalance:
@@ -163,7 +200,7 @@ const Transactions = (props) => {
       PreBalance: transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
 
       AppVersion:
-        transact.appVersion === "undefined" ? "" : transact.appVersion,
+        transact?.appVersion === "undefined" ? "" : transact?.appVersion,
     };
   });
 
@@ -177,6 +214,16 @@ const Transactions = (props) => {
       },
       bodyStyle: (colum, colIndex) => {
         return { width: "150px", textAlign: "center", color: "#00249C" };
+      },
+    },
+    {
+      dataField: "AgentManager",
+      text: "Agent Manager",
+      headerStyle: (colum, colIndex) => {
+        return { width: "200px", textAlign: "center", padding: "10px" };
+      },
+      bodyStyle: (colum, colIndex) => {
+        return { width: "200px", textAlign: "center", color: "#555" };
       },
     },
     {

@@ -269,6 +269,18 @@ const Filter = ({ show, close, ...props }) => {
                       />
                     </Form.Group>
                   </Col>
+                  <Col md={4} sm={12}>
+                    <Form.Group controlId="">
+                      <Form.Label>Agent Manager Name</Form.Label>
+                      <Form.Control
+                        size="sm"
+                        type="text"
+                        name="agentManagerName"
+                        placeholder="Enter Agent Manager Name"
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
+                  </Col>
                   {/* <Col md={4} sm={12}>
                 <Form.Group controlId="">
                   <Form.Label>Period</Form.Label>

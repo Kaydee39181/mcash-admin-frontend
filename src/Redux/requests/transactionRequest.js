@@ -35,7 +35,7 @@ export const FetchTransaction = (
     .get(
       `${
         AgentConstant.FETCH_TRANSACTIONS_URL
-      }startPage=${page}&length=${length}&agentId=${agentId}&agentManagerName=${agentManagerName}&startDate=${
+      }startPage=${page}&length=${length}&agentId=${agentId}&agentManagerName=${encodeURIComponent(agentManagerName || "")}&startDate=${
         startDate ? startDate : ""
       }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}`,
       {
@@ -117,7 +117,7 @@ export const FetchTransactionSingle = (
         AgentConstant.FETCH_TRANSACTIONS_URL
       }startPage=${page}&length=${length}&agentId=${agentIde}&startDate=${
         startDate ? startDate : ""
-      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}&agentManagerName=${agentManagerName}`,
+      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}&agentManagerName=${encodeURIComponent(agentManagerName || "")}`,
       {
         headers: {
           Authorization: `bearer ${token.access_token}`,

@@ -63,6 +63,7 @@ const Transactions = (props) => {
     pan: "",
     stan: "",
     agentId: "",
+    agentManagerName: "",
     draw: "",
   };
 
@@ -174,6 +175,39 @@ const Transactions = (props) => {
   
   const title = "Transactions page";
 
+  const transactions = Array.isArray(transaction) ? transaction : [];
+
+  const getManagerName = (transact) =>
+    transact?.agent?.agentManager?.accountName ||
+    transact?.agent?.agentManager?.user?.fullName ||
+    transact?.agentManager?.accountName ||
+    transact?.agentManager?.user?.fullName ||
+    transact?.agentManagerName ||
+    "";
+
+  const managerByAgentId = transactions.reduce((acc, transact) => {
+    const agentId = transact?.agent?.id;
+    const managerName = getManagerName(transact);
+
+    if (agentId != null && managerName && !acc.has(String(agentId))) {
+      acc.set(String(agentId), managerName);
+    }
+
+    return acc;
+  }, new Map());
+
+  const resolveManagerName = (transact) => {
+    const managerName = getManagerName(transact);
+    if (managerName) return managerName;
+
+    const agentId = transact?.agent?.id;
+    if (agentId != null) {
+      return managerByAgentId.get(String(agentId)) || "—";
+    }
+
+    return "—";
+  };
+
   
   const headers = [
     [
@@ -193,10 +227,10 @@ const Transactions = (props) => {
     ],
   ];
 
-  const item = (Array.isArray(transaction) ? transaction : []).map((transact) => [
+  const item = transactions.map((transact) => [
     transact?.systemTime || "",
     transact?.agent?.businessName || "",
-    transact?.agent?.agentManager?.accountName || "—",
+    resolveManagerName(transact),
     transact?.transactionId || "",
     transact?.transactionType?.type || "",
     transact?.agent?.bankTerminal?.terminalId || "",
@@ -210,7 +244,7 @@ const Transactions = (props) => {
   ]);
 
 
-  const products = (Array.isArray(transaction) ? transaction : []).map((transact) => {
+  const products = transactions.map((transact) => {
 
     const time = new Date(transact?.systemTime);
     const ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
@@ -220,7 +254,7 @@ const Transactions = (props) => {
       id: transact?.id ?? "",
       Date: transact?.systemTime ? ntime : "",
       Agent: transact?.agent?.businessName || "",
-      AgentManager: transact?.agent?.agentManager?.accountName || "—",
+      AgentManager: resolveManagerName(transact),
       TransactionID: transact?.transactionId || "",
       Type: transact?.transactionType?.type || "",
       TerminalID: transact?.agent?.bankTerminal?.terminalId || "",
