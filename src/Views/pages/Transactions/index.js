@@ -63,6 +63,7 @@ const Transactions = (props) => {
     pan: "",
     stan: "",
     agentId: "",
+    agentManagerId: "",
     agentManagerName: "",
     draw: "",
   };
@@ -185,6 +186,15 @@ const Transactions = (props) => {
     transact?.agentManagerName ||
     "";
 
+  const getManagerId = (transact) =>
+    transact?.agent?.agentManager?.id ??
+    transact?.agent?.agentManager?.user?.id ??
+    transact?.agent?.agentManagerId ??
+    transact?.agentManager?.id ??
+    transact?.agentManager?.user?.id ??
+    transact?.agentManagerId ??
+    "";
+
   const managerByAgentId = transactions.reduce((acc, transact) => {
     const agentId = transact?.agent?.id;
     const managerName = getManagerName(transact);
@@ -208,6 +218,39 @@ const Transactions = (props) => {
     return "—";
   };
 
+  const managerIdByAgentId = transactions.reduce((acc, transact) => {
+    const agentId = transact?.agent?.id;
+    const managerId = getManagerId(transact);
+
+    if (agentId != null && managerId !== "" && !acc.has(String(agentId))) {
+      acc.set(String(agentId), String(managerId));
+    }
+
+    return acc;
+  }, new Map());
+
+  const resolveManagerId = (transact) => {
+    const managerId = getManagerId(transact);
+    if (managerId !== "") return String(managerId);
+
+    const agentId = transact?.agent?.id;
+    if (agentId != null) {
+      return managerIdByAgentId.get(String(agentId)) || "";
+    }
+
+    return "";
+  };
+
+  const normalizedManagerIdFilter = String(
+    filterValues?.agentManagerId || ""
+  ).trim().toLowerCase();
+
+  const transactionsToRender = normalizedManagerIdFilter
+    ? transactions.filter((transact) =>
+        resolveManagerId(transact).toLowerCase().includes(normalizedManagerIdFilter)
+      )
+    : transactions;
+
   
   const headers = [
     [
@@ -227,7 +270,7 @@ const Transactions = (props) => {
     ],
   ];
 
-  const item = transactions.map((transact) => [
+  const item = transactionsToRender.map((transact) => [
     transact?.systemTime || "",
     transact?.agent?.businessName || "",
     resolveManagerName(transact),
@@ -244,7 +287,7 @@ const Transactions = (props) => {
   ]);
 
 
-  const products = transactions.map((transact) => {
+  const products = transactionsToRender.map((transact) => {
 
     const time = new Date(transact?.systemTime);
     const ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");

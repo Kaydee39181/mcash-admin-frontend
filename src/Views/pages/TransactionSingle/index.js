@@ -54,6 +54,7 @@ const Transactions = (props) => {
     pan: "",
     stan: "",
     agentId: "",
+    agentManagerId: "",
     agentManagerName: "",
     draw: "",
   };

@@ -271,6 +271,37 @@ const Filter = ({ show, close, ...props }) => {
                   </Col>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
+                      <Form.Label>Agent ID</Form.Label>
+                      <Form.Control
+                        size="sm"
+                        type="text"
+                        name="agentId"
+                        placeholder="Enter Agent ID"
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={4} sm={12}>
+                    <Form.Group controlId="">
+                      <Form.Label>Agent Manager ID</Form.Label>
+                      <Form.Control
+                        size="sm"
+                        type="text"
+                        name="agentManagerId"
+                        placeholder="Enter Agent Manager ID"
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                : ''
+            }
+
+            {
+              props.name === "transaction" ?
+                <Row>
+                  <Col md={4} sm={12}>
+                    <Form.Group controlId="">
                       <Form.Label>Agent Manager Name</Form.Label>
                       <Form.Control
                         size="sm"

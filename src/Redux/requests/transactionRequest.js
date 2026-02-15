@@ -23,6 +23,7 @@ export const FetchTransaction = (
     pan,
     stan,
     agentId,
+    agentManagerId,
     agentManagerName,
     draw,
   }
@@ -35,7 +36,7 @@ export const FetchTransaction = (
     .get(
       `${
         AgentConstant.FETCH_TRANSACTIONS_URL
-      }startPage=${page}&length=${length}&agentId=${agentId}&agentManagerName=${encodeURIComponent(agentManagerName || "")}&startDate=${
+      }startPage=${page}&length=${length}&agentId=${encodeURIComponent(agentId || "")}&agentManagerId=${encodeURIComponent(agentManagerId || "")}&managerId=${encodeURIComponent(agentManagerId || "")}&agentManager=${encodeURIComponent(agentManagerId || "")}&agentManagerUserId=${encodeURIComponent(agentManagerId || "")}&ambassadorId=${encodeURIComponent(agentManagerId || "")}&agentManagerName=${encodeURIComponent(agentManagerName || "")}&startDate=${
         startDate ? startDate : ""
       }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}`,
       {
@@ -102,6 +103,7 @@ export const FetchTransactionSingle = (
     pan,
     stan,
     agentId,
+    agentManagerId,
     agentManagerName,
     draw,
   }
@@ -117,7 +119,7 @@ export const FetchTransactionSingle = (
         AgentConstant.FETCH_TRANSACTIONS_URL
       }startPage=${page}&length=${length}&agentId=${agentIde}&startDate=${
         startDate ? startDate : ""
-      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}&agentManagerName=${encodeURIComponent(agentManagerName || "")}`,
+      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}&agentManagerId=${encodeURIComponent(agentManagerId || "")}&managerId=${encodeURIComponent(agentManagerId || "")}&agentManager=${encodeURIComponent(agentManagerId || "")}&agentManagerUserId=${encodeURIComponent(agentManagerId || "")}&ambassadorId=${encodeURIComponent(agentManagerId || "")}&agentManagerName=${encodeURIComponent(agentManagerName || "")}`,
       {
         headers: {
           Authorization: `bearer ${token.access_token}`,
