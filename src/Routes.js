@@ -27,6 +27,8 @@ import AgentsAccount from "./Views/pages/AgentsAccount";
 import AccountOpening from "./Views/pages/AccountOpening";
 import Gtb from "./Views/pages/AccountOpening/Gtb";
 import VirtualAccount from "./Views/pages/Virtual Account";
+import AgentProfile from "./Components/AgentProfile";
+import AgentManagerProfile from "./Components/AgentManagerProfile";
 
 class Routes extends Component {
   render() {
@@ -78,6 +80,20 @@ class Routes extends Component {
                 exact
                 path="/agents"
                 component={Agents}
+              />
+
+              <AuthRequired
+                roleCode="ROLE_VIEW_ALL_AGENT"
+                exact
+                path="/agentprofile"
+                component={AgentProfile}
+              />
+
+              <AuthRequired
+                roleCode="ROLE_VIEW_ALL_AGENT"
+                exact
+                path="/agentmanagerprofile"
+                component={AgentManagerProfile}
               />
 
               <AuthRequired
