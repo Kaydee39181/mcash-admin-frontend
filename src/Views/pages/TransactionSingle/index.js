@@ -205,6 +205,11 @@ const Transactions = (props) => {
     };
   });
 
+  const noDataIndication = () => {
+    if (loading) return "Loading transactions...";
+    return "No transactions are available for the selected request. Try changing the filters or date range.";
+  };
+
   const columns = [
     { dataField: "Date", text: "Date" },
     {
@@ -372,6 +377,7 @@ const Transactions = (props) => {
             keyField="id"
             data={products}
             columns={columns}
+            noDataIndication={noDataIndication}
             defaultSorted={defaultSorted}
             bordered={false}
             // pagination={pagination(length,totalSize)}

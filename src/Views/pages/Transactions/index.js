@@ -251,6 +251,11 @@ const Transactions = (props) => {
       )
     : transactions;
 
+  const noDataIndication = () => {
+    if (loading) return "Loading transactions...";
+    return "No transactions are available for the selected request. Try changing the filters or date range.";
+  };
+
   
   const headers = [
     [
@@ -494,6 +499,7 @@ const Transactions = (props) => {
             keyField="id"
             data={products}
             columns={columns}
+            noDataIndication={noDataIndication}
             defaultSorted={defaultSorted}
             bordered={false}
             hover

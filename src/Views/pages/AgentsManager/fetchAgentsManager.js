@@ -117,6 +117,11 @@ const FetchAgentsManager = (props) => {
     };
   });
 
+  const noDataIndication = () => {
+    if (loading) return "Loading agents...";
+    return "No agents are available for the selected request. Try changing the filters.";
+  };
+
   const columns = [
     // { dataField: 'id', text: 'Id'},
     {
@@ -207,6 +212,7 @@ const FetchAgentsManager = (props) => {
           keyField="id"
           data={products}
           columns={columns}
+          noDataIndication={noDataIndication}
           defaultSorted={defaultSorted}
           bordered={false}
           hover
