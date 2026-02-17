@@ -229,7 +229,7 @@ const CentralPurse = (props) => {
           transactionsType={transactionsType}
 
         />
-        <ExportModal show={ExportModalActive} close={closeExport} filename='centralPurse file' title={title} headers={headers} item={item} products={products} columns={columns} />
+        <ExportModal show={ExportModalActive} close={closeExport} filename='centralPurse file' title={title} headers={headers} item={item} products={products} columns={columns} filterValues={filterValues} />
       </div>
     </div>
   );

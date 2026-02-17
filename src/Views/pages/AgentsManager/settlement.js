@@ -187,6 +187,7 @@ const FetchAgentsSettlement = (props) => {
         item={item}
         products={products}
         columns={columns}
+        filterValues={filterValues}
       />
     </div>
   );

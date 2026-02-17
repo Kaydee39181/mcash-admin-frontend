@@ -169,7 +169,10 @@ const Agents = (props) => {
   };
 
   const handleSelect = (e) => {
-    setLength(e);
+    const selectedLength = Number(e);
+    setLength(selectedLength);
+    setNextPage(0);
+    setActivePage(1);
   };
 
   const onFilterSubmit = (event) => {
@@ -223,6 +226,11 @@ const Agents = (props) => {
     if (loading) return "Loading agents...";
     return "No agents are available for the selected request. Try changing the filters.";
   };
+
+  const totalAgentsCount = Number(agentTotal) || 0;
+  const startItem = totalAgentsCount > 0 ? (activePage - 1) * length + 1 : 0;
+  const endItem = totalAgentsCount > 0 ? Math.min(activePage * length, totalAgentsCount) : 0;
+  const allAgentsEventKey = String(totalAgentsCount > 0 ? totalAgentsCount : length || 10);
 
   const columns = [
     // { dataField: 'id', text: 'Id'},
@@ -430,15 +438,15 @@ const Agents = (props) => {
           <Dropdown.Item eventKey="30">30</Dropdown.Item>
           <Dropdown.Item eventKey="50">50</Dropdown.Item>
           <Dropdown.Item eventKey="100">100</Dropdown.Item>
+          <Dropdown.Item eventKey={allAgentsEventKey}>All</Dropdown.Item>
         </DropdownButton>
         <p>
-          Showing {activePage * length - length + 1} to {length * activePage} of{" "}
-          {agentTotal}
+          Showing {startItem} to {endItem} of {totalAgentsCount}
         </p>
         <div className="pagination">
           <Pagination
             activePage={activePage}
-            itemsCountPerPage={10}
+            itemsCountPerPage={length}
             totalItemsCount={agentTotal}
             pageRangeDisplayed={5}
             onChange={_handlePageChange}

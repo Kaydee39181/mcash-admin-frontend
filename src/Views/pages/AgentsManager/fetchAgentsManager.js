@@ -76,7 +76,11 @@ const FetchAgentsManager = (props) => {
   }
 
   const handleSelect = (e) => {
-    setLength(e);
+    const selectedLength = Number(e);
+    setLength(selectedLength);
+    setActivePage(1);
+    setNextPage(0);
+    FetchAgentManagers(0, selectedLength, filterValues);
   };
 
   const title = "AgentManager page";
@@ -121,6 +125,15 @@ const FetchAgentsManager = (props) => {
     if (loading) return "Loading agents...";
     return "No agents are available for the selected request. Try changing the filters.";
   };
+
+  const totalAgentManagersCount = Number(agentManagerTotal) || 0;
+  const startItem = totalAgentManagersCount > 0 ? (activePage - 1) * length + 1 : 0;
+  const endItem = totalAgentManagersCount > 0
+    ? Math.min(activePage * length, totalAgentManagersCount)
+    : 0;
+  const allAgentManagersEventKey = String(
+    totalAgentManagersCount > 0 ? totalAgentManagersCount : length || 10
+  );
 
   const columns = [
     // { dataField: 'id', text: 'Id'},
@@ -231,12 +244,15 @@ const FetchAgentsManager = (props) => {
           <Dropdown.Item eventKey="30">30</Dropdown.Item>
           <Dropdown.Item eventKey="50">50</Dropdown.Item>
           <Dropdown.Item eventKey="100">100</Dropdown.Item>
+          <Dropdown.Item eventKey={allAgentManagersEventKey}>All</Dropdown.Item>
         </DropdownButton>
-        <p>Showing 1 to 10 of {agentManagerTotal}</p>
+        <p>
+          Showing {startItem} to {endItem} of {totalAgentManagersCount}
+        </p>
         <div className="pagination">
           <Pagination
             activePage={activePage}
-            itemsCountPerPage={10}
+            itemsCountPerPage={length}
             totalItemsCount={agentManagerTotal}
             pageRangeDisplayed={5}
             onChange={_handlePageChange}

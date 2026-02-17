@@ -246,7 +246,7 @@ const AgentPurse = (props) => {
           handleFilterValue={_handleFilterValue}
           submitFilter={onFilterSubmit}
         />
-        <ExportModal show={ExportModalActives} close={closeExport} filename='AgentPurse file' title={title} headers={headers} item={item} products={products} columns={columns} />
+        <ExportModal show={ExportModalActives} close={closeExport} filename='AgentPurse file' title={title} headers={headers} item={item} products={products} columns={columns} filterValues={filterValues} />
 
       </div>
     </div>

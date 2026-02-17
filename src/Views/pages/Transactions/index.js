@@ -538,6 +538,7 @@ const Transactions = (props) => {
         item={item}
         products={products}
         columns={columns}
+        filterValues={filterValues}
       />
 
       <div className="pagination_wrap">

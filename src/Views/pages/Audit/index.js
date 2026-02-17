@@ -224,6 +224,7 @@ const Audit = (props) => {
             item={item}
             products={products}
             columns={columns}
+            filterValues={filterValues}
           />
           <div className="pagination_wrap">
             <p>Showing 1 to {length} of {auditTotal}</p>
