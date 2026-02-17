@@ -3,4 +3,5 @@ export const getToken = () => window.localStorage.getItem('data') || '';
 export const removeToken = () => {
   window.localStorage.removeItem('data');
   window.localStorage.removeItem('user');
+  window.sessionStorage.removeItem('mcash_active_session');
 };

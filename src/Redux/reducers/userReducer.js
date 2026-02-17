@@ -19,6 +19,9 @@ const UsersReducer = (state = initialState, action) => {
       return { ...state, loading: true };
     case asyncActionName(LOGIN_USER).success:
       saveToken(JSON.stringify(action.payload));
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem("mcash_active_session", "1");
+      }
       console.log(action.payload.user.roleGroup.name)
       // window.location.replace('/dashboard')
 
@@ -43,6 +46,9 @@ const UsersReducer = (state = initialState, action) => {
         // failure
       };
     case asyncActionName(LOGOUT_USER).success:
+      if (typeof window !== "undefined") {
+        window.sessionStorage.removeItem("mcash_active_session");
+      }
       removeToken()
       return {
         ...state,
