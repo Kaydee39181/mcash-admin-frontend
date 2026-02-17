@@ -24,7 +24,8 @@ const initialState = {
   createAgentsuccess: false,
   agentTotal: 0,
   assignTerminal: null,
-  resetPassword: null
+  resetPassword: null,
+  resetErrorMessage: null,
 };
 
 const AgentsReducer = (state = initialState, action) => {
@@ -192,18 +193,26 @@ const AgentsReducer = (state = initialState, action) => {
 
       };
     case asyncActionName(RESET_AGENT_PASSWORD).loading:
-      return { ...state, loading: true };
+      return { ...state, loading: true, resetErrorMessage: null };
     case asyncActionName(RESET_AGENT_PASSWORD).success:
       return {
         ...state,
         loading: false,
         resetSuccess: true,
+        resetErrorMessage: null,
       };
     case asyncActionName(RESET_AGENT_PASSWORD).failure:
+      const resetError =
+        action?.payload?.error?.response?.data?.responseMessage ||
+        action?.payload?.error?.response?.data?.message ||
+        action?.payload?.error?.message ||
+        action?.payload?.error ||
+        "Password reset failed";
       return {
         ...state,
         loading: false,
-        resetSuccess: false
+        resetSuccess: false,
+        resetErrorMessage: resetError,
 
       };
     default:

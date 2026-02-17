@@ -33,6 +33,7 @@ const Profile = (props) => {
     ActivateDeactivateUser: ActivateDeactivateUsers,
     ResetPassword: ResetPasswords,
     resetSuccess,
+    resetErrorMessage,
     agents,
     FetchSingleAgent: FetchSingleAgents,
     activateDeacivate,
@@ -83,7 +84,7 @@ const Profile = (props) => {
   }
 
   const ResetAgentPassword = async (agentId) => {
-    const res = await props.ResetPassword(agentId);
+    const res = await ResetPasswords(agentId);
   };
 
   useEffect(() => {
@@ -97,12 +98,12 @@ const Profile = (props) => {
 
   useEffect(() => {
     if (resetSuccess == false) {
-      setTitle("Password can't be reset");
+      setTitle(resetErrorMessage || "Password can't be reset");
       setDanger(true);
       setSucess(false);
       setSmShow(true);
     }
-  }, [resetSuccess]);
+  }, [resetSuccess, resetErrorMessage]);
 
   function closemodal() {
     setSmShow(false);
@@ -340,6 +341,7 @@ const mapStateToProps = (state) => (
     activateDeacivate: state.agents.activateDeacivate,
     success: state.agents.success,
     resetSuccess: state.agents.resetSuccess,
+    resetErrorMessage: state.agents.resetErrorMessage,
     agents: state.agents.agents,
     successActivation: state.agents.successActivation,
   }

@@ -123,7 +123,7 @@ export const ActivatateCode = (agentid) => (dispatch) => {
   console.log(token);
   console.log(`bearer ${token.access_token}`);
   axios
-    .get(`${AgentConstant.ACTIVATION_CODE_URL}=${agentid}`, {
+    .get(`${AgentConstant.ACTIVATION_CODE_URL}${encodeURIComponent(agentid)}`, {
       headers: {
         Authorization: `bearer ${token.access_token}`,
         "Content-Type": "application/json",
@@ -148,7 +148,7 @@ export const FetchBankTerminal = (agentid) => (dispatch) => {
   dispatch(asyncActions(FETCH_BANK_TERMINAL).loading(true));
   const token = JSON.parse(localStorage.getItem("data"));
   axios
-    .get(`${AgentConstant.FETCH_BANK_TERMINAAL_URL}=${agentid}`, {
+    .get(`${AgentConstant.FETCH_BANK_TERMINAAL_URL}${encodeURIComponent(agentid)}`, {
       headers: {
         Authorization: `bearer ${token.access_token}`,
         "Content-Type": "application/json",
@@ -179,7 +179,7 @@ export const AssignTerminal = (agentid, bankId) => (dispatch) => {
   const token = JSON.parse(localStorage.getItem("data"));
   axios
     .get(
-      `${AgentConstant.ACTIVATE_ASSIGN_TERMINAL_URL}=${agentid}&bankCode=${bankId}`,
+      `${AgentConstant.ACTIVATE_ASSIGN_TERMINAL_URL}${encodeURIComponent(agentid)}&bankCode=${encodeURIComponent(bankId)}`,
       {
         headers: {
           Authorization: `bearer ${token.access_token}`,
@@ -213,7 +213,7 @@ export const UnAssignTerminal = (agentid) => (dispatch) => {
   dispatch(asyncActions(UNACTIVATE_ASSIGN_TERMINAL).loading(true));
   const token = JSON.parse(localStorage.getItem("data"));
   axios
-    .get(`${AgentConstant.UNACTIVATE_ASSIGN_TERMINAL_URL}=${agentid}`, {
+    .get(`${AgentConstant.UNACTIVATE_ASSIGN_TERMINAL_URL}${encodeURIComponent(agentid)}`, {
       headers: {
         Authorization: `bearer ${token.access_token}`,
         "Content-Type": "application/json",
@@ -429,7 +429,7 @@ export const ResetPassword = (agentid) => (dispatch) => {
   dispatch(asyncActions(RESET_AGENT_PASSWORD).loading(true));
   const token = JSON.parse(localStorage.getItem("data"));
   axios
-    .get(`${AgentConstant.RESET_AGENT_PASSWORD_URL}=${agentid}`, {
+    .get(`${AgentConstant.RESET_AGENT_PASSWORD_URL}${encodeURIComponent(agentid)}`, {
       headers: {
         Authorization: `bearer ${token.access_token}`,
         "Content-Type": "application/json",
@@ -442,11 +442,11 @@ export const ResetPassword = (agentid) => (dispatch) => {
         dispatch(
           asyncActions(RESET_AGENT_PASSWORD).success(response.responseCode)
         );
-      } else if (response.status === 400) {
+      } else {
         dispatch(
           asyncActions(RESET_AGENT_PASSWORD).failure(
             true,
-            response.data.error.message
+            response?.responseMessage || "Password reset failed"
           )
         );
       }
