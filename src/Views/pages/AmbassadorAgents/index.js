@@ -5,7 +5,7 @@ import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import AssignTerminal from "../../../Components/Assign Terminal";
 import Loader from "../../../Components/secondLoader";
-import { Modal } from "react-bootstrap";
+import { Modal, DropdownButton, Dropdown } from "react-bootstrap";
 import ExportModal from "../../../Components/Exports/index";
 import FilterModal from "../../../Components/Filter/index";
 import DashboardTemplate from "../../template/dashboardtemplate";
@@ -142,6 +142,12 @@ const Agents = (props) => {
   const _handlePageChange = (pageNumber) => {
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
+  };
+
+  const handleSelect = (e) => {
+    setLength(Number(e));
+    setNextPage(0);
+    setActivePage(1);
   };
 
   const onFilterSubmit = (event) => {
@@ -288,11 +294,26 @@ const Agents = (props) => {
             businessName={businessName}
           />
           <div className="pagination_wrap">
-            <p>Showing 1 to 10 of {agentTotal}</p>
+            <DropdownButton
+              menuAlign="right"
+              title={length}
+              id="dropdown-menu-align-right"
+              onSelect={handleSelect}
+            >
+              <Dropdown.Item eventKey="10">10</Dropdown.Item>
+              <Dropdown.Item eventKey="20">20</Dropdown.Item>
+              <Dropdown.Item eventKey="30">30</Dropdown.Item>
+              <Dropdown.Item eventKey="50">50</Dropdown.Item>
+              <Dropdown.Item eventKey="100">100</Dropdown.Item>
+              <Dropdown.Item eventKey={agentTotal ? String(agentTotal) : "0"}>
+                All
+              </Dropdown.Item>
+            </DropdownButton>
+            <p>Showing 1 to {length} of {agentTotal}</p>
             <div className="pagination">
               <Pagination
                 activePage={activePage}
-                itemsCountPerPage={10}
+                itemsCountPerPage={length}
                 totalItemsCount={agentTotal}
                 pageRangeDisplayed={5}
                 onChange={_handlePageChange}
