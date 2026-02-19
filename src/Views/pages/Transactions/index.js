@@ -287,8 +287,8 @@ const Transactions = (props) => {
     transact?.agentFee ?? "",
     transact?.stampDuty ?? "",
     transact?.rrn || "",
-    Number(transact?.prePurseBalance ?? 0).toFixed(2),  //  Post Balance shows Pre value
-    Number(transact?.postPurseBalance ?? 0).toFixed(2), //  Pre Balance shows Post value
+    Number(transact?.postPurseBalance ?? 0).toFixed(2),
+    Number(transact?.prePurseBalance ?? 0).toFixed(2),
   ]);
 
 
@@ -317,9 +317,8 @@ const Transactions = (props) => {
       RRN: transact?.rrn || "",
       STAN: transact?.stan || "",
 
-      //  swapped data meanings below (Post first, then Pre)
-      PostBalance: Number(transact?.prePurseBalance ?? 0).toFixed(2),
-      PreBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
+      PreBalance: Number(transact?.prePurseBalance ?? 0).toFixed(2),
+      PostBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
 
 
       AppVersion: transact?.appVersion || "",
