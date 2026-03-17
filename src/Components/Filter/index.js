@@ -13,7 +13,9 @@ import "./style.css";
 
 const Filter = ({ show, close, ...props }) => {
   const { handleFilterValue, submitFilter, transactionStatus } = props;
-  console.log(props.name)
+
+  const isTransaction = props.name === "transaction";
+  const isVirtualAccount = props.name === "virtualAccount";
   return (
     <Modal
       size="xl"
@@ -39,11 +41,11 @@ const Filter = ({ show, close, ...props }) => {
 
         <Container>
           <h3>Enter Filter Parameters</h3>
-          <Form onSubmit={submitFilter}>
-            {props.name === "agentPurse" ?
-              <Row>
-                <Col md={4} sm={12}>
-                  <Form.Group controlId="">
+            <Form onSubmit={submitFilter}>
+              {props.name === "agentPurse" ?
+                <Row>
+                  <Col md={4} sm={12}>
+                    <Form.Group controlId="">
                     <Form.Label>Bussiness Name</Form.Label>
                     <Form.Control
                       size="sm"
@@ -83,7 +85,7 @@ const Filter = ({ show, close, ...props }) => {
                     />
                   </Form.Group>
                 </Col>
-                {props.name === "transaction" ?
+                {isTransaction || isVirtualAccount ?
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
                       <Form.Label>Select Status</Form.Label>
@@ -108,7 +110,7 @@ const Filter = ({ show, close, ...props }) => {
               </Row>
             }
 
-            {props.name === "transaction" || props.name === "centralpurse" ?
+            {isTransaction || props.name === "centralpurse" ?
               <Row>
 
 
@@ -149,8 +151,27 @@ const Filter = ({ show, close, ...props }) => {
               </Row>
               : ''
             }
+
+            {isVirtualAccount ? (
+              <Row>
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="">
+                    <Form.Label>Transaction ID</Form.Label>
+                    <Form.Control
+                      size="sm"
+                      type="text"
+                      name="transactionId"
+                      placeholder={props.idtext || "Enter Transaction ID"}
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            ) : (
+              ""
+            )}
             {
-              props.name === "transaction" ?
+              isTransaction ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
@@ -254,7 +275,7 @@ const Filter = ({ show, close, ...props }) => {
 
 
             {
-              props.name === "transaction" ?
+              isTransaction ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
@@ -298,7 +319,7 @@ const Filter = ({ show, close, ...props }) => {
             }
 
             {
-              props.name === "transaction" ?
+              isTransaction ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">

@@ -19,6 +19,7 @@ import { connect } from "react-redux";
 import Loader from "../../../Components/secondLoader";
 import ExportModal from "../../../Components/Exports";
 import FilterModal from "../../../Components/Filter";
+import ViewReceipts from "../../../Components/viewReceipt";
 import { AgentConstant } from "../../../constants/constants";
 import { FetchVirtualAccountTransactions } from "../../../Redux/requests/virtualAccountRequest";
 
@@ -37,6 +38,8 @@ const safeParseToken = () => {
   }
 };
 
+const FALLBACK_TEXT = "-----";
+
 const resolveAccountNumber = (token) => {
   if (!token?.user) return "";
 
@@ -50,13 +53,25 @@ const resolveAccountNumber = (token) => {
   );
 };
 
-const normalizeTransactions = (payload) => {
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload?.data)) return payload.data;
-  if (Array.isArray(payload?.data?.records)) return payload.data.records;
-  if (Array.isArray(payload?.data?.data)) return payload.data.data;
-  if (Array.isArray(payload?.records)) return payload.records;
-  return [];
+const deriveAccountNumberFromTransactions = (transactions) => {
+  const rows = Array.isArray(transactions) ? transactions : [];
+  const candidates = rows
+    .map((t) => {
+      return (
+        t?.accountNumber ||
+        t?.virtualAccountNumber ||
+        t?.destinationAccountNumber ||
+        t?.destinationAccount?.accountNumber ||
+        t?.beneficiaryAccountNumber ||
+        ""
+      );
+    })
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+
+  const unique = Array.from(new Set(candidates));
+  // Only auto-pick when the dataset clearly represents one account.
+  return unique.length === 1 ? unique[0] : "";
 };
 
 const formatDateTime = (value) => {
@@ -73,9 +88,26 @@ const formatAmount = (value) => {
   return numeric.toLocaleString();
 };
 
+const pickFirst = (...values) => {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+    const str = String(value).trim();
+    if (!str) continue;
+    return str;
+  }
+  return "";
+};
+
 const resolveStatusStyle = (statusValue) => {
   const normalized = String(statusValue || "").trim().toUpperCase();
-  if (normalized === "00" || normalized === "SUCCESS" || normalized === "SUCCESSFUL") {
+
+  // Explicitly exclude non-transaction success markers like "CHARGE DEDUCTED".
+  if (normalized.includes("CHARGE") && normalized.includes("DEDUCT")) {
+    return "failure";
+  }
+
+  const successMarkers = ["00", "SUCCESS", "SUCCESSFUL", "APPROVED", "APPROVE"];
+  if (successMarkers.some((m) => normalized === m || normalized.includes(m))) {
     return "successful";
   }
   if (normalized === "PP" || normalized === "09" || normalized === "PENDING") {
@@ -96,9 +128,12 @@ const VirtualAccount = (props) => {
   const accountNumber = resolveAccountNumber(token);
   const [resolvedAccountNumber, setResolvedAccountNumber] = useState(accountNumber);
   const roleName = token?.user?.roleGroup?.name || "";
+  const showAccountNumberBadge = roleName.trim().toUpperCase() === "AGENT";
   const isRestrictedRole =
     roleName.trim().toLowerCase() === "agent relationship officer";
   const [copied, setCopied] = useState(false);
+  const [viewReceipt, setViewReceipt] = useState(null);
+  const [receiptview, showReceiptView] = useState(false);
 
   const [exportModalActive, showExportModal] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
@@ -109,17 +144,8 @@ const VirtualAccount = (props) => {
   const initialState = {
     startDate: "",
     endDate: "",
-    terminalId: "",
     status: "",
-    transactionType: "",
     transactionId: "",
-    rrn: "",
-    pan: "",
-    stan: "",
-    agentId: "",
-    agentManagerId: "",
-    agentManagerName: "",
-    draw: "",
   };
 
   const [filterValues, setFilterValues] = useState(initialState);
@@ -130,45 +156,16 @@ const VirtualAccount = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRestrictedRole]);
 
+  // Token-only: do not call identity-scoped endpoints like `agent?username=...`.
+
   useEffect(() => {
-    let isMounted = true;
-    const fetchAccountNumber = async () => {
-      if (accountNumber || !token?.user?.username || !token?.access_token) {
-        if (isMounted) setResolvedAccountNumber(accountNumber || "");
-        return;
-      }
-
-      try {
-        const url = `${AgentConstant.FETCH_AGENT_URL}username=${encodeURIComponent(
-          token.user.username
-        )}`;
-        const response = await virtualAxios.get(url, {
-          headers: {
-            Authorization: `bearer ${token.access_token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        const agents = normalizeTransactions(response?.data);
-        const fallbackAccount =
-          agents?.[0]?.accountNumber ||
-          agents?.[0]?.account?.accountNumber ||
-          agents?.[0]?.virtualAccountNumber ||
-          "";
-
-        if (isMounted) {
-          setResolvedAccountNumber(fallbackAccount || "");
-        }
-      } catch (error) {
-        if (isMounted) setResolvedAccountNumber("");
-      }
-    };
-
-    fetchAccountNumber();
-    return () => {
-      isMounted = false;
-    };
-  }, [accountNumber, token]);
+    if (!showAccountNumberBadge) return;
+    if (resolvedAccountNumber) return;
+    const derived = deriveAccountNumberFromTransactions(virtualTransactions);
+    if (derived) {
+      setResolvedAccountNumber(derived);
+    }
+  }, [virtualTransactions, resolvedAccountNumber, showAccountNumberBadge]);
 
   const _handleFilterValue = (event) => {
     const { name, value } = event.target;
@@ -184,6 +181,64 @@ const VirtualAccount = (props) => {
     setActivePage(1);
     FetchVirtualTransactions(filterValues);
     showFilterModal(false);
+  };
+
+  const ViewReceipt = (details) => {
+    if (!details) return;
+    setViewReceipt(details);
+    showReceiptView(true);
+  };
+
+  const closeViewReceipt = () => {
+    showReceiptView(false);
+    setViewReceipt(null);
+  };
+
+  const QueryTransaction = async (transactId) => {
+    const authToken = safeParseToken();
+    if (!authToken?.access_token) {
+      toast.error("Please log in again.");
+      return;
+    }
+    if (!transactId) {
+      toast.error("Missing transaction ID.");
+      return;
+    }
+
+    const loadings = toast.loading("Please wait...");
+    try {
+      const url = `${AgentConstant.TRANSFER_QUERY_URL}${encodeURIComponent(
+        transactId
+      )}`;
+      const res = await virtualAxios.get(url, {
+        headers: {
+          Authorization: `Bearer ${authToken.access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = res?.data;
+      const topOk = data?.responseCode === "00";
+      const innerOk = data?.data?.responseCode === "00";
+      const message =
+        (innerOk ? data?.data?.responseMessage : data?.data?.responseMessage) ||
+        data?.responseMessage ||
+        (topOk ? "Success" : "Query failed");
+
+      toast.update(loadings, {
+        render: message,
+        type: topOk && innerOk ? "success" : "error",
+        isLoading: false,
+        autoClose: 8000,
+      });
+    } catch (error) {
+      toast.update(loadings, {
+        render: error?.message || "Network error",
+        type: "error",
+        isLoading: false,
+        autoClose: 8000,
+      });
+    }
   };
 
   const handleSelect = (value) => {
@@ -212,41 +267,109 @@ const VirtualAccount = (props) => {
         transact?.date ||
         transact?.timestamp;
 
-      const statusRaw =
-        transact?.statusMessage ||
-        transact?.status ||
-        transact?.statusCode ||
-        transact?.responseMessage ||
-        "";
+      const statusRaw = pickFirst(
+        transact?.statusMessage,
+        transact?.status,
+        transact?.statusCode,
+        transact?.responseMessage
+      );
+
+      const normalizedStatus = String(statusRaw || "").trim().toUpperCase();
+       let typeRaw = "Virtual transaction";
+       if (normalizedStatus) {
+         if (normalizedStatus.includes("CHARGE") && normalizedStatus.includes("DEDUCT")) {
+          typeRaw = "Transaction charge";
+        } else if (
+          normalizedStatus === "00" ||
+          normalizedStatus.includes("SUCCESS") ||
+          normalizedStatus.includes("APPROV")
+        ) {
+          typeRaw = "Successful virtual transaction";
+        } else if (normalizedStatus.includes("FAIL")) {
+          typeRaw = "Failed virtual transaction";
+        } else if (normalizedStatus.includes("PENDING")) {
+          typeRaw = "Pending virtual transaction";
+        } else {
+          typeRaw = `Virtual transaction (${statusRaw})`;
+        }
+      }
+
+      const rrnRaw = pickFirst(transact?.rrn, transact?.RRN);
+      const stanRaw = pickFirst(transact?.stan, transact?.STAN);
+
+      const preBalanceRaw = pickFirst(
+        transact?.preBalance,
+        transact?.preWalletBalance,
+        transact?.prePurseBalance,
+        transact?.preTransactionBalance,
+        transact?.previousBalance
+      );
+      const postBalanceRaw = pickFirst(
+        transact?.postBalance,
+        transact?.postWalletBalance,
+        transact?.postPurseBalance,
+        transact?.postTransactionBalance,
+        transact?.currentBalance
+      );
+
+      const accountNumberRaw = pickFirst(
+        transact?.accountNumber,
+        transact?.virtualAccountNumber,
+        transact?.destinationAccountNumber
+      );
+      const accountNameRaw = pickFirst(
+        transact?.accountName,
+        transact?.beneficiaryName,
+        transact?.customerName
+      );
+      const bankNameRaw = pickFirst(
+        transact?.bankName,
+        transact?.destinationBank,
+        transact?.bank?.name,
+        transact?.bank
+      );
+
+      const beneficiaryNameRaw = pickFirst(
+        transact?.beneficiaryAccountName,
+        transact?.beneficiaryName,
+        accountNameRaw
+      );
+      const beneficiaryAccountNoRaw = pickFirst(
+        transact?.beneficiaryAccountNumber,
+        transact?.beneficiaryAccountNo,
+        transact?.beneficiaryAccount,
+        accountNumberRaw
+      );
+      const beneficiaryBankRaw = pickFirst(
+        transact?.beneficiaryBankName,
+        transact?.beneficiaryBank,
+        bankNameRaw
+      );
 
       return {
         transact,
         id: transact?.id ?? transact?.transactionId ?? index,
         Date: formatDateTime(rawDate),
-        TransactionID: transact?.transactionId || transact?.transactionID || "",
+        TransactionID: pickFirst(transact?.transactionId, transact?.transactionID),
         Reference:
           transact?.reference ||
           transact?.transactionReference ||
           transact?.externalReference ||
           "",
-        AccountNumber:
-          transact?.accountNumber ||
-          transact?.virtualAccountNumber ||
-          transact?.destinationAccountNumber ||
-          "",
-        AccountName:
-          transact?.accountName ||
-          transact?.beneficiaryName ||
-          transact?.customerName ||
-          "",
-        BankName:
-          transact?.bankName ||
-          transact?.destinationBank ||
-          transact?.bank ||
-          "",
+        Type: typeRaw,
+        RRN: rrnRaw,
+        STAN: stanRaw,
+        PreBalance: preBalanceRaw,
+        PostBalance: postBalanceRaw,
+        AccountNumber: accountNumberRaw,
+        AccountName: accountNameRaw,
+        BankName: bankNameRaw,
         Amount: formatAmount(transact?.amount ?? transact?.transactionAmount),
         Status: statusRaw,
         Narration: transact?.narration || transact?.description || "",
+        BeneficiaryAccountName: beneficiaryNameRaw,
+        BeneficiaryAccountNo: beneficiaryAccountNoRaw,
+        BeneficiaryBank: beneficiaryBankRaw,
       };
     });
   }, [transactionsToRender]);
@@ -265,8 +388,14 @@ const VirtualAccount = (props) => {
   const headers = [
     [
       "Date",
+      "Transaction Type",
       "Transaction ID",
       "Reference",
+      "Pre-Balance",
+      "Post-Balance",
+      "Beneficiary A/C Name",
+      "Beneficiary A/C No",
+      "Beneficiary Bank",
       "Account Number",
       "Account Name",
       "Bank Name",
@@ -278,8 +407,14 @@ const VirtualAccount = (props) => {
 
   const item = allProducts.map((row) => [
     row.Date || "",
+    row.Type || "",
     row.TransactionID || "",
     row.Reference || "",
+    row.PreBalance || "",
+    row.PostBalance || "",
+    row.BeneficiaryAccountName || "",
+    row.BeneficiaryAccountNo || "",
+    row.BeneficiaryBank || "",
     row.AccountNumber || "",
     row.AccountName || "",
     row.BankName || "",
@@ -290,18 +425,22 @@ const VirtualAccount = (props) => {
 
   const columns = [
     { dataField: "Date", text: "Date" },
+    { dataField: "Type", text: "Type" },
+    { dataField: "TransactionID", text: "Transaction ID" },
+    { dataField: "Reference", text: "Reference" },
     {
-      dataField: "TransactionID",
-      text: "Transaction ID",
-      style: { width: "15em", whiteSpace: "normal", wordWrap: "break-word" },
-      headerStyle: () => ({ width: "150px", textAlign: "center" }),
+      dataField: "PreBalance",
+      text: "Pre-Balance",
+      formatter: (cellContent, row) => formatAmount(row?.PreBalance) || FALLBACK_TEXT,
     },
     {
-      dataField: "Reference",
-      text: "Reference",
-      style: { width: "12em", whiteSpace: "normal", wordWrap: "break-word" },
-      headerStyle: () => ({ width: "140px", textAlign: "center" }),
+      dataField: "PostBalance",
+      text: "Post-Balance",
+      formatter: (cellContent, row) => formatAmount(row?.PostBalance) || FALLBACK_TEXT,
     },
+    { dataField: "BeneficiaryAccountName", text: "Beneficiary A/C Name" },
+    { dataField: "BeneficiaryAccountNo", text: "Beneficiary A/C No" },
+    { dataField: "BeneficiaryBank", text: "Beneficiary Bank" },
     { dataField: "AccountNumber", text: "Account Number" },
     { dataField: "AccountName", text: "Account Name" },
     { dataField: "BankName", text: "Bank Name" },
@@ -326,7 +465,60 @@ const VirtualAccount = (props) => {
     {
       dataField: "Narration",
       text: "Narration",
-      style: { width: "15em", whiteSpace: "normal", wordWrap: "break-word" },
+    },
+    {
+      dataField: "ViewReceipt",
+      text: "View Receipt",
+      formatter: (cellContent, row) => {
+        const receiptDetails = {
+          Agent: token?.user?.username || token?.user?.name || FALLBACK_TEXT,
+          totalAmount: row?.Amount || FALLBACK_TEXT,
+          Type: row?.Type || FALLBACK_TEXT,
+          TransactionID: row?.TransactionID || FALLBACK_TEXT,
+          TerminalID: row?.transact?.terminalId || row?.transact?.terminalID || FALLBACK_TEXT,
+          RRN: row?.RRN || row?.transact?.rrn || FALLBACK_TEXT,
+          STAN: row?.STAN || row?.transact?.stan || FALLBACK_TEXT,
+          transact: {
+            statusMessage: row?.Status || FALLBACK_TEXT,
+            pan: row?.transact?.pan || "",
+            cardHolder: row?.transact?.cardHolder || "",
+          },
+        };
+
+        return (
+          <h5>
+            <button
+              type="button"
+              onClick={() => ViewReceipt(receiptDetails)}
+              className="viewTransac va-action-btn va-action-btn--receipt"
+            >
+              View Receipt
+            </button>
+          </h5>
+        );
+      },
+    },
+    {
+      dataField: "QueryTrans",
+      text: "Query Transaction",
+      formatter: (cellContent, row) => {
+        const canQuery = Boolean(row?.TransactionID);
+        return (
+          <h5>
+            {canQuery ? (
+              <button
+                type="button"
+                onClick={() => QueryTransaction(row.TransactionID)}
+                className="viewTransac va-action-btn va-action-btn--query"
+              >
+                Query
+              </button>
+            ) : (
+              ""
+            )}
+          </h5>
+        );
+      },
     },
   ];
 
@@ -384,25 +576,58 @@ const VirtualAccount = (props) => {
 
   return (
     <DashboardTemplate>
-      <div className="transact-wrapper">
+      <div className="transact-wrapper va-wrapper">
         {virtualLoading && (
           <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
         )}
 
-        <div className="header-title virtual-account-header">
-          <h3>Virtual Account</h3>
-          <div className="virtual-account-number">
-            <span className="account-label">Account No:</span>
-            <span className="account-value">{resolvedAccountNumber || "—"}</span>
-            <button
-              type="button"
-              className={`account-copy-btn ${copied ? "copied" : ""}`}
-              onClick={handleCopyAccount}
-              disabled={!resolvedAccountNumber}
-              aria-label="Copy account number"
-            >
-              {copied ? "Copied" : "Copy"}
-            </button>
+        <div className="va-topbar">
+          <div className="header-title va-title">
+            <h3>Virtual Account</h3>
+            <div className="va-subtitle">
+              An overview of virtual account transactions
+            </div>
+          </div>
+
+          <div className="va-right">
+            {showAccountNumberBadge && (
+              <div className="virtual-account-number">
+                <span className="account-label">Account No:</span>
+                <span className="account-value">{resolvedAccountNumber || "—"}</span>
+                <button
+                  type="button"
+                  className={`account-copy-btn ${copied ? "copied" : ""}`}
+                  onClick={handleCopyAccount}
+                  disabled={!resolvedAccountNumber}
+                  aria-label="Copy account number"
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </div>
+            )}
+
+            {!showNoAccess && (
+              <div className="va-actions">
+                <button type="button" className="va-action" onClick={() => window.print()}>
+                  <img src={Print} alt="print" />
+                  <span>Print</span>
+                </button>
+
+                <button type="button" className="va-action" onClick={OpenFilter}>
+                  <img src={Filter} alt="filter" />
+                  <span>Filter</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="va-action"
+                  onClick={() => showExportModal(true)}
+                >
+                  <img src={Upload} alt="export" />
+                  <span>Export</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -416,27 +641,6 @@ const VirtualAccount = (props) => {
           </div>
         ) : (
           <>
-            <div className="agent-transact-header">
-              <div>An overview of virtual account transactions</div>
-
-              <div className="actions">
-                <span onClick={() => window.print()}>
-                  <img src={Print} alt="print" />
-                  Print
-                </span>
-
-                <span onClick={OpenFilter}>
-                  <img src={Filter} alt="filter" />
-                  Filter
-                </span>
-
-                <span onClick={() => showExportModal(true)}>
-                  <img src={Upload} alt="export" />
-                  Export
-                </span>
-              </div>
-            </div>
-
             <div className="table-wrapper">
               <h4>All Virtual Account Transactions</h4>
 
@@ -459,14 +663,14 @@ const VirtualAccount = (props) => {
       {!showNoAccess && (
         <>
           <FilterModal
-            type={"Transaction"}
-            typetext={"Enter Transaction Type"}
+            type={"Virtual Account"}
+            typetext={""}
             idtext={"Enter Transaction ID"}
             show={FilterModalActive}
             close={closeFilter}
             handleFilterValue={_handleFilterValue}
             submitFilter={onFilterSubmit}
-            name={"transaction"}
+            name={"virtualAccount"}
             transactionsType={[]}
             transactionStatus={statusOptions}
           />
@@ -515,6 +719,11 @@ const VirtualAccount = (props) => {
             </div>
           </div>
         </>
+      )}
+
+      {/* render receipt modal ONLY when we actually have details */}
+      {receiptview && viewReceipt && (
+        <ViewReceipts details={viewReceipt} show={receiptview} close={closeViewReceipt} />
       )}
 
       <ToastContainer autoClose={8000} />

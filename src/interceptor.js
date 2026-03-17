@@ -5,6 +5,7 @@ import { removeToken } from "./utils/localStorage";
 import { logoutUser } from "./Redux/requests/userRequest";
 
 const AUTH_FAILURE_MESSAGE = /(token|session|unauthori|authoriz|expired|login|authentication)/i;
+const ACCESS_DENIED_MESSAGE = /(do not have access|no access|not permitted|permission|forbidden)/i;
 
 const safeRedirectToLogin = () => {
   // prevent redirect loops if you're already on login
@@ -26,6 +27,21 @@ const shouldForceLogoutFromBody = (response) => {
     .join(" ");
 
   return AUTH_FAILURE_MESSAGE.test(responseText);
+};
+
+const isAccessDeniedFromBody = (response) => {
+  const responseCode = response?.data?.responseCode;
+  if (responseCode === "99") return true;
+
+  const responseText = [
+    response?.data?.responseMessage,
+    response?.data?.message,
+    response?.data?.error?.message,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return ACCESS_DENIED_MESSAGE.test(responseText);
 };
 
 export default {
@@ -50,6 +66,11 @@ export default {
 
         // Force logout on unauthorized; 403 can be role/permission and should not end the session.
         if (status === 401) {
+          // Some endpoints incorrectly return 401 for permission issues. Do not end the session for that.
+          if (isAccessDeniedFromBody(error?.response)) {
+            return Promise.reject(error);
+          }
+
           try {
             removeToken();
             if (store) store.dispatch(logoutUser());

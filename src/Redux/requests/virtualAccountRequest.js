@@ -68,7 +68,7 @@ export const FetchVirtualAccountTransactions =
       const url = buildVirtualAccountUrl(filters);
       const response = await virtualAxios.get(url, {
         headers: {
-          Authorization: `bearer ${token.access_token}`,
+          Authorization: `Bearer ${token.access_token}`,
           "Content-Type": "application/json",
         },
       });
