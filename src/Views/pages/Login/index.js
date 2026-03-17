@@ -49,14 +49,14 @@ const Login = ({ history, loginUser: handleLogin, loading, success, error }) => 
 
     if (!username || !password) {
       setErrors(["*username/password can't be empty"]);
-      return; // ✅ IMPORTANT: stop here
+      return;
     }
 
     handleLogin({ username, password });
   };
 
   const goToChangePassword = () => {
-    history.push("/changepassword"); // ✅ matches Routes.js
+    history.push("/changepassword");
   };
 
   return (

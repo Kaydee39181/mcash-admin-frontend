@@ -31,11 +31,6 @@ const AgentsManager = () => {
 
   const [filterValues, setFilterValues] = useState(initialState);
 
-  useEffect(() => {
-    console.log(active);
-    renderTab();
-  }, [active]);
-
   const onclose = () => {
     showActive("home");
     showCreateModal(false);

@@ -11,6 +11,7 @@ import apiversions from "./apiVersionReducer";
 import admins from "./adminReducer";
 import agentfees from "./agentFeesReducer";
 import hardwaredevice from "./hardwareReducer";
+import virtualaccount from "./virtualAccountReducer";
 
 export default combineReducers({
   users,
@@ -25,4 +26,5 @@ export default combineReducers({
   admins,
   agentfees,
   hardwaredevice,
+  virtualaccount,
 });

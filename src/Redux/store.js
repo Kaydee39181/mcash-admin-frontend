@@ -11,11 +11,12 @@ import thunk from "redux-thunk";
 import rootReducer from './reducers/rootReducer';
 
 const middleware = [thunk];
+const logger = createLogger({ collapsed: true });
 
 // const store = createStore(rootReducer, initialState, applyMiddleware(...middleware));
 const store = createStore(rootReducer, composeWithDevTools(
     applyMiddleware(
-      createLogger(), ...middleware)
+      ...middleware, logger)
   ));
   const history = createBrowserHistory();
   httpService.setupInterceptors(store, history);

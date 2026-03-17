@@ -64,6 +64,28 @@ const AgentFees = (props) => {
 
   }
 
+  const handleAdd = () => {
+    const rangeValue = rangetype;
+    console.log(rangeValue)
+    // return
+    rangeValue.push({
+      transactionTypeId: "",
+      max: "",
+      min: "",
+      fee: "",
+      ambassadorCut: "",
+      rangeType: "",
+    });
+    setRangeType(rangeValue);
+    setIndexes((prevIndexes) => [
+      ...prevIndexes,
+      {
+        id: counter,
+        increment: prevIndexes.filter((index) => index.id === counter).length,
+      },
+    ]);
+    setCounter((prevCounter) => prevCounter + 1);
+  };
 
   useEffect(() => {
     Object.keys(transactionMap).forEach(key => {
@@ -85,7 +107,7 @@ const AgentFees = (props) => {
     FetchRangeMaxs();
     FetchConvieneceFees();
     handleAdd();
-  }, [FetchTransactionType, FetchRangeMaxs, FetchConvieneceFees, handleAdd]);
+  }, [FetchTransactionType, FetchRangeMaxs, FetchConvieneceFees]);
 
   useEffect(() => {
     if (successCreatefees) {
@@ -120,29 +142,6 @@ const AgentFees = (props) => {
     console.log('heloo')
     console.log(data)
     CreateConvenienceFees(data)
-  };
-
-  const handleAdd = () => {
-    const rangeValue = rangetype;
-    console.log(rangeValue)
-    // return 
-    rangeValue.push({
-      transactionTypeId: "",
-      max: "",
-      min: "",
-      fee: "",
-      ambassadorCut: "",
-      rangeType: "",
-    });
-    setRangeType(rangeValue);
-    setIndexes((prevIndexes) => [
-      ...prevIndexes,
-      {
-        id: counter,
-        increment: prevIndexes.filter((index) => index.id === counter).length,
-      },
-    ]);
-    setCounter((prevCounter) => prevCounter + 1);
   };
 
   // const handleSelectTransType = (e) => {

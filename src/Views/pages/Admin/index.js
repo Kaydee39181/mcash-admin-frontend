@@ -25,11 +25,6 @@ const AdminUsers = (props) => {
 
   const [filterValues, setFilterValues] = useState(initialState);
 
-  useEffect(() => {
-    console.log(active);
-    renderTab();
-  }, [active, renderTab]);
-
   const onclose = () => {
     showActive("home");
     showCreateModal(false);

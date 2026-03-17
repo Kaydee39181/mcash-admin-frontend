@@ -62,6 +62,7 @@ export const AgentConstant = {
   // Transactions meta
   FETCH_TRANSACTIONS_TYPES_URL: `${BASE_URL}/api/v1/transaction/types`,
   FETCH_TRANSACTIONS_STATUS_URL: `${BASE_URL}/api/v1/transaction/status`,
+  VIRTUAL_ACCOUNT_TRANSACTIONS_URL: `${BASE_URL}/api/v1/virtual-account/transactions`,
 
   // Admin
   ADMIN_USERS_URL: `${BASE_URL}/api/v1/admin?`,

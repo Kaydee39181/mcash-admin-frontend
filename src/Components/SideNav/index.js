@@ -177,7 +177,6 @@ class SideNav extends Component {
                       this.setState({ showHardwareModal: true });
                     }}
                     to="#"
-                    activeClassName="current"
                   >
                     <li className="list-group-item">
                       <img src={Audit} alt="" />
