@@ -1,14 +1,35 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import DashboardTemplate from "../../template/dashboardtemplate";
 import "./style.css";
 import Barchart from "../../../Components/barchart";
 import Doughnut from "../../../Components/dougnut";
+import axios from "axios";
 import {
   DashboardBreakdown,
   DashboardDetails,
 } from "../../../Redux/requests/dashboardRequest";
 import { connect } from "react-redux";
 import Loader from "../../../Components/secondLoader";
+import { AgentConstant } from "../../../constants/constants";
+
+const safeParseToken = () => {
+  const raw = localStorage.getItem("data");
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+const normalizeAgents = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.records)) return payload.data.records;
+  if (Array.isArray(payload?.data?.data)) return payload.data.data;
+  if (Array.isArray(payload?.records)) return payload.records;
+  return [];
+};
 
 const DashBoard = (props) => {
   const {
@@ -24,6 +45,154 @@ const DashBoard = (props) => {
   const { successful_value, failed_volume, successful_volume, failed_value } =
     dashboardBreakdown;
   const { totalTransactionValue, totalTransactionVolume } = dashboardDetails;
+
+  const token = safeParseToken();
+  const roleName = token?.user?.roleGroup?.name || "";
+  const isAgentRole = roleName.trim().toUpperCase() === "AGENT";
+  const [accessToken, setAccessToken] = useState(token?.access_token || "");
+  const agentFetchOnceRef = useRef(false);
+  const [agentRecord, setAgentRecord] = useState(null);
+
+  useEffect(() => {
+    // Debug: confirm component mounts
+    // eslint-disable-next-line no-console
+    console.log("[Dashboard] mounted");
+  }, []);
+
+  useEffect(() => {
+    // Wait for token to exist before firing protected requests.
+    if (accessToken) return;
+
+    let attempts = 0;
+    const maxAttempts = 10; // ~3s total at 300ms interval
+
+    const tick = () => {
+      const t = safeParseToken();
+      const nextToken = t?.access_token || "";
+
+      // Debug: confirm token existence
+      // eslint-disable-next-line no-console
+      console.log("[Dashboard] token exists?", Boolean(nextToken));
+
+      if (nextToken) {
+        setAccessToken(nextToken);
+        return true;
+      }
+      return false;
+    };
+
+    if (tick()) return;
+
+    const id = window.setInterval(() => {
+      attempts += 1;
+      if (tick() || attempts >= maxAttempts) {
+        window.clearInterval(id);
+      }
+    }, 300);
+
+    return () => window.clearInterval(id);
+  }, [accessToken]);
+
+  const fetchAgent = useCallback(async (tokenValue) => {
+    // Debug: confirm API call is triggered
+    // eslint-disable-next-line no-console
+    console.log("[Dashboard] /agent API call triggered");
+
+    if (!tokenValue) {
+      // eslint-disable-next-line no-console
+      console.warn("[Dashboard] missing token; skipping /agent call");
+      return;
+    }
+
+    const headers = {
+      Authorization: `Bearer ${tokenValue}`,
+      "Content-Type": "application/json",
+    };
+
+    // Token-only attempts (no username identity in URL).
+    // Prefer the trailing-slash variant since the non-slash version is returning 403 in this environment.
+    // As a last resort, try the paged list endpoint without identity filters.
+    const candidateUrls = [
+      `${AgentConstant.AGENT_URL}/`,
+      `${AgentConstant.FETCH_AGENT_URL}startPage=1&length=10`,
+    ];
+
+    try {
+      for (const url of candidateUrls) {
+        try {
+          // eslint-disable-next-line no-console
+          console.log("[Dashboard] trying:", url);
+
+          const res = await axios.get(url, { headers });
+
+          // eslint-disable-next-line no-console
+          console.log(
+            "[Dashboard] /agent response:",
+            url,
+            res?.status,
+            res?.data?.responseCode
+          );
+
+          const agents = normalizeAgents(res?.data);
+          const selfAgentIdRaw =
+            token?.user?.agent?.id ??
+            token?.user?.agentId ??
+            token?.user?.myId ??
+            null;
+          const selfAgentId = selfAgentIdRaw === null ? null : Number(selfAgentIdRaw);
+
+          // eslint-disable-next-line no-console
+          console.log("[Dashboard] self agent id (token):", selfAgentId);
+
+          const selected =
+            selfAgentId !== null
+              ? agents.find((a) => Number(a?.id) === selfAgentId) || null
+              : agents.length === 1
+                ? agents[0]
+                : null;
+
+          if (selected) {
+            setAgentRecord(selected);
+            // eslint-disable-next-line no-console
+            console.log("[Dashboard] selected agent record (by id):", selected);
+          } else {
+            // eslint-disable-next-line no-console
+            console.log(
+              "[Dashboard] could not uniquely select agent record from response; count=",
+              agents.length
+            );
+          }
+          return;
+        } catch (error) {
+          const status = error?.response?.status;
+          // eslint-disable-next-line no-console
+          console.error("[Dashboard] /agent failed:", url, status, error?.response?.data || error);
+
+          // Keep trying only for "forbidden/not found" style failures where another route may work.
+          if (status === 403 || status === 404) continue;
+          return;
+        }
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("[Dashboard] /agent failed:", error);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    // Only fetch agent profile/list on dashboard for AGENT role.
+    if (!isAgentRole) return;
+
+    // Debug: confirm token existence (single-shot log at decision point)
+    // eslint-disable-next-line no-console
+    console.log("[Dashboard] token exists?", Boolean(accessToken));
+
+    if (!accessToken) return;
+    if (agentFetchOnceRef.current) return;
+    agentFetchOnceRef.current = true;
+
+    fetchAgent(accessToken);
+  }, [accessToken, fetchAgent, isAgentRole]);
 
   useEffect(() => {
     DashboardBreakdowns();
@@ -53,8 +222,7 @@ const DashBoard = (props) => {
       );
     }
   );
-  const token = JSON.parse(localStorage.getItem("data"));
-  const { name } = token.user.roleGroup;
+  const name = roleName;
   console.log(name);
   return (
     <DashboardTemplate>

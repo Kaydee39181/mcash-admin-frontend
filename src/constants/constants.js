@@ -16,6 +16,8 @@ export const AgentConstant = {
   // Agents & Transactions
   FETCH_TRANSACTIONS_URL: `${BASE_URL}/api/v1/transaction?`,
   FETCH_AGENT_URL: `${BASE_URL}/api/v1/agent?`,
+  // Token-scoped agent endpoint (no identity via query params)
+  AGENT_URL: `${BASE_URL}/api/v1/agent`,
   FETCH_AGENT_MANAGER_URL: `${BASE_URL}/api/v1/agent/manager?`,
   FETCH_ALL_AGENT_MANAGERS: `${BASE_URL}/api/v1/agent/manager`,
 
