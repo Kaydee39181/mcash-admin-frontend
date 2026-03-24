@@ -9,6 +9,36 @@ import {
 import { AgentConstant } from "../../constants/constants";
 // import { history } from "../../utils/history";
 
+const buildTransactionUrl = (page, length, filters = {}) => {
+  const params = new URLSearchParams();
+
+  params.append("startPage", page);
+  params.append("length", length);
+
+  const appendIfPresent = (key, value) => {
+    if (value === null || value === undefined) return;
+    const normalized = String(value).trim();
+    if (!normalized) return;
+    params.append(key, normalized);
+  };
+
+  appendIfPresent("agentId", filters.agentId);
+  appendIfPresent("agentManagerId", filters.agentManagerId);
+  appendIfPresent("agentManagerName", filters.agentManagerName);
+  appendIfPresent("startDate", filters.startDate);
+  appendIfPresent("endDate", filters.endDate);
+  appendIfPresent("terminalId", filters.terminalId);
+  appendIfPresent("status", filters.status);
+  appendIfPresent("transactionTypeId", filters.transactionType);
+  appendIfPresent("transactionId", filters.transactionId);
+  appendIfPresent("rrn", filters.rrn);
+  appendIfPresent("pan", filters.pan);
+  appendIfPresent("stan", filters.stan);
+  appendIfPresent("draw", filters.draw);
+
+  return `${AgentConstant.FETCH_TRANSACTIONS_URL}${params.toString()}`;
+};
+
 export const FetchTransaction = (
   page,
   length,
@@ -33,19 +63,26 @@ export const FetchTransaction = (
   console.log(token);
   console.log(`bearer ${token.access_token}`);
   axios
-    .get(
-      `${
-        AgentConstant.FETCH_TRANSACTIONS_URL
-      }startPage=${page}&length=${length}&agentId=${encodeURIComponent(agentId || "")}&agentManagerId=${encodeURIComponent(agentManagerId || "")}&managerId=${encodeURIComponent(agentManagerId || "")}&agentManager=${encodeURIComponent(agentManagerId || "")}&agentManagerUserId=${encodeURIComponent(agentManagerId || "")}&ambassadorId=${encodeURIComponent(agentManagerId || "")}&agentManagerName=${encodeURIComponent(agentManagerName || "")}&startDate=${
-        startDate ? startDate : ""
-      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}`,
-      {
-        headers: {
-          Authorization: `bearer ${token.access_token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
+    .get(buildTransactionUrl(page, length, {
+      startDate,
+      endDate,
+      terminalId,
+      status,
+      transactionType,
+      transactionId,
+      rrn,
+      pan,
+      stan,
+      agentId,
+      agentManagerId,
+      agentManagerName,
+      draw,
+    }), {
+      headers: {
+        Authorization: `bearer ${token.access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
     .then((res) => {
       if (res.status === 200) {
         dispatch(asyncActions(FETCH_TRANSACTIONS).success(res.data));
@@ -114,19 +151,26 @@ export const FetchTransactionSingle = (
   console.log(agentIde);
   console.log(`bearer ${token.access_token}`);
   axios
-    .get(
-      `${
-        AgentConstant.FETCH_TRANSACTIONS_URL
-      }startPage=${page}&length=${length}&agentId=${agentIde}&startDate=${
-        startDate ? startDate : ""
-      }&endDate=${endDate || ""}&terminalId=${terminalId}&status=${status}&transactionTypeId=${transactionType}&transactionId=${transactionId}&rrn=${rrn}&pan=${pan}&stan=${stan}&agentManagerId=${encodeURIComponent(agentManagerId || "")}&managerId=${encodeURIComponent(agentManagerId || "")}&agentManager=${encodeURIComponent(agentManagerId || "")}&agentManagerUserId=${encodeURIComponent(agentManagerId || "")}&ambassadorId=${encodeURIComponent(agentManagerId || "")}&agentManagerName=${encodeURIComponent(agentManagerName || "")}`,
-      {
-        headers: {
-          Authorization: `bearer ${token.access_token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
+    .get(buildTransactionUrl(page, length, {
+      startDate,
+      endDate,
+      terminalId,
+      status,
+      transactionType,
+      transactionId,
+      rrn,
+      pan,
+      stan,
+      agentId: agentIde,
+      agentManagerId,
+      agentManagerName,
+      draw,
+    }), {
+      headers: {
+        Authorization: `bearer ${token.access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
     .then((res) => {
       if (res.status === 200) {
         dispatch(asyncActions(FETCH_TRANSACTIONS_SINGLE).success(res.data));

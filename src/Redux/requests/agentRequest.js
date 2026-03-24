@@ -14,6 +14,22 @@ import {
 } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
 
+const buildAgentUrl = (page, length, filters = {}) => {
+  const params = new URLSearchParams();
+
+  params.append("startPage", page);
+  params.append("length", length);
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === null || value === undefined) return;
+    const normalized = String(value).trim();
+    if (!normalized) return;
+    params.append(key, normalized);
+  });
+
+  return `${AgentConstant.FETCH_AGENT_URL}${params.toString()}`;
+};
+
 export const FetchAgent =
   (
     page,
@@ -25,16 +41,19 @@ export const FetchAgent =
     const token = JSON.parse(localStorage.getItem("data"));
     console.log(`bearer ${token.access_token}`);
     axios
-      .get(
-        `${AgentConstant.FETCH_AGENT_URL}startPage=${page}&length=${length}&startDate=${startDate}&endDate=${endDate}&username=${username}&businessName=${businessName}&phone=${phone}&agentId=${agentId}
-        `,
-        {
-          headers: {
-            Authorization: `bearer ${token.access_token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      )
+      .get(buildAgentUrl(page, length, {
+        startDate,
+        endDate,
+        username,
+        businessName,
+        phone,
+        agentId,
+      }), {
+        headers: {
+          Authorization: `bearer ${token.access_token}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then((res) => {
         console.log(res.status === 200);
         if (res.status === 200) {

@@ -30,6 +30,17 @@ import moment from "moment";
 
 import "./style.css";
 
+const resolveFullName = (person) => {
+  if (!person || typeof person !== "object") return "";
+
+  if (person.fullName) return person.fullName;
+
+  return [person.firstname, person.middlename, person.lastname]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+};
+
 const Transactions = (props) => {
   const {
     FetchTransaction: FetchTransactions,
@@ -178,22 +189,38 @@ const Transactions = (props) => {
 
   const transactions = Array.isArray(transaction) ? transaction : [];
 
-  const getManagerName = (transact) =>
-    transact?.agent?.agentManager?.accountName ||
-    transact?.agent?.agentManager?.user?.fullName ||
-    transact?.agentManager?.accountName ||
-    transact?.agentManager?.user?.fullName ||
-    transact?.agentManagerName ||
-    "";
+  const getManagerName = (transact) => {
+    const nestedAgentManager = transact?.agent?.agentManager;
+    const rootAgentManager = transact?.agentManager;
 
-  const getManagerId = (transact) =>
-    transact?.agent?.agentManager?.id ??
-    transact?.agent?.agentManager?.user?.id ??
-    transact?.agent?.agentManagerId ??
-    transact?.agentManager?.id ??
-    transact?.agentManager?.user?.id ??
-    transact?.agentManagerId ??
-    "";
+    return (
+      nestedAgentManager?.accountName ||
+      resolveFullName(nestedAgentManager?.user) ||
+      resolveFullName(nestedAgentManager) ||
+      rootAgentManager?.accountName ||
+      resolveFullName(rootAgentManager?.user) ||
+      resolveFullName(rootAgentManager) ||
+      transact?.agentManagerName ||
+      ""
+    );
+  };
+
+  const getManagerId = (transact) => {
+    const nestedAgentManager = transact?.agent?.agentManager;
+    const rootAgentManager = transact?.agentManager;
+
+    return String(
+      (nestedAgentManager && typeof nestedAgentManager !== "object"
+        ? nestedAgentManager
+        : nestedAgentManager?.id ?? nestedAgentManager?.user?.id) ??
+        transact?.agent?.agentManagerId ??
+        (rootAgentManager && typeof rootAgentManager !== "object"
+          ? rootAgentManager
+          : rootAgentManager?.id ?? rootAgentManager?.user?.id) ??
+        transact?.agentManagerId ??
+        ""
+    );
+  };
 
   const managerByAgentId = transactions.reduce((acc, transact) => {
     const agentId = transact?.agent?.id;
@@ -206,9 +233,25 @@ const Transactions = (props) => {
     return acc;
   }, new Map());
 
+  const managerNameByManagerId = transactions.reduce((acc, transact) => {
+    const managerId = getManagerId(transact);
+    const managerName = getManagerName(transact);
+
+    if (managerId && managerName && !acc.has(managerId)) {
+      acc.set(managerId, managerName);
+    }
+
+    return acc;
+  }, new Map());
+
   const resolveManagerName = (transact) => {
     const managerName = getManagerName(transact);
     if (managerName) return managerName;
+
+    const managerId = getManagerId(transact);
+    if (managerId) {
+      return managerNameByManagerId.get(managerId) || "—";
+    }
 
     const agentId = transact?.agent?.id;
     if (agentId != null) {
@@ -223,7 +266,7 @@ const Transactions = (props) => {
     const managerId = getManagerId(transact);
 
     if (agentId != null && managerId !== "" && !acc.has(String(agentId))) {
-      acc.set(String(agentId), String(managerId));
+      acc.set(String(agentId), managerId);
     }
 
     return acc;

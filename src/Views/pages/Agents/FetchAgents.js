@@ -25,6 +25,38 @@ import { connect } from "react-redux";
 import "./style.css";
 import Pagination from "react-js-pagination";
 
+const resolveFullName = (person) => {
+  if (!person || typeof person !== "object") return "";
+
+  if (person.fullName) return person.fullName;
+
+  return [person.firstname, person.middlename, person.lastname]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+};
+
+const getAgentManagerId = (agentManager) => {
+  if (agentManager == null) return "";
+
+  if (typeof agentManager !== "object") {
+    return String(agentManager);
+  }
+
+  return String(agentManager?.id ?? agentManager?.user?.id ?? "");
+};
+
+const getAgentManagerName = (agentManager) => {
+  if (!agentManager || typeof agentManager !== "object") return "";
+
+  return (
+    agentManager?.accountName ||
+    resolveFullName(agentManager?.user) ||
+    resolveFullName(agentManager) ||
+    ""
+  );
+};
+
 const Agents = (props) => {
   const token = JSON.parse(localStorage.getItem("data"));
   let { name } = token.user.roleGroup;
@@ -203,7 +235,23 @@ const Agents = (props) => {
     agent.createdAt,
   ]);
 
+  const managerNameByManagerId = agents.reduce((acc, agent) => {
+    const managerId = getAgentManagerId(agent?.agentManager);
+    const managerName = getAgentManagerName(agent?.agentManager);
+
+    if (managerId && managerName && !acc.has(managerId)) {
+      acc.set(managerId, managerName);
+    }
+
+    return acc;
+  }, new Map());
+
   const products = agents.map((agent, index) => {
+    const managerId = getAgentManagerId(agent?.agentManager);
+    const resolvedManagerName =
+      getAgentManagerName(agent?.agentManager) ||
+      (managerId ? managerNameByManagerId.get(managerId) || "" : "");
+
     return {
       agent: agent ? agent : "",
       id: index,
@@ -214,10 +262,7 @@ const Agents = (props) => {
       Action: "",
       TerminalID:
         agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
-      AgentManager:
-        agent.agentManager === null || typeof agent.agentManager !== "object"
-          ? ""
-          : agent.agentManager.user.fullName,
+      AgentManager: resolvedManagerName,
       DateCreated: agent.createdAt === null ? "" : agent.createdAt,
     };
   });
