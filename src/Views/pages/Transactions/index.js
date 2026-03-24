@@ -6,6 +6,7 @@ import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.m
 import Upload from "../../../Assets/img/upload.png";
 import Filter from "../../../Assets/img/filter.png";
 import Print from "../../../Assets/img/printer.png";
+import CopyIcon from "../../../Assets/img/copy-regular.png";
 
 import DashboardTemplate from "../../template/dashboardtemplate";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,6 +30,38 @@ import { connect } from "react-redux";
 import moment from "moment";
 
 import "./style.css";
+
+const EyeIcon = ({ hidden = false }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d={
+        hidden
+          ? "M3 4.5L20 21.5M10.58 10.58C10.21 10.95 10 11.46 10 12C10 13.1 10.9 14 12 14C12.54 14 13.05 13.79 13.42 13.42M9.88 5.09C10.56 4.86 11.27 4.75 12 4.75C17.25 4.75 21 12 21 12C20.43 13.06 19.69 14.02 18.81 14.84M14.12 18.91C13.44 19.14 12.73 19.25 12 19.25C6.75 19.25 3 12 3 12C3.57 10.94 4.31 9.98 5.19 9.16"
+          : "M2.25 12S5.25 5.25 12 5.25S21.75 12 21.75 12S18.75 18.75 12 18.75S2.25 12 2.25 12Z"
+      }
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {!hidden && (
+      <circle
+        cx="12"
+        cy="12"
+        r="3"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+    )}
+  </svg>
+);
 
 const resolveFullName = (person) => {
   if (!person || typeof person !== "object") return "";
@@ -62,6 +95,8 @@ const Transactions = (props) => {
 
   const [viewReceipt, setViewReceipt] = useState(null);
   const [receiptview, showReceiptView] = useState(false);
+  const [balanceHidden, setBalanceHidden] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const initialState = {
     startDate: "",
@@ -188,6 +223,58 @@ const Transactions = (props) => {
   const title = "Transactions page";
 
   const transactions = Array.isArray(transaction) ? transaction : [];
+  const token = JSON.parse(localStorage.getItem("data") || "null");
+  const roleName = token?.user?.roleGroup?.name || "";
+  const isAgentView = roleName === "AGENT";
+
+  const latestAccountSnapshot = [...transactions]
+    .sort(
+      (left, right) =>
+        new Date(right?.systemTime || 0).getTime() -
+        new Date(left?.systemTime || 0).getTime()
+    )
+    .find(
+      (transact) =>
+        transact?.agent?.accountNumber ||
+        transact?.agent?.accountName ||
+        transact?.postPurseBalance != null ||
+        transact?.postBalance != null
+    );
+
+  const accountNumber =
+    latestAccountSnapshot?.agent?.accountNumber ||
+    latestAccountSnapshot?.accountNumber ||
+    "";
+  const accountName =
+    latestAccountSnapshot?.agent?.accountName ||
+    latestAccountSnapshot?.agent?.businessName ||
+    "";
+  const accountBankName = "Globus Bank";
+  const postBalanceValue =
+    latestAccountSnapshot?.postPurseBalance ??
+    latestAccountSnapshot?.postBalance ??
+    null;
+  const formattedPostBalance =
+    postBalanceValue == null || Number.isNaN(Number(postBalanceValue))
+      ? "--"
+      : Number(postBalanceValue).toLocaleString("en-NG", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+  const shouldShowAccountCard = roleName === "AGENT" && (accountNumber || postBalanceValue != null);
+
+  const copyAccountNumber = async () => {
+    if (!accountNumber) return;
+
+    try {
+      await navigator.clipboard.writeText(accountNumber);
+      setCopied(true);
+      toast.success("Account number copied");
+      setTimeout(() => setCopied(false), 1800);
+    } catch (error) {
+      toast.error("Failed to copy account number");
+    }
+  };
 
   const getManagerName = (transact) => {
     const nestedAgentManager = transact?.agent?.agentManager;
@@ -508,30 +595,191 @@ const Transactions = (props) => {
       <div className="transact-wrapper">
         {loading && <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />}
 
-        <div className="header-title">
-          <h3>Transactions</h3>
-        </div>
+        {isAgentView ? (
+          <>
+            {shouldShowAccountCard && (
+              <div className="transactions-header-tools transactions-header-tools--agent">
+                <div className="transactions-account-card transactions-account-card--agent">
+                  <div className="transactions-account-panel">
+                    <div className="transactions-account-item">
+                      <span className="transactions-account-label">Account No</span>
+                      <div className="transactions-account-value-row">
+                        <span className="transactions-account-value">
+                          {accountNumber || "--"}
+                        </span>
 
-        <div className="agent-transact-header">
-          <div>An overview of all transactions on mCashPoint</div>
+                        <button
+                          type="button"
+                          className={`transactions-copy-btn transactions-copy-icon-btn ${
+                            copied ? "copied" : ""
+                          }`}
+                          onClick={copyAccountNumber}
+                          disabled={!accountNumber}
+                          aria-label={copied ? "Copied" : "Copy account number"}
+                          title={copied ? "Copied" : "Copy account number"}
+                        >
+                          <img src={CopyIcon} alt="Copy account number" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-          <div className="actions">
-            <span onClick={() => window.print()}>
-              <img src={Print} alt="print" />
-              Print
-            </span>
+                  <div className="transactions-account-panel transactions-account-panel--balance">
+                    <div className="transactions-account-item">
+                      <span className="transactions-account-label">Available Balance</span>
+                      <span className="transactions-balance-value">
+                        {balanceHidden ? "N ******" : `N ${formattedPostBalance}`}
+                      </span>
+                    </div>
 
-            <span onClick={OpenFilter}>
-              <img src={Filter} alt="filter" />
-              Filter
-            </span>
+                    <button
+                      type="button"
+                      className="transactions-visibility-btn"
+                      onClick={() => setBalanceHidden((prev) => !prev)}
+                      aria-label={balanceHidden ? "Show balance" : "Hide balance"}
+                      title={balanceHidden ? "Show balance" : "Hide balance"}
+                    >
+                      <EyeIcon hidden={balanceHidden} />
+                    </button>
+                  </div>
 
-            <span onClick={() => showExportModal(true)}>
-              <img src={Upload} alt="export" />
-              Export
-            </span>
-          </div>
-        </div>
+                  <div className="transactions-account-footer">
+                    {accountName && (
+                      <div className="transactions-account-meta">
+                        <span className="transactions-account-meta-label">
+                          Account Name:
+                        </span>{" "}
+                        <span className="transactions-account-meta-value">
+                          {accountName}
+                        </span>
+                      </div>
+                    )}
+                    <div className="transactions-bank-block">
+                      <span className="transactions-bank-label">Bank</span>
+                      <span className="transactions-bank-value">{accountBankName}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="agent-transact-header transactions-header-row">
+              <div className="header-title transactions-page-title">
+                <h3>Transactions</h3>
+              </div>
+
+              <div className="actions">
+                <span onClick={() => window.print()}>
+                  <img src={Print} alt="print" />
+                  Print
+                </span>
+
+                <span onClick={OpenFilter}>
+                  <img src={Filter} alt="filter" />
+                  Filter
+                </span>
+
+                <span onClick={() => showExportModal(true)}>
+                  <img src={Upload} alt="export" />
+                  Export
+                </span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="header-title">
+              <h3>Transactions</h3>
+            </div>
+
+            <div className="agent-transact-header">
+              <div>An overview of all transactions on mCashPoint</div>
+
+              <div className="transactions-header-tools">
+                {shouldShowAccountCard && (
+                  <div className="transactions-account-card">
+                    <div className="transactions-account-panel">
+                      <div className="transactions-account-item">
+                        <span className="transactions-account-label">Account No</span>
+                        <div className="transactions-account-value-row">
+                          <span className="transactions-account-value">
+                            {accountNumber || "--"}
+                          </span>
+
+                          <button
+                            type="button"
+                            className={`transactions-copy-btn transactions-copy-icon-btn ${
+                              copied ? "copied" : ""
+                            }`}
+                            onClick={copyAccountNumber}
+                            disabled={!accountNumber}
+                            aria-label={copied ? "Copied" : "Copy account number"}
+                            title={copied ? "Copied" : "Copy account number"}
+                          >
+                            <img src={CopyIcon} alt="Copy account number" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="transactions-account-panel transactions-account-panel--balance">
+                      <div className="transactions-account-item">
+                        <span className="transactions-account-label">Balance</span>
+                        <span className="transactions-balance-value">
+                          {balanceHidden ? "N ******" : `N ${formattedPostBalance}`}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="transactions-visibility-btn"
+                        onClick={() => setBalanceHidden((prev) => !prev)}
+                        aria-label={balanceHidden ? "Show balance" : "Hide balance"}
+                        title={balanceHidden ? "Show balance" : "Hide balance"}
+                      >
+                        <EyeIcon hidden={balanceHidden} />
+                      </button>
+                    </div>
+
+                    <div className="transactions-account-footer">
+                      {accountName && (
+                        <div className="transactions-account-meta">
+                          <span className="transactions-account-meta-label">
+                            Account Name:
+                          </span>{" "}
+                          <span className="transactions-account-meta-value">
+                            {accountName}
+                          </span>
+                        </div>
+                      )}
+                      <div className="transactions-bank-block">
+                        <span className="transactions-bank-label">Bank</span>
+                        <span className="transactions-bank-value">{accountBankName}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="actions">
+                  <span onClick={() => window.print()}>
+                    <img src={Print} alt="print" />
+                    Print
+                  </span>
+
+                  <span onClick={OpenFilter}>
+                    <img src={Filter} alt="filter" />
+                    Filter
+                  </span>
+
+                  <span onClick={() => showExportModal(true)}>
+                    <img src={Upload} alt="export" />
+                    Export
+                  </span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         <div className="table-wrapper">
           <h4>All Transactions</h4>

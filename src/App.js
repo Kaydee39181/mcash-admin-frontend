@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import "./shared-action-effects.css";
+import "./shared-responsive.css";
 import Routes from "./Routes";
 import ErrorBoundary from "./Components/ErrorBoundary";
 

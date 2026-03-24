@@ -590,22 +590,6 @@ const VirtualAccount = (props) => {
           </div>
 
           <div className="va-right">
-            {showAccountNumberBadge && (
-              <div className="virtual-account-number">
-                <span className="account-label">Account No:</span>
-                <span className="account-value">{resolvedAccountNumber || "—"}</span>
-                <button
-                  type="button"
-                  className={`account-copy-btn ${copied ? "copied" : ""}`}
-                  onClick={handleCopyAccount}
-                  disabled={!resolvedAccountNumber}
-                  aria-label="Copy account number"
-                >
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              </div>
-            )}
-
             {!showNoAccess && (
               <div className="va-actions">
                 <button type="button" className="va-action" onClick={() => window.print()}>

@@ -7,7 +7,9 @@
   margin: 0;
   padding: 0px;
   /* height: 100vh; */
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .mainwrapper {
@@ -15,6 +17,8 @@
   margin-left: 17%;
   padding-top: 12px;
   width: 83%;
+  min-height: 100vh;
+  max-width: 100%;
 }
 
 @media screen and (max-width: 767px) {

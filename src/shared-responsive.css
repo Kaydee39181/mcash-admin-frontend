@@ -1,0 +1,239 @@
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.dashboardTemplate-wrap,
+.mainwrapper,
+.transact-wrapper,
+.dashboard-wrapper,
+.agent-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+}
+
+.mainwrapper {
+  min-width: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.table-wrapper,
+.agent-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper .table,
+.table-wrapper table,
+.agent-table-wrapper .table,
+.agent-table-wrapper table {
+  display: table !important;
+  width: max-content;
+  min-width: 100%;
+  margin-bottom: 0;
+}
+
+.react-bootstrap-table {
+  min-width: 100%;
+}
+
+.pagination_wrap {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.header-title,
+.agent-transact-header {
+  max-width: 100%;
+}
+
+.Dashboard-overview-wrapper {
+  gap: 16px;
+}
+
+.flex-box {
+  flex: 1 1 280px;
+  width: auto !important;
+  min-width: 260px;
+}
+
+.line-and-details {
+  gap: 16px;
+}
+
+.chart-bg,
+.transaction-graph-inner,
+.barchart-bg {
+  max-width: 100%;
+}
+
+@media screen and (max-width: 1199px) {
+  .transact-wrapper,
+  .dashboard-wrapper {
+    padding: 0 24px 0 18px !important;
+  }
+
+  .table-wrapper,
+  .agent-table-wrapper {
+    padding: 16px !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .transact-wrapper,
+  .dashboard-wrapper {
+    padding: 0 18px 0 14px !important;
+  }
+
+  .header-title h3 {
+    font-size: 24px !important;
+    line-height: 30px !important;
+  }
+
+  .header-title p,
+  .agent-transact-header > div:first-child {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+
+  .Dashboard-overview-wrapper {
+    justify-content: stretch;
+  }
+
+  .flex-box {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 240px;
+  }
+
+  .chart-bg,
+  .transaction-graph-inner,
+  .barchart-bg {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .chart-bg {
+    padding: 20px !important;
+  }
+
+  .pagination_wrap {
+    justify-content: center !important;
+    padding: 16px 0 0 !important;
+  }
+
+  .pagination_wrap p {
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  body {
+    font-size: 14px;
+  }
+
+  .mainwrapper {
+    padding-top: 8px;
+  }
+
+  .transact-wrapper,
+  .dashboard-wrapper {
+    padding: 0 12px 0 10px !important;
+  }
+
+  .header-title {
+    margin-bottom: 8px;
+  }
+
+  .header-title h3 {
+    font-size: 22px !important;
+    line-height: 28px !important;
+  }
+
+  .header-title p {
+    font-size: 14px !important;
+    line-height: 20px !important;
+  }
+
+  .transact-wrapper .agent-transact-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .table-wrapper,
+  .agent-table-wrapper {
+    padding: 12px !important;
+    border-radius: 12px;
+  }
+
+  .table-wrapper h4 {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .table-wrapper .table,
+  .table-wrapper table,
+  .agent-table-wrapper .table,
+  .agent-table-wrapper table {
+    font-size: 12px;
+  }
+
+  .Dashboard-overview-wrapper {
+    gap: 12px;
+  }
+
+  .flex-box {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .chart-bg {
+    padding: 16px !important;
+  }
+
+  .pagination_wrap p {
+    width: 100%;
+    padding: 0;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .transact-wrapper,
+  .dashboard-wrapper {
+    padding: 0 10px 0 8px !important;
+  }
+
+  .header-title h3 {
+    font-size: 20px !important;
+    line-height: 26px !important;
+  }
+
+  .table-wrapper,
+  .agent-table-wrapper {
+    padding: 10px !important;
+  }
+}
