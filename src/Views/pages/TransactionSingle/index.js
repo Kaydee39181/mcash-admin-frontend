@@ -370,20 +370,22 @@ const Transactions = (props) => {
             </span>
           </div>
         </div>
-        <div className="table-wrapper">
+        <div className="table-wrapper transaction-table-theme">
           <h4>All Transactions</h4>
-          <BootstrapTable
-            bootstrap4
-            keyField="id"
-            data={products}
-            columns={columns}
-            noDataIndication={noDataIndication}
-            defaultSorted={defaultSorted}
-            bordered={false}
-            // pagination={pagination(length,totalSize)}
-            hover
-            condensed
-          />
+          <div style={{ overflowX: 'auto', width: '100%' }}>
+            <BootstrapTable
+              bootstrap4
+              keyField="id"
+              data={products}
+              columns={columns}
+              noDataIndication={noDataIndication}
+              defaultSorted={defaultSorted}
+              bordered={false}
+              // pagination={pagination(length,totalSize)}
+              hover
+              condensed
+            />
+          </div>
         </div>
       </div>
       <FilterModal

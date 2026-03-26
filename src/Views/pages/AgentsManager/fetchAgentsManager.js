@@ -208,10 +208,9 @@ const FetchAgentsManager = (props) => {
   ];
 
   return (
-    <div>
+    <div className="agent-manager-page">
       {loading && (
         <Loader
-          type="TailSpin"
           type="Oval"
           height={60}
           width={60}
@@ -219,7 +218,7 @@ const FetchAgentsManager = (props) => {
         />
       )}
       <div className="table-wrapper">
-        <h4>All Agents</h4>
+        <h4>All Agent Managers</h4>
         <BootstrapTable
           bootstrap4
           keyField="id"

@@ -1,71 +1,218 @@
-.generate-code{
-    font-family: Montserrat;
+/* Agents Page - Matching Agent Manager UI Look */
+
+.generate-code {
+    font-family: Montserrat, sans-serif;
     font-style: normal;
-    font-weight: 500;
-    font-size: 11px;
+    font-weight: 700;
+    font-size: 10px;
     line-height: 18px;
     text-align: center;
-    letter-spacing: 0.1px;
+    letter-spacing: 0.5px;
     color: #1AB759;
-    border: 1px solid #1AB759;
+    border: 2px solid #1AB759;
     box-sizing: border-box;
-    border-radius: 8px;
-}
-.assign-terminal{
-    background: #7BA4DB;
-    border-radius: 8px;
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 9px;
-    line-height: 18px;
-    letter-spacing: 0.1px;
-    
-    color: #25282B;
-}
-.unassign-terminal{
-    background: #BE4D00;
-    border-radius: 8px;
-    font-family: Montserrat;
-    font-style: normal;
-    font-weight: 500;
-    font-size: 9px;
-    line-height: 18px;
-    letter-spacing: 0.1px;
-    color: #FFFFFF;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: rgba(26, 183, 89, 0.08);
+    text-transform: uppercase;
+    transition: all 0.2s ease;
 }
 
-.view{
-    font-family: Montserrat;
+.generate-code:hover {
+    background: rgba(26, 183, 89, 0.15);
+    transform: translateY(-1px);
+}
+
+.assign-terminal {
+    background: linear-gradient(180deg, #00249C 0%, #001a6e 100%);
+    border-radius: 6px;
+    font-family: Montserrat, sans-serif;
     font-style: normal;
-    font-weight: 500;
+    font-weight: 800 !important;
+    font-size: 12px !important;
+    line-height: 1.2;
+    letter-spacing: 0.8px;
+    color: #ffffff !important;
+    border: none;
+    padding: 8px 14px;
+    text-transform: uppercase;
+    box-shadow: 0 3px 8px rgba(0, 36, 156, 0.4);
+    transition: all 0.2s ease;
+    min-width: 100px;
+    display: inline-block;
+}
+
+.assign-terminal:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(0, 36, 156, 0.5);
+    background: linear-gradient(180deg, #003399 0%, #00249C 100%);
+}
+
+.assign-terminal:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 36, 156, 0.4);
+}
+
+.unassign-terminal {
+    background: linear-gradient(180deg, #BE4D00 0%, #8B3800 100%);
+    border-radius: 6px;
+    font-family: Montserrat, sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 18px;
+    letter-spacing: 0.5px;
+    color: #FFFFFF;
+    border: none;
+    padding: 6px 12px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(190, 77, 0, 0.4);
+    transition: all 0.2s ease;
+}
+
+.unassign-terminal:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(190, 77, 0, 0.5);
+}
+
+.view {
+    font-family: Montserrat, sans-serif;
+    font-style: normal;
+    font-weight: 700;
     font-size: 14px;
     line-height: 18px;
-    /* identical to box height, or 129% */
-
-    letter-spacing: 0.1px;
-
-    /* mCashPoint/Tertiary */
-
+    letter-spacing: 0.5px;
     color: #00249C;
+    text-transform: uppercase;
 }
-.agent-table-wrapper{
+
+.agent-table-wrapper {
     background: #FFFFFF;
     width: 100%;
     padding: 30px;
     border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
 }
-h5{
-   color: #00249C;
+
+h5 {
+    color: #00249C;
+    font-weight: 700;
 }
-.viewTransac{
-    font-family: Montserrat;
+
+.viewTransac {
+    background: linear-gradient(180deg, #00249C 0%, #001a6e 100%);
+    border-radius: 6px;
+    font-family: Montserrat, sans-serif;
     font-style: normal;
-    font-weight: 500;
-    font-size: 11px;
+    font-weight: 700;
+    font-size: 10px;
     line-height: 18px;
     text-align: center;
-    letter-spacing: 0.1px;
-    background-color: #4489e4 ;
+    letter-spacing: 0.5px;
     color: white;
+    border: none;
+    padding: 8px 14px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 6px rgba(0, 36, 156, 0.3);
+    transition: all 0.2s ease;
+}
+
+.viewTransac:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 36, 156, 0.4);
+}
+
+/* Agents Page Table - Matching Consistent Style */
+.agents-page .table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+    padding: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.agents-page .table-wrapper h4 {
+    font-family: Montserrat, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #00249C;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #00249C;
+}
+
+.agents-page table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.agents-page table thead th {
+    background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 14px 12px !important;
+    border-bottom: 3px solid #001a6e !important;
+    vertical-align: middle;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.agents-page .table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+    padding: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.agents-page table tbody td {
+    color: #4a5568 !important;
+    font-weight: 500 !important;
+    font-size: 12px !important;
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    vertical-align: middle;
+}
+
+.agents-page table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.agents-page table tbody tr:hover {
+    background: #f7fafc !important;
+}
+
+.agents-page .editadmin {
+    font-weight: 700;
+    color: #00249C;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(0, 36, 156, 0.08);
+    transition: all 0.2s ease;
+}
+
+.agents-page .editadmin:hover {
+    background: rgba(0, 36, 156, 0.15);
+    color: #001a6e;
+}
+
+/* Pagination styling */
+.agents-page .pagination_wrap {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid #e2e8f0;
+}
+
+.agents-page .pagination_wrap p {
+    font-weight: 600;
+    color: #2d3748;
 }

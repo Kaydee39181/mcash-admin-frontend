@@ -73,13 +73,13 @@ const AgentsManager = () => {
     <DashboardTemplate>
       <div className="transact-wrapper">
         <div className="header-title">
-          <h3>Agent Manager</h3>
+          <h3>Agent Managers</h3>
         </div>
 
         <div className="agent-transact-header">
           <div>
             <div>
-              <div>Manage all agents on mCashPoint</div>
+              <div>Manage all agent managers and their agents on mCashPoint</div>
             </div>
           </div>
           <div className="manage-agent">

@@ -3,32 +3,154 @@
     padding: 0px;
 }
 
+/* Agent Manager Page - Bolder and More Defined Styles */
+
+.agent-manager-page {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.agent-manager-page .table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+    padding: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.agent-manager-page .table-wrapper h4 {
+    font-family: Montserrat, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #00249C;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #00249C;
+}
+
+.agent-manager-page table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.agent-manager-page table thead th {
+    background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 14px 12px !important;
+    border-bottom: 3px solid #001a6e !important;
+    vertical-align: middle;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.agent-manager-page table tbody td {
+    color: #4a5568 !important;
+    font-weight: 500 !important;
+    font-size: 12px !important;
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    vertical-align: middle;
+}
+
+.agent-manager-page table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.agent-manager-page table tbody tr:hover {
+    background: #f7fafc !important;
+}
+
+.agent-manager-page .table-wrapper {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+    padding: 16px;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.agent-manager-page .editadmin {
+    font-weight: 700;
+    color: #00249C;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(0, 36, 156, 0.08);
+    transition: all 0.2s ease;
+}
+
+.agent-manager-page .editadmin:hover {
+    background: rgba(0, 36, 156, 0.15);
+    color: #001a6e;
+}
+
+.agent-manager-page .viewTransac {
+    background: linear-gradient(180deg, #00249C 0%, #001a6e 100%);
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(0, 36, 156, 0.3);
+}
+
+.agent-manager-page .viewTransac:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 36, 156, 0.4);
+}
+
+/* Pagination styling */
+.agent-manager-page .pagination_wrap {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid #e2e8f0;
+}
+
+.agent-manager-page .pagination_wrap p {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Tabs Enhancement */
 .nav-tabs .nav-item.nav-link.active{
-    background: #00249C;
-    /* Stroke/1 */
-    
-    border: 1px solid #DFE0EB;
+    background: linear-gradient(180deg, #00249C 0%, #001a6e 100%);
+    border: 2px solid #001a6e;
     box-sizing: border-box;
     border-radius: 10px;
     font-family: Montserrat;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 14px;
     line-height: 18px;
     display: flex;
     align-items: center;
     text-align: center;
-    letter-spacing: 0.2px;
-    padding: 7px 16px 10px 16px;
+    letter-spacing: 0.5px;
+    padding: 10px 18px;
     color: #FFFFFF;
     margin: 10px 10px 10px 0px;
+    box-shadow: 0 4px 10px rgba(0, 36, 156, 0.3);
 }
 .nav-tabs .nav-item.nav-link{
-    background: #FFFFFF;
-    border: 1px solid #DFE0EB;
+    background: #ffffff;
+    border: 2px solid #cbd5e0;
     box-sizing: border-box;
     border-radius: 10px;
-    padding: 7px 16px 10px 16px;
+    padding: 10px 18px;
     font-family: Montserrat;
     font-style: normal;
     font-weight: 600;
@@ -37,23 +159,30 @@
     display: flex;
     align-items: center;
     text-align: center;
-    letter-spacing: 0.2px;
-    color: #52575C;
+    letter-spacing: 0.3px;
+    color: #4a5568;
     margin: 10px 10px 10px 0px;
-    padding: 7px 16px 10px 16px;
+    transition: all 0.2s ease;
+}
 
+.nav-tabs .nav-item.nav-link:hover {
+    border-color: #00249C;
+    color: #00249C;
+    background: rgba(0, 36, 156, 0.05);
 }
 
 .modal-header{
     font-family: Montserrat;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 15px;
-
     color: #00249C;
     border: none;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
 }
 
 .header-wrappre{
-    border-bottom: 1px solid black;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
 }

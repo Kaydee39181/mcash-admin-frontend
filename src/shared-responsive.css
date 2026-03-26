@@ -39,7 +39,21 @@ svg {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+}
+
+.agent-table-wrapper h5 {
+  font-family: Montserrat, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #00249C;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid #00249C;
 }
 
 .table-wrapper .table,

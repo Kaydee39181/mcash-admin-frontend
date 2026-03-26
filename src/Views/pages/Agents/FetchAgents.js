@@ -424,7 +424,7 @@ const Agents = (props) => {
   ];
 
   return (
-    <div className="table-wrapper">
+    <div className="agents-page table-wrapper">
       <HardwareModal
         show={showhardware}
         close={closehardware}
@@ -442,7 +442,6 @@ const Agents = (props) => {
       </Modal>
       {loading && (
         <Loader
-          type="TailSpin"
           type="Oval"
           height={60}
           width={60}

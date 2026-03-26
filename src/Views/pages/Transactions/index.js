@@ -781,7 +781,7 @@ const Transactions = (props) => {
           </>
         )}
 
-        <div className="table-wrapper">
+        <div className="table-wrapper transaction-table-theme">
           <h4>All Transactions</h4>
 
           <BootstrapTable

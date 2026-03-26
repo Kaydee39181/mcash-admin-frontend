@@ -625,7 +625,7 @@ const VirtualAccount = (props) => {
           </div>
         ) : (
           <>
-            <div className="table-wrapper">
+            <div className="table-wrapper transaction-table-theme">
               <h4>All Virtual Account Transactions</h4>
 
               <BootstrapTable

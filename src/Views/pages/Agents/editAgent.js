@@ -141,7 +141,6 @@ const CreateAgentModal = ({
           {load && (
             <Loader
               type="TailSpin"
-              type="Oval"
               height={60}
               width={60}
               color="#1E4A86"
@@ -149,7 +148,6 @@ const CreateAgentModal = ({
           )}
           {loading && (
             <Loader
-              type="TailSpin"
               type="Oval"
               height={60}
               width={60}

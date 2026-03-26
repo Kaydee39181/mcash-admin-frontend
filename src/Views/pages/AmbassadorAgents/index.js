@@ -270,7 +270,6 @@ const Agents = (props) => {
           </Modal>
           {loading && (
             <Loader
-              type="TailSpin"
               type="Oval"
               height={60}
               width={60}
