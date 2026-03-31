@@ -55,8 +55,10 @@ class SideNav extends Component {
       ];
     }
 
+    const navWrapperClassName = `sidenav-wrap${this.props.open ? " is-open" : ""}`;
+
     return (
-      <div className="sidenav-wrap">
+      <div className={navWrapperClassName}>
         {this.state.showHardwareModal && (
           <HardWareModal close={this._closeHardwareModal} />
         )}
@@ -66,7 +68,7 @@ class SideNav extends Component {
               <img src={Logo} alt="m-cash logo" className="desktop-logo" />
               <img src={MobileLogo} alt="m-cash logo" className="mobile-logo" />
             </div>
-            <div className="sidenavlist">
+            <div className="sidenavlist" onClick={this.props.onNavigate}>
               <ul className="list-group">
                 <NavLink
                   to="/dashboard"
@@ -234,7 +236,7 @@ class SideNav extends Component {
             </div>
           </div>
         </div>
-        <div className="menu-overlay "></div>
+        <div className="menu-overlay" onClick={this.props.onClose}></div>
       </div>
     );
   }

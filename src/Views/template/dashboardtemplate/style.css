@@ -28,6 +28,11 @@
   .dashboardTemplate-wrap {
     --sidebar-width: 72px;
   }
+
+  .mainwrapper {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 
 @media screen and (max-width: 767px) {
@@ -36,6 +41,8 @@
   }
 
   .mainwrapper {
+    margin-left: 0;
+    width: 100%;
     overflow-y: visible;
   }
 }

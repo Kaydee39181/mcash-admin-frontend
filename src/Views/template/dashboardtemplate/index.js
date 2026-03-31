@@ -2,9 +2,7 @@ import React, { Component } from "react";
 import Header from "../../../Components/Header";
 import SideNav from "../../../Components/SideNav";
 import "./style.css";
-import { createHashHistory } from "history";
 import { withRouter } from "react-router-dom";
-import { Container, Row, Col } from "react-bootstrap";
 
 class DashboardTemplate extends Component {
   constructor(props) {
@@ -15,14 +13,26 @@ class DashboardTemplate extends Component {
     };
   }
 
+  openSideNav = () => {
+    this.setState({ showSideNav: true });
+  };
+
+  closeSideNav = () => {
+    this.setState({ showSideNav: false });
+  };
+
   render() {
     return (
       <div className="dashboardTemplate-wrap">
         <div className="row-wrapper">
-          <SideNav />
+          <SideNav
+            open={this.state.showSideNav}
+            onClose={this.closeSideNav}
+            onNavigate={this.closeSideNav}
+          />
         </div>
         <div className="mainwrapper">
-          <Header />
+          <Header onToggleSideNav={this.openSideNav} />
           {this.props.children}
         </div>
       </div>

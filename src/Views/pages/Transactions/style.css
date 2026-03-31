@@ -25,7 +25,7 @@
   font-size: 12px;
   line-height: 22px;
   letter-spacing: 0.1px;
-  padding: 0px 62px 0px 23px;
+  padding: 0 clamp(16px, 2.6vw, 32px) !important;
   color: #52575c;
 }
 
@@ -38,9 +38,11 @@
 
 .transactions-header-tools--agent {
   width: 100%;
-  align-items: stretch;
+  align-items: center;
   margin-top: 18px;
   margin-bottom: 14px;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .transactions-account-card {
@@ -61,10 +63,11 @@
   align-items: center;
   gap: 10px;
   width: 100%;
+  min-width: 0;
 }
 
 .transactions-account-card--agent {
-  width: 100%;
+  width: min(100%, 1180px);
   max-width: none;
   min-width: 0;
   box-sizing: border-box;
@@ -75,6 +78,7 @@
   border-radius: 30px;
   background: linear-gradient(135deg, #edf4ff 0%, #ffffff 48%, #eefaf4 100%);
   box-shadow: 0 22px 38px rgba(30, 74, 134, 0.14);
+  margin: 0 auto;
 }
 
 .transactions-account-card--agent .transactions-account-panel,
@@ -526,7 +530,7 @@
     font-size: small;
   }
   .transact-wrapper {
-    padding: 0px 10px 0px 23px !important;
+    padding: 0 12px !important;
   }
   .agent-transact-header img {
     display: none;
@@ -543,6 +547,7 @@
     align-items: stretch;
   }
   .transactions-header-tools--agent {
+    align-items: center;
     margin-bottom: 12px;
   }
   .transactions-account-card {
@@ -551,13 +556,21 @@
   }
   .transactions-account-card--agent {
     grid-template-columns: 1fr;
-    padding: 16px;
+    width: 100%;
+    max-width: 100%;
+    padding: 14px;
     gap: 14px;
+    margin: 0 auto;
   }
   .transactions-account-card--agent .transactions-account-panel,
   .transactions-account-card--agent .transactions-account-footer {
     min-height: 0;
-    padding: 18px;
+    padding: 14px;
+  }
+  .transactions-account-card--agent .transactions-account-panel:first-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   .transactions-account-panel {
     flex-wrap: wrap;
@@ -568,7 +581,12 @@
   }
   .transactions-account-card--agent .transactions-account-value {
     width: auto;
-    font-size: 24px;
+    max-width: 100%;
+    min-width: 0;
+    padding: 10px 14px;
+    font-size: 19px;
+    justify-content: center;
+    letter-spacing: 0.01em;
   }
   .transactions-account-card--agent .transactions-balance-value {
     font-size: 30px;
@@ -576,13 +594,29 @@
   .transactions-account-card--agent .transactions-account-meta {
     font-size: 18px;
   }
-  .transactions-account-value-row {
-    gap: 8px;
+  .transactions-account-card--agent .transactions-account-item {
+    align-items: center;
+    text-align: center;
+  }
+  .transactions-account-card--agent .transactions-account-value-row {
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+    gap: 10px;
+    justify-content: center;
+  }
+  .transactions-account-card--agent .transactions-account-value {
+    flex: 0 1 auto;
+  }
+  .transactions-account-card--agent .transactions-copy-btn {
+    flex: 0 0 42px;
+    align-self: center;
+    justify-self: center;
   }
   .transactions-copy-icon-btn {
-    width: 40px;
-    min-width: 40px;
-    height: 40px;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
   }
   .transactions-header-row {
     flex-direction: column;
@@ -653,7 +687,7 @@
 
 @media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
   .transact-wrapper {
-    padding: 0px 10px 0px 23px !important;
+    padding: 0 14px !important;
   }
   .table-wrapper {
     margin-top: 1rem;
