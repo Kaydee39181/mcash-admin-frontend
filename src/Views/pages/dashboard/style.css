@@ -262,6 +262,7 @@
 }
 .bar-graph-wrapper {
   width: 50%;
+  min-width: 0;
 }
 
 .graph-upper-wrapper {
@@ -274,11 +275,36 @@
   border: 1px solid #e2e2e2;
   box-sizing: border-box;
   border-radius: 10px;
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
 }
 
-.daily-per-agent li {
-  padding: 15px 20px 10px 20px;
+.daily-per-agent-list {
+  list-style: disc;
+  list-style-position: inside;
+  margin: 0;
+  padding: 8px 16px 16px;
+}
+
+.daily-per-agent-item {
+  padding: 10px 0;
   font-size: small;
+  color: #25282b;
+  border-bottom: 1px solid #eef0f7;
+}
+
+.daily-per-agent-item:last-child {
+  border-bottom: 0;
+}
+
+.daily-per-agent-name {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .daily-per-agent #daily-header {

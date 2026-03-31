@@ -79,7 +79,7 @@ const AgentsManager = () => {
         <div className="agent-transact-header">
           <div>
             <div>
-              <div>Manage all agent managers and their agents on mCashPoint</div>
+              <div>A list of all Agent Managers on mCashPoint</div>
             </div>
           </div>
           <div className="manage-agent">

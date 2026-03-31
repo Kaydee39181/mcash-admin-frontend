@@ -61,7 +61,7 @@
   width: 100% !important;
   table-layout: auto;
   border-collapse: collapse;
-  min-width: 1400px;
+  min-width: 1120px;
 }
 
 .transaction-table-theme .react-bootstrap-table thead th,
@@ -195,6 +195,11 @@
 }
 
 @media screen and (max-width: 767px) {
+  .transaction-table-theme .react-bootstrap-table table,
+  .transaction-table-theme table {
+    min-width: 820px;
+  }
+
   .transaction-table-theme.table-wrapper h4 {
     font-size: 20px;
     text-align: center;

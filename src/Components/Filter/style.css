@@ -1,22 +1,36 @@
-.filter-btn{
- border: 1px solid;  
- color: #00249C;
- margin-right: 1rem; 
- 
+.filter-modal .modal-dialog {
+  --modal-max-width: 960px;
 }
-.btn{
-    width: 150px;
-}
-.filter{
- 
- background-color: #00249C; 
-}
-.filter-btns{
-    display: flex;
-    justify-content: flex-end;
 
+.filter-modal .filter-btn {
+  min-width: 150px;
+  border: 1px solid #00249c;
+  color: #00249c;
 }
-h3{font-size: small;}
-/* .body{
-    width: 1024px;
-} */
+
+.filter-modal .filter {
+  background-color: #00249c;
+  color: #ffffff;
+}
+
+.filter-modal .filter-btns {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.filter-modal h3 {
+  font-size: small;
+}
+
+@media screen and (max-width: 575px) {
+  .filter-modal .filter-btns {
+    justify-content: stretch;
+  }
+
+  .filter-modal .filter-btn {
+    width: 100%;
+  }
+}

@@ -1,28 +1,56 @@
-.export-btn{
-    margin-right: 15px;
-    margin-left: 20px;
-    height: 40px;
-    font-size: small;
-}
-.btn{
-   color: #ffffff;
+.export-modal .modal-dialog {
+  --modal-max-width: 640px;
 }
 
-
-.pdf{
-    background-color:#00249C ;
+.export-modal .export-actions-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
 }
 
+.export-modal .export-btn,
+.export-modal .csv.export-btn {
+  width: 100%;
+  min-height: 46px;
+  margin: 0;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
 
-.excel{
-    background-color:#BE4D00 ;
+.export-modal .export-btn {
+  color: #ffffff;
 }
-.csv{
-    background-color:#00249C ;
+
+.export-modal .pdf {
+  background-color: #00249c;
+  border-color: #00249c;
 }
-.clip{
-    background-color:transparent ;
-    border: 1px solid #00249C;
-    color: #00249C;
+
+.export-modal .excel {
+  background-color: #be4d00;
+  border-color: #be4d00;
 }
- 
+
+.export-modal .csv {
+  background-color: #00249c;
+  border-color: #00249c;
+  color: #ffffff;
+}
+
+.export-modal .clip {
+  background-color: transparent;
+  border: 1px solid #00249c;
+  color: #00249c;
+}
+
+@media screen and (max-width: 575px) {
+  .export-modal .export-actions-row {
+    grid-template-columns: 1fr;
+  }
+}

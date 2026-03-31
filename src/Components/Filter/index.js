@@ -23,18 +23,20 @@ const Filter = ({ show, close, ...props }) => {
       onHide={close}
       centered={true}
       aria-labelledby="edit-profile-modal"
-      className="rounded border"
+      className="app-modal filter-modal rounded border"
     >
       <Modal.Body>
         <Container>
-          <div
-            className="header-wrapper d-flex justify-content-between align-item-center  justify-content-center"
-            justify-content-center
-          >
+          <div className="header-wrapper">
             <div className="modal-header">Filter by</div>
-            <div onClick={close} className="align-item-center  pt-3">
+            <button
+              type="button"
+              onClick={close}
+              className="modal-close-btn"
+              aria-label="Close filter modal"
+            >
               <img src={Cancel} alt="Close" />
-            </div>
+            </button>
           </div>
         </Container>
         <hr />
@@ -352,7 +354,7 @@ const Filter = ({ show, close, ...props }) => {
             <div className="filter-btns">
               <Button
                 variant="outline-primary"
-                className="filter-btn btn "
+                className="filter-btn"
                 type="reset"
                 size="sm"
               // onClick={resetFilter}
@@ -362,7 +364,7 @@ const Filter = ({ show, close, ...props }) => {
 
               <Button
                 variant="outline-primary"
-                className="btn filter"
+                className="filter-btn filter"
                 type="submit"
                 size="sm"
                 onClick={close}

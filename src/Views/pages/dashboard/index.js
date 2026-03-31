@@ -334,14 +334,20 @@ const DashBoard = (props) => {
               name === "Product" ? (
                 <div className="daily-per-agent">
                   <div id="daily-header">Daily Top Performing Agents</div>
-
-                  {mostPerformingAgent
-                    .slice(0, 5)
-                    .map((PerformingAgent, index) => (
-                      <div>
-                        <li>{PerformingAgent.businessName}</li>
-                      </div>
-                    ))}
+                  <ul className="daily-per-agent-list">
+                    {mostPerformingAgent
+                      .slice(0, 5)
+                      .map((PerformingAgent, index) => (
+                        <li
+                          className="daily-per-agent-item"
+                          key={`${PerformingAgent.businessName || "agent"}-${index}`}
+                        >
+                          <span className="daily-per-agent-name">
+                            {PerformingAgent.businessName || "Unnamed Agent"}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
                 </div>
               ) : (
                 ""

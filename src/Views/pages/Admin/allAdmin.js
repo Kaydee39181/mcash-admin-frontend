@@ -95,11 +95,30 @@ const AdminFetch = (props) => {
     };
   });
 
+  const buildHeaderStyle = (width, minWidth = width) => ({
+    width,
+    minWidth,
+    textAlign: "center",
+    padding: "10px",
+  });
+
+  const buildCellStyle = (width, minWidth = width) => ({
+    width,
+    minWidth,
+    textAlign: "center",
+    verticalAlign: "middle",
+    whiteSpace: "normal",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
+  });
+
   const columns = [
     // { dataField: 'id', text: 'Id'},
     {
       dataField: "memberid",
       text: "ID",
+      headerStyle: () => buildHeaderStyle("12%", "120px"),
+      style: buildCellStyle("12%", "120px"),
       formatter: (cellContent, row) => {
         console.log(row);
         return (
@@ -116,44 +135,38 @@ const AdminFetch = (props) => {
     {
       dataField: "firstname",
       text: "First Name",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
+      headerStyle: () => buildHeaderStyle("10%", "110px"),
+      style: buildCellStyle("10%", "110px"),
     },
     {
       dataField: "lastname",
       text: "Last Name",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
+      headerStyle: () => buildHeaderStyle("10%", "110px"),
+      style: buildCellStyle("10%", "110px"),
     },
     {
       dataField: "username",
       text: "User Name",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
+      headerStyle: () => buildHeaderStyle("12%", "130px"),
+      style: buildCellStyle("12%", "130px"),
     },
     {
       dataField: "DateCreated",
       text: "Created Date",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
+      headerStyle: () => buildHeaderStyle("12%", "125px"),
+      style: buildCellStyle("12%", "125px"),
     },
     {
       dataField: "roleGroupName",
       text: "Role Group",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
+      headerStyle: () => buildHeaderStyle("18%", "180px"),
+      style: buildCellStyle("18%", "180px"),
     },
     {
       dataField: "Active",
       text: "Active",
-      headerStyle: (colum, colIndex) => {
-        return { width: "150px", textAlign: "center", padding: "10px" };
-      },
+      headerStyle: () => buildHeaderStyle("8%", "90px"),
+      style: buildCellStyle("8%", "90px"),
     },
   ];
 
@@ -175,7 +188,7 @@ const AdminFetch = (props) => {
           color="#1E4A86"
         />
       )}
-      <div className="table-wrapper">
+      <div className="table-wrapper admin-table-wrapper">
         <h4>All Admins</h4>
         <BootstrapTable
           bootstrap4

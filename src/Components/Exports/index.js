@@ -234,15 +234,20 @@ const ExportLink = ({
       onHide={close}
       centered={true}
       aria-labelledby="edit-profile-modal"
-      className="rounded border"
+      className="app-modal export-modal rounded border"
     >
       <Modal.Body>
         <Container>
-          <div className="header-wrapper d-flex justify-content-between align-item-center justify-content-center">
+          <div className="header-wrapper">
             <div className="modal-header">Export</div>
-            <div onClick={close} style={{ cursor: "pointer" }}>
+            <button
+              type="button"
+              onClick={close}
+              className="modal-close-btn"
+              aria-label="Close export modal"
+            >
               <img src={Cancel} alt="Close" />
-            </div>
+            </button>
           </div>
         </Container>
 
@@ -252,7 +257,7 @@ const ExportLink = ({
           <h3>Select Export Type</h3>
 
           <Form>
-            <Row>
+            <Row className="export-actions-row">
               <Button
                 onClick={exportPDF}
                 className="pdf export-btn"

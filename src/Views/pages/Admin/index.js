@@ -59,7 +59,7 @@ const AdminUsers = (props) => {
 
   return (
     <DashboardTemplate>
-      <div className="transact-wrapper">
+      <div className="transact-wrapper admin-page">
         <div className="header-title">
           <h3>Admin</h3>
         </div>

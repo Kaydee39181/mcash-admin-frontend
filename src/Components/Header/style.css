@@ -4,7 +4,7 @@
   width: 100%;
   justify-content: flex-end;
   align-items: center;
-  padding: 10px 26px 6px 0;
+  padding: 10px 24px 6px 0;
 }
 
 .header {
@@ -14,6 +14,8 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   color: #1e4a86;
+  text-align: right;
+  max-width: 100%;
 }
 
 .header span {
@@ -27,8 +29,18 @@
 .divider {
   border: 1px solid #dfe0eb;
 }
-@media screen and (max-width: 600px) {
+
+@media screen and (max-width: 767px) {
+  .header-wrapper {
+    padding: 8px 12px 4px 0;
+  }
+
   .header-wrapper .header {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
+    gap: 6px;
+  }
+
+  .header span {
+    padding-right: 6px;
   }
 }

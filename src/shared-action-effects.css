@@ -102,7 +102,7 @@
   .transact-wrapper .agent-transact-header .manage-agent,
   .transact-wrapper .agent-transact-header > div:last-child {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 10px;
   }
 
@@ -114,5 +114,19 @@
   .transact-wrapper .agent-transact-header > div:last-child > button {
     padding: 10px 14px;
     font-size: 13px;
+    min-width: 112px;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .transact-wrapper .agent-transact-header .actions > span,
+  .transact-wrapper .agent-transact-header .manage-agent > span,
+  .transact-wrapper .agent-transact-header > div:last-child > span,
+  .transact-wrapper .agent-transact-header .actions > button,
+  .transact-wrapper .agent-transact-header .manage-agent > button,
+  .transact-wrapper .agent-transact-header > div:last-child > button {
+    flex: 1 1 100%;
+    width: 100%;
   }
 }

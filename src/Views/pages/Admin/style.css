@@ -10,3 +10,54 @@
   background-color: transparent;
   color: blue;
 }
+
+.admin-page .admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-page .admin-table-wrapper .react-bootstrap-table,
+.admin-page .admin-table-wrapper .react-bootstrap-table > div {
+  width: 100%;
+  max-width: 100%;
+}
+
+.admin-page .admin-table-wrapper table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+
+.admin-page .admin-table-wrapper table thead th,
+.admin-page .admin-table-wrapper table tbody td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.admin-page .admin-table-wrapper table thead th:first-child,
+.admin-page .admin-table-wrapper table tbody td:first-child {
+  width: 12%;
+  min-width: 120px;
+}
+
+.admin-page .admin-table-wrapper table thead th:last-child,
+.admin-page .admin-table-wrapper table tbody td:last-child {
+  width: 8%;
+  min-width: 90px;
+}
+
+.admin-page .admin-table-wrapper table tbody td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.admin-page .admin-table-wrapper .editadmin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  padding: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
