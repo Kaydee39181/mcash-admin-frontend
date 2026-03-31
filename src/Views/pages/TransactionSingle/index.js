@@ -352,7 +352,7 @@ const Transactions = (props) => {
           <h3>Transactions</h3>
         </div>
         <div className="agent-transact-header">
-          <div>An overview of all transactions on mCashPoint</div>
+          <div>An overview of an agent's transactions on mCashPoint</div>
           <div>
             <span>
               <img src={Print} alt="Print" />
@@ -370,21 +370,53 @@ const Transactions = (props) => {
             </span>
           </div>
         </div>
-        <div className="table-wrapper transaction-table-theme">
-          <h4>All Transactions</h4>
-          <div style={{ overflowX: 'auto', width: '100%' }}>
-            <BootstrapTable
-              bootstrap4
-              keyField="id"
-              data={products}
-              columns={columns}
-              noDataIndication={noDataIndication}
-              defaultSorted={defaultSorted}
-              bordered={false}
-              // pagination={pagination(length,totalSize)}
-              hover
-              condensed
-            />
+        <div className="transaction-page-shell">
+          <div className="table-wrapper transaction-table-theme">
+            <h4>Agent Transactions</h4>
+            <div style={{ overflowX: "auto", width: "100%" }}>
+              <BootstrapTable
+                bootstrap4
+                keyField="id"
+                data={products}
+                columns={columns}
+                noDataIndication={noDataIndication}
+                defaultSorted={defaultSorted}
+                bordered={false}
+                // pagination={pagination(length,totalSize)}
+                hover
+                condensed
+              />
+            </div>
+          </div>
+
+          <div className="pagination_wrap">
+            <DropdownButton
+              menuAlign="right"
+              title={length}
+              id="dropdown-menu-align-right"
+              onSelect={handleSelect}
+            >
+              <Dropdown.Item eventKey="10">10</Dropdown.Item>
+              <Dropdown.Item eventKey="20">20</Dropdown.Item>
+              <Dropdown.Item eventKey="30">30</Dropdown.Item>
+              <Dropdown.Item eventKey="50">50</Dropdown.Item>
+              <Dropdown.Item eventKey="100">100</Dropdown.Item>
+              <Dropdown.Item
+                eventKey={transactionTotal ? String(transactionTotal) : "0"}
+              >
+                All
+              </Dropdown.Item>
+            </DropdownButton>
+            <p>Showing 1 to 10 of {transactionTotal}</p>
+            <div className="pagination">
+              <Pagination
+                activePage={activePage}
+                itemsCountPerPage={10}
+                totalItemsCount={transactionTotal}
+                pageRangeDisplayed={5}
+                onChange={_handlePageChange}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -414,35 +446,6 @@ const Transactions = (props) => {
         columns={columns}
         filterValues={filterValues}
       />
-      <div className="pagination_wrap">
-        <DropdownButton
-          menuAlign="right"
-          title={length}
-          id="dropdown-menu-align-right"
-          onSelect={handleSelect}
-        >
-          <Dropdown.Item eventKey="10">10</Dropdown.Item>
-          <Dropdown.Item eventKey="20">20</Dropdown.Item>
-          <Dropdown.Item eventKey="30">30</Dropdown.Item>
-          <Dropdown.Item eventKey="50">50</Dropdown.Item>
-          <Dropdown.Item eventKey="100">100</Dropdown.Item>
-          <Dropdown.Item
-            eventKey={transactionTotal ? String(transactionTotal) : "0"}
-          >
-            All
-          </Dropdown.Item>
-        </DropdownButton>
-        <p>Showing 1 to 10 of {transactionTotal}</p>
-        <div className="pagination">
-          <Pagination
-            activePage={activePage}
-            itemsCountPerPage={10}
-            totalItemsCount={transactionTotal}
-            pageRangeDisplayed={5}
-            onChange={_handlePageChange}
-          />
-        </div>
-      </div>
     </DashboardTemplate>
   );
 };

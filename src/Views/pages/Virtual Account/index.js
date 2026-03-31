@@ -624,7 +624,7 @@ const VirtualAccount = (props) => {
             </p>
           </div>
         ) : (
-          <>
+          <div className="transaction-page-shell">
             <div className="table-wrapper transaction-table-theme">
               <h4>All Virtual Account Transactions</h4>
 
@@ -640,7 +640,39 @@ const VirtualAccount = (props) => {
                 condensed
               />
             </div>
-          </>
+
+            <div className="pagination_wrap">
+              <DropdownButton
+                menuAlign="right"
+                title={length}
+                id="dropdown-menu-align-right"
+                onSelect={handleSelect}
+              >
+                <Dropdown.Item eventKey="10">10</Dropdown.Item>
+                <Dropdown.Item eventKey="20">20</Dropdown.Item>
+                <Dropdown.Item eventKey="30">30</Dropdown.Item>
+                <Dropdown.Item eventKey="50">50</Dropdown.Item>
+                <Dropdown.Item eventKey="100">100</Dropdown.Item>
+                <Dropdown.Item eventKey={String(virtualTotal || 0)}>
+                  All
+                </Dropdown.Item>
+              </DropdownButton>
+
+              <p>
+                Showing {startRange} to {endRange} of {virtualTotal}
+              </p>
+
+              <div className="pagination">
+                <Pagination
+                  activePage={activePage}
+                  itemsCountPerPage={length}
+                  totalItemsCount={virtualTotal}
+                  pageRangeDisplayed={5}
+                  onChange={_handlePageChange}
+                />
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
@@ -671,37 +703,6 @@ const VirtualAccount = (props) => {
             filterValues={filterValues}
           />
 
-          <div className="pagination_wrap">
-            <DropdownButton
-              menuAlign="right"
-              title={length}
-              id="dropdown-menu-align-right"
-              onSelect={handleSelect}
-            >
-              <Dropdown.Item eventKey="10">10</Dropdown.Item>
-              <Dropdown.Item eventKey="20">20</Dropdown.Item>
-              <Dropdown.Item eventKey="30">30</Dropdown.Item>
-              <Dropdown.Item eventKey="50">50</Dropdown.Item>
-              <Dropdown.Item eventKey="100">100</Dropdown.Item>
-              <Dropdown.Item eventKey={String(virtualTotal || 0)}>
-                All
-              </Dropdown.Item>
-            </DropdownButton>
-
-            <p>
-              Showing {startRange} to {endRange} of {virtualTotal}
-            </p>
-
-            <div className="pagination">
-              <Pagination
-                activePage={activePage}
-                itemsCountPerPage={length}
-                totalItemsCount={virtualTotal}
-                pageRangeDisplayed={5}
-                onChange={_handlePageChange}
-              />
-            </div>
-          </div>
         </>
       )}
 

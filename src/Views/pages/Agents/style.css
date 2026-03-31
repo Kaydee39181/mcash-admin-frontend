@@ -1,5 +1,13 @@
 /* Agents Page - Matching Agent Manager UI Look */
 
+.agents-page {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
 .generate-code {
     font-family: Montserrat, sans-serif;
     font-style: normal;
@@ -148,6 +156,11 @@ h5 {
     width: 100%;
 }
 
+.agents-page .react-bootstrap-table,
+.agents-page .react-bootstrap-table > div {
+    width: 100%;
+}
+
 .agents-page table thead th {
     background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
     color: #ffffff !important;
@@ -158,18 +171,8 @@ h5 {
     padding: 14px 12px !important;
     border-bottom: 3px solid #001a6e !important;
     vertical-align: middle;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-}
-
-.agents-page .table-wrapper {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
-    padding: 16px;
-    overflow-x: auto;
-    overflow-y: visible;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .agents-page table tbody td {

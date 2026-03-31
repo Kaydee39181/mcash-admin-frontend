@@ -1,3 +1,28 @@
+.transaction-page-shell {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.transaction-page-shell .table-wrapper.transaction-table-theme {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+}
+
+.transaction-page-shell .pagination_wrap {
+  margin-top: 16px;
+  padding: 16px 0 0;
+  border-top: 2px solid #e2e8f0;
+}
+
+.transaction-page-shell .pagination_wrap p {
+  font-weight: 600;
+  color: #2d3748;
+}
+
 .transaction-table-theme.table-wrapper {
   padding: 16px;
   background: #ffffff;
@@ -43,8 +68,8 @@
 .transaction-table-theme table thead th {
   background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
   color: #ffffff !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
   letter-spacing: 0.8px;
   line-height: 1.45 !important;
   padding: 14px 12px !important;
@@ -55,8 +80,8 @@
   min-width: 0;
   text-transform: uppercase;
   border-bottom: 3px solid #001a6e !important;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 /* General table-wrapper styling for pages without transaction-table-theme */
@@ -110,8 +135,8 @@
 .transaction-table-theme table tbody td {
   border-top: 1px solid #e6ecf3 !important;
   color: #4a5568 !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
   line-height: 1.5 !important;
   padding: 10px 12px !important;
   vertical-align: middle;
@@ -147,16 +172,16 @@
 .transaction-table-theme table tbody td .successful,
 .transaction-table-theme table tbody td .failure,
 .transaction-table-theme table tbody td .pending {
-  max-width: 88px;
-  min-width: 0;
+  max-width: 105px;
+  min-width: 105px;
   margin: 0 auto;
 }
 
 .transaction-table-theme .successful,
 .transaction-table-theme .failure,
 .transaction-table-theme .pending {
-  font-weight: 700 !important;
-  font-size: 10px !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
   line-height: 1.25 !important;
   padding: 3px 6px !important;
   display: inline-block;
@@ -180,13 +205,14 @@
   .transaction-table-theme .react-bootstrap-table tbody td,
   .transaction-table-theme table tbody td {
     padding: 7px 5px !important;
-    font-size: 11.5px !important;
+    font-size: 11px !important;
   }
 
   .transaction-table-theme .successful,
   .transaction-table-theme .failure,
   .transaction-table-theme .pending {
-    max-width: 78px;
-    font-size: 9.5px !important;
+    max-width: 95px;
+    min-width: 95px;
+    font-size: 9px !important;
   }
 }

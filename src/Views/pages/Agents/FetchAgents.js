@@ -424,7 +424,7 @@ const Agents = (props) => {
   ];
 
   return (
-    <div className="agents-page table-wrapper">
+    <div className="agents-page">
       <HardwareModal
         show={showhardware}
         close={closehardware}
@@ -448,18 +448,20 @@ const Agents = (props) => {
           color="#1E4A86"
         />
       )}
-      <h4>All Agents</h4>
-      <BootstrapTable
-        bootstrap4
-        keyField="id"
-        data={products}
-        columns={columns}
-        noDataIndication={noDataIndication}
-        defaultSorted={defaultSorted}
-        bordered={false}
-        hover
-        condensed
-      />
+      <div className="table-wrapper">
+        <h4>All Agents</h4>
+        <BootstrapTable
+          bootstrap4
+          keyField="id"
+          data={products}
+          columns={columns}
+          noDataIndication={noDataIndication}
+          defaultSorted={defaultSorted}
+          bordered={false}
+          hover
+          condensed
+        />
+      </div>
       {/* <button onClick={() => showTerminalID(true)}>Assign</button> */}
       <AssignTerminal
         bankTerminals={bankTerminal}

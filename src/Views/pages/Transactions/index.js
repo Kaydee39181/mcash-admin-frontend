@@ -781,20 +781,54 @@ const Transactions = (props) => {
           </>
         )}
 
-        <div className="table-wrapper transaction-table-theme">
-          <h4>All Transactions</h4>
+        <div className="transaction-page-shell">
+          <div className="table-wrapper transaction-table-theme">
+            <h4>All Transactions</h4>
 
-          <BootstrapTable
-            bootstrap4
-            keyField="id"
-            data={products}
-            columns={columns}
-            noDataIndication={noDataIndication}
-            defaultSorted={defaultSorted}
-            bordered={false}
-            hover
-            condensed
-          />
+            <BootstrapTable
+              bootstrap4
+              keyField="id"
+              data={products}
+              columns={columns}
+              noDataIndication={noDataIndication}
+              defaultSorted={defaultSorted}
+              bordered={false}
+              hover
+              condensed
+            />
+          </div>
+
+          <div className="pagination_wrap">
+            <DropdownButton
+              menuAlign="right"
+              title={length}
+              id="dropdown-menu-align-right"
+              onSelect={handleSelect}
+            >
+              <Dropdown.Item eventKey="10">10</Dropdown.Item>
+              <Dropdown.Item eventKey="20">20</Dropdown.Item>
+              <Dropdown.Item eventKey="30">30</Dropdown.Item>
+              <Dropdown.Item eventKey="50">50</Dropdown.Item>
+              <Dropdown.Item eventKey="100">100</Dropdown.Item>
+              <Dropdown.Item eventKey={transactionTotal ? String(transactionTotal) : "0"}>
+                All
+              </Dropdown.Item>
+            </DropdownButton>
+
+            <p>
+              Showing 1 to {length} of {transactionTotal}
+            </p>
+
+            <div className="pagination">
+              <Pagination
+                activePage={activePage}
+                itemsCountPerPage={length}
+                totalItemsCount={transactionTotal}
+                pageRangeDisplayed={5}
+                onChange={_handlePageChange}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -830,38 +864,6 @@ const Transactions = (props) => {
         columns={columns}
         filterValues={filterValues}
       />
-
-      <div className="pagination_wrap">
-        <DropdownButton
-          menuAlign="right"
-          title={length}
-          id="dropdown-menu-align-right"
-          onSelect={handleSelect}
-        >
-          <Dropdown.Item eventKey="10">10</Dropdown.Item>
-          <Dropdown.Item eventKey="20">20</Dropdown.Item>
-          <Dropdown.Item eventKey="30">30</Dropdown.Item>
-          <Dropdown.Item eventKey="50">50</Dropdown.Item>
-          <Dropdown.Item eventKey="100">100</Dropdown.Item>
-          <Dropdown.Item eventKey={transactionTotal ? String(transactionTotal) : "0"}>
-            All
-          </Dropdown.Item>
-        </DropdownButton>
-
-        <p>
-          Showing 1 to {length} of {transactionTotal}
-        </p>
-
-        <div className="pagination">
-          <Pagination
-            activePage={activePage}
-            itemsCountPerPage={length}
-            totalItemsCount={transactionTotal}
-            pageRangeDisplayed={5}
-            onChange={_handlePageChange}
-          />
-        </div>
-      </div>
 
       <ToastContainer autoClose={8000} />
     </DashboardTemplate>

@@ -25,13 +25,13 @@
   .mainwrapper {
     margin-left: 50px;
     width: calc(100% - 50px);
-    overflow-y: scroll;
+    overflow-y: visible;
   }
 }
 @media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
   .mainwrapper {
     margin-left: 50px;
     width: calc(100% - 50px);
-    overflow-y: scroll;
+    overflow-y: visible;
   }
 }

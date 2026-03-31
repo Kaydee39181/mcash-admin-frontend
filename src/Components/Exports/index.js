@@ -284,7 +284,7 @@ const ExportLink = ({
                 type="button"
                 onClick={copyToClipboard}
               >
-                Copy to Clipboard
+                Copy info
               </Button>
             </Row>
           </Form>
