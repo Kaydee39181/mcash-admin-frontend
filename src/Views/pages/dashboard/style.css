@@ -127,7 +127,7 @@
   color: #00249c;
 }
 .dashboard-wrapper {
-  padding: 0px 62px 0px 23px;
+  padding: 0 clamp(16px, 2.6vw, 32px);
   width: 100%;
 }
 
@@ -155,6 +155,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   /* grid-template-columns: 1fr 1fr 1fr 1fr; */
   /* grid-gap: 10px; */
   font-size: small;
@@ -173,7 +174,9 @@
   line-height: 24px;
   display: flex;
   align-items: center;
-  width: 33%;
+  width: auto;
+  flex: 1 1 280px;
+  min-width: 260px;
   /* height: 80%; */
 }
 
@@ -186,11 +189,12 @@
 .line-and-details {
   border-radius: 10px;
   display: flex;
-  flex-direction:column ;
+  flex-direction: column;
   /* grid-template-columns: 1fr 1fr 1fr 250px; */
   /* grid-gap: 5px;
   grid-row: 2; */
   width: 100%;
+  gap: 16px;
 }
 
 .chart-bg {
@@ -205,13 +209,15 @@
   /* grid-column: 1 / span 2; */
   /* border-radius: 10px; */
   height: 100%;
-  width: 70%;
+  width: auto;
+  flex: 1 1 0;
 }
 .transaction-graph-inner {
   height: 100%;
-  width: 40%;
-
-  margin-left: -10px;
+  width: auto;
+  flex: 0 0 min(30%, 360px);
+  min-width: 280px;
+  margin-left: 0;
 }
 .a {
   border-top-right-radius: 10px;
@@ -258,10 +264,12 @@
   display: flex;
   width:100%;
   height: 350px;
-  margin: 2rem 0 ;
+  margin: 2rem 0;
+  gap: 16px;
 }
 .bar-graph-wrapper {
-  width: 50%;
+  width: auto;
+  flex: 1 1 340px;
   min-width: 0;
 }
 
@@ -278,13 +286,15 @@
   width: 100%;
   min-height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .daily-per-agent-list {
   list-style: disc;
-  list-style-position: inside;
+  list-style-position: outside;
   margin: 0;
-  padding: 8px 16px 16px;
+  padding: 12px 20px 20px 36px;
 }
 
 .daily-per-agent-item {
@@ -292,6 +302,8 @@
   font-size: small;
   color: #25282b;
   border-bottom: 1px solid #eef0f7;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .daily-per-agent-item:last-child {
@@ -299,9 +311,8 @@
 }
 
 .daily-per-agent-name {
-  display: inline-block;
+  display: block;
   max-width: 100%;
-  vertical-align: top;
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: normal;
@@ -320,7 +331,9 @@
   border: 1px solid #e2e2e2;
   border-radius: 10px;
   font-size: small;
-  width: 45%;
+  width: auto;
+  flex: 1 1 320px;
+  min-width: 280px;
 }
 .dougnut-wrapper h2 {
   font-family: Montserrat;
@@ -356,6 +369,8 @@
   flex-wrap: wrap;
   width:100%;
   justify-content: space-between;
+  align-items: stretch;
+  gap: 16px;
   margin-bottom: 1rem;
 
 }
@@ -373,7 +388,7 @@
   }
 
   .dashboard-wrapper {
-    padding: 0px 1rem;
+    padding: 0 12px;
   }
 
   .graphs-wrapper {
@@ -392,6 +407,7 @@
 
   .bar-graph-wrapper {
    width: 100%;
+   flex-basis: 100%;
   }
   .chart-status{
     margin: 1rem 0;
@@ -400,27 +416,34 @@
   }
   .chart-bg {
     width: 100%;
-    overflow-x: scroll;
+    overflow-x: auto;
     height: fit-content;
     border-radius: 10px;
+    flex-basis: auto;
   }
   .transaction-graph-inner {
     margin-left: 0;
     height: fit-content;
     width: 100%;
-     margin-top:1rem;
+    min-width: 0;
+    margin-top: 0;
+    flex-basis: auto;
   }
   .transaction-details{border-radius: 10px;}
   .dougnut-wrapper {
     height: fit-content;
     width: 100%;
+    min-width: 0;
   }
 
   .daily-per-agent {
     margin-top: 1rem;
-    margin-left: 0px;
     height: fit-content;
     width: 100%;
+  }
+
+  .daily-per-agent-list {
+    padding: 10px 16px 16px 28px;
   }
 }
 @media only screen and (min-device-width: 768px) and (max-device-width: 992px) {
@@ -431,40 +454,33 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    margin-right: 1rem;
   }
   
-  .Dashboard-overview-wrapper {
-    margin-right: 1rem;
-  }
   .line-and-details {
     margin-top: 2rem;
     flex-wrap: wrap;
   }
   .chart-bg {
-    width: 70%;
+    width: auto;
     height: fit-content;
   }
   .transaction-graph-inner {
-    width: 30%;
+    width: auto;
     height: 288px;
+    min-width: 280px;
   }
   .dougnut-wrapper {
     height: fit-content;
-    width: 300px;
+    width: auto;
     /* margin-bottom: 1rem; */
-  }
-  .bar-graph-wrapper {
-    flex-wrap: wrap;
   }
   .barchart-bg {
     width: 100%;
     padding: 0 auto;
-    margin-right: 1rem;
   }
   .daily-per-agent {
     margin-top: 2rem;
     margin-left: 0;
-    width: 300px;
+    width: 100%;
   }
 }
