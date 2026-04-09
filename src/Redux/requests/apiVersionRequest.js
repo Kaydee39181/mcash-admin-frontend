@@ -2,7 +2,6 @@ import axios from "axios";
 import { asyncActions } from "../../utils/asyncUtil";
 import { FETCH_API_VERSION,CREATE_API_VERSION ,DELETE_API_VERSION} from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { connect } from "react-redux";
 
 
 export const AllApiVersion = () => (dispatch) => {

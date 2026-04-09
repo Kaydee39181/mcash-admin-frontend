@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import {
@@ -35,13 +34,12 @@ const AgentPurse = (props) => {
     FilterModalActive,
     showExportModals,
     ExportModalActives,
-    settlement,
 
   } = props;
 
-  const initialState = {
+  const initialState = useMemo(() => ({
     businessName: "",
-  };
+  }), []);
 
   const [filterValues, setFilterValues] = useState(initialState);
   const [nextPage, setNextPage] = useState(0);
@@ -50,8 +48,8 @@ const AgentPurse = (props) => {
 
 
   useEffect(() => {
-    FetchAgentPurses(nextPage, length, initialState);
-  }, [nextPage, length, filterValues]);
+    FetchAgentPurses(nextPage, length, filterValues);
+  }, [FetchAgentPurses, filterValues, initialState, nextPage, length]);
   const closeExport = () => {
     showExportModals(false);
   };
@@ -253,15 +251,15 @@ const AgentPurse = (props) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     agentPurse: state.purse.agentPurse,
     loading: state.purse.loading,
     error: state.purse.error,
     agentPurseTotal: state.purse.agentPurseTotal,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchAgentPurse,

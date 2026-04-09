@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import {
   DropdownButton,
   Dropdown,
 } from "react-bootstrap";
-import { FetchCentralPurse, FetchPurseBalance } from "../../../Redux/requests/agentPurseRequest";
+import { FetchCentralPurse } from "../../../Redux/requests/agentPurseRequest";
 import Loader from "../../../Components/secondLoader";
 import { connect } from "react-redux";
 import Pagination from "react-js-pagination";
@@ -30,8 +29,6 @@ const CentralPurse = (props) => {
     FilterModalActive,
     showExportModal,
     ExportModalActive,
-    agentManagerTotal,
-    initialState,
     filterValues,
     setFilterValues,
     transactionsType
@@ -45,7 +42,7 @@ const CentralPurse = (props) => {
   useEffect(() => {
     FetchTransactionType()
     FetchCentralPurses(length, nextPage, filterValues);
-  }, [length, nextPage, filterValues]);
+  }, [FetchCentralPurses, FetchTransactionType, length, nextPage, filterValues]);
 
 
 
@@ -235,17 +232,17 @@ const CentralPurse = (props) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     centralPurse: state.purse.centralPurse,
     loading: state.purse.loading,
     error: state.purse.error,
     centralPurseTotal: state.purse.centralPurseTotal,
     transactionsType: state.transactions.transactionsType,
 
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchCentralPurse,

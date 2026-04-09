@@ -31,18 +31,6 @@ const BVNForm = ({auxInfo,ndprCode,pcCode}) => {
       PhoneNumber,
       RequestId,
     };
-    const testData = {
-      "AgentId": "56780012",
-      "ReferenceNumber": "3366990814560720",
-      "PhoneNumber": "08100000000",
-      "Channel": "ITEX",
-      "PcCode": "3145",
-      "UserId": "282690989",
-      "AuthMode": "MPIN",
-      "AuthValue": "1234",
-      "RequestId": "3366990814560789"
-     }
-
     await axios
       .post(`${AgentConstant.FETCH_BVN}`, ndata)
       .then((data) => {

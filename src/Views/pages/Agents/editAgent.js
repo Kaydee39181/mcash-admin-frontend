@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import { useForm } from "react-hook-form";
 
 import {
   Modal,
   Form,
-  Container,
   Button,
-  Image,
   Row,
   Col,
   Alert,
 } from "react-bootstrap";
-import Cancel from "../../../Assets/img/x.png";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import {
@@ -42,10 +38,8 @@ const CreateAgentModal = ({
   agentDetails,
   load,
 }) => {
-  const [isPublic, setIsPublic] = useState(true);
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
-  const [logvt, setIsLogvt] = useState({});
   const [CreateAgentData, setCreateAgentData] = useState([]);
   const {
     dateOfBirth,
@@ -67,18 +61,17 @@ const CreateAgentModal = ({
   useEffect(() => {
     FetchStates();
     FetchBankS();
-  }, []);
+  }, [FetchBankS, FetchStates]);
 
   useEffect(() => {
     console.log(error, erroMessage);
     if (erroMessage) {
-      if (error && erroMessage.error != "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+      if (error && erroMessage.error !== "Already registered user") {
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
+        SetSuccessMessage([]);
+        return;
       } else if (erroMessage) {
         return setErrors(erroMessage.error);
       }
@@ -87,7 +80,8 @@ const CreateAgentModal = ({
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -99,13 +93,13 @@ const CreateAgentModal = ({
   };
 
   const _handleSelectState = (e) => {
-    agentStates.map((state, i) => {
-      let stateId = state.id;
-
-      setCreateAgentData({
-        ...CreateAgentData,
-        [e.target.name]: stateId,
-      });
+    const selectedState = agentStates.find(
+      (stateItem) => stateItem.stateCode === e.target.value
+    );
+    const stateId = selectedState ? selectedState.id : "";
+    setCreateAgentData({
+      ...CreateAgentData,
+      [e.target.name]: stateId,
     });
     let stateCode = e.target.value;
     FetchLgas(stateCode);
@@ -443,9 +437,9 @@ CreateAgentModal.propTypes = {
   create: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     updateAgent: state.agents.updateAgent,
     agentStates: state.agentmanager.agentStates,
     agentLgas: state.agentmanager.agentLga,
@@ -454,8 +448,8 @@ const mapStateToProps = (state) => (
     erroMessage: state.agents.errorMessage,
     success: state.agents.updateAgentsuccess,
     error: state.agents.error,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchState,

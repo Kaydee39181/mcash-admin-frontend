@@ -35,34 +35,29 @@ const EditAdminModal = ({
   // const { ID, FirstName,LastName, UserName, RoleGroup, email } = adminDetails;
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
-  const [editAdminData, setEditAdminData] = useState([])
-  const { id, firstname,lastname, username, roleGroupName, email } = editAdminData;
+  const [editAdminData, setEditAdminData] = useState([]);
+  const { firstname, lastname, username, roleGroupName, email } = editAdminData;
 
   console.log(setEditAdminData)
 
   useEffect(() => {
     FetchRoleGroups();
-  }, []);
+  }, [FetchRoleGroups]);
 
   useEffect(() => {
     setEditAdminData(adminDetails);
- }, [adminDetails])
-
-  useEffect(() => {
-    FetchRoleGroups();
-  }, []);
+ }, [adminDetails]);
 
   console.log(editAdminData);
   useEffect(() => {
     console.log(error, erroMessage);
     if (erroMessage) {
-      if (error && erroMessage.error != "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+      if (error && erroMessage.error !== "Already registered user") {
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
+        SetSuccessMessage([]);
+        return;
       } else if (erroMessage) {
         return setErrors(erroMessage.error);
       }
@@ -71,7 +66,8 @@ const EditAdminModal = ({
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -99,7 +95,7 @@ const EditAdminModal = ({
   return (
     <Modal
       size="lg"
-      show={show && SetSuccessMessage}
+      show={show}
       onHide={close}
       centered={true}
       aria-labelledby="edit-profile-modal"
@@ -224,16 +220,16 @@ EditAdminModal.propTypes = {
   create: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     roleGroups: state.settings.roleGroups,
     loading: state.admins.loading,
     erroMessage: state.admins.errorMessage,
     success: state.admins.successUpdate,
     error: state.admins.error,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchRoleGroup,

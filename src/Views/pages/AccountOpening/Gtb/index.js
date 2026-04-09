@@ -1,36 +1,13 @@
 import React, { useState } from "react";
 import { Form, Row, Col } from "react-bootstrap";
-import BVNForm from "./BVNForm";
 import KycForm from "./KycForm";
 import DashboardTemplate from "../../../template/dashboardtemplate";
-import SendOtp from "./SendOtp";
 import LinkCard from "./LinkCard";
 import NDPRCOnsentPage from "./NDPRConsentPage";
 import "./style.css";
 
 const Gtb = () => {
   const [selected, setSelected] = useState(null);
-  const [createModalActive, showCreateModal] = React.useState(false);
-  const [active, showActive] = React.useState("home");
-  const [ExportModalActive, showExportModal] = React.useState(false);
-  const [FilterModalActive, showFilterModal] = React.useState(false);
-  const initialState = {
-    startDate: "",
-    endDate: "",
-    username: "",
-    businessName: "",
-    phone: "",
-    agentId: "",
-  };
-  const [filterValues, setFilterValues] = useState(initialState);
-  const onclose = () => {
-    showActive("home");
-    showCreateModal(false);
-  };
-  const OpenFilter = () => {
-    showFilterModal(true);
-    setFilterValues(initialState);
-  };
   const updateInput = (e) => {
     setSelected(e.target.value);
   };

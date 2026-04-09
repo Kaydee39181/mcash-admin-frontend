@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, Modal } from 'react-bootstrap';
-import { AgentConstant } from "../../../constants/constants";
 
 
 function ConfirmationModal({ show, message, onYes, onNo, onClose }) {

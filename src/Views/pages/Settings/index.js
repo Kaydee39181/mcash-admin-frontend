@@ -113,9 +113,9 @@ const Settings = () => {
                       </Nav.Link>
                     </Nav.Item>
                   )}
-                  {name == "ADMIN" ||
-                  name == "Senior Management " ||
-                  name == "Product" ? (
+                  {name === "ADMIN" ||
+                  name === "Senior Management " ||
+                  name === "Product" ? (
                     <Nav.Item>
                       <Nav.Link eventKey="fourth">
                         <div className="tab-navs">

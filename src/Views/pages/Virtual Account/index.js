@@ -19,9 +19,11 @@ import { connect } from "react-redux";
 import Loader from "../../../Components/secondLoader";
 import ExportModal from "../../../Components/Exports";
 import FilterModal from "../../../Components/Filter";
+import VirtualAccountSummary from "../../../Components/VirtualAccountSummary";
 import ViewReceipts from "../../../Components/viewReceipt";
 import { AgentConstant } from "../../../constants/constants";
 import { FetchVirtualAccountTransactions } from "../../../Redux/requests/virtualAccountRequest";
+import { getTransactionPartiesAndStatus } from "../../../utils/virtualAccountTransactions";
 
 import "../Transactions/style.css";
 import "./style.css";
@@ -74,6 +76,20 @@ const deriveAccountNumberFromTransactions = (transactions) => {
   return unique.length === 1 ? unique[0] : "";
 };
 
+const resolveTransactionTimestamp = (transaction) => {
+  const rawDate =
+    transaction?.transactionDate ||
+    transaction?.createdAt ||
+    transaction?.systemTime ||
+    transaction?.date ||
+    transaction?.timestamp;
+
+  if (!rawDate) return 0;
+
+  const parsedTime = new Date(rawDate).getTime();
+  return Number.isNaN(parsedTime) ? 0 : parsedTime;
+};
+
 const formatDateTime = (value) => {
   if (!value) return "";
   const parsed = new Date(value);
@@ -98,22 +114,43 @@ const pickFirst = (...values) => {
   return "";
 };
 
-const resolveStatusStyle = (statusValue) => {
-  const normalized = String(statusValue || "").trim().toUpperCase();
+const resolveUserFullName = (user) =>
+  pickFirst(
+    [user?.firstname, user?.lastname].filter(Boolean).join(" "),
+    user?.accountName,
+    user?.name
+  );
 
-  // Explicitly exclude non-transaction success markers like "CHARGE DEDUCTED".
-  if (normalized.includes("CHARGE") && normalized.includes("DEDUCT")) {
-    return "failure";
+const resolveDisplayStatusClass = (statusValue) => {
+  switch (String(statusValue || "").trim().toUpperCase()) {
+    case "CHARGE":
+      return "charge";
+    case "FAILED":
+      return "failure";
+    default:
+      return "successful";
   }
+};
 
-  const successMarkers = ["00", "SUCCESS", "SUCCESSFUL", "APPROVED", "APPROVE"];
-  if (successMarkers.some((m) => normalized === m || normalized.includes(m))) {
-    return "successful";
-  }
-  if (normalized === "PP" || normalized === "09" || normalized === "PENDING") {
-    return "pending";
-  }
-  return "failure";
+const renderDetailCell = (value) => {
+  const normalizedValue = pickFirst(value, "N/A");
+
+  return normalizedValue === "N/A" ? (
+    <span className="va-cell-empty">N/A</span>
+  ) : (
+    <span className="va-cell-text">{normalizedValue}</span>
+  );
+};
+
+const renderStatusCell = (statusLabel, statusVariant, errorMessage) => {
+  const statusClassName = resolveDisplayStatusClass(statusVariant);
+
+  return (
+    <div className="va-status-cell">
+      <span className={statusClassName}>{statusLabel}</span>
+      {errorMessage ? <span className="va-status-error">{errorMessage}</span> : null}
+    </div>
+  );
 };
 
 const VirtualAccount = (props) => {
@@ -123,15 +160,13 @@ const VirtualAccount = (props) => {
     virtualLoading,
     virtualError,
     virtualTotal,
+    virtualAgentDetails,
   } = props;
   const token = safeParseToken();
-  const accountNumber = resolveAccountNumber(token);
-  const [resolvedAccountNumber, setResolvedAccountNumber] = useState(accountNumber);
   const roleName = token?.user?.roleGroup?.name || "";
   const showAccountNumberBadge = roleName.trim().toUpperCase() === "AGENT";
   const isRestrictedRole =
     roleName.trim().toLowerCase() === "agent relationship officer";
-  const [copied, setCopied] = useState(false);
   const [viewReceipt, setViewReceipt] = useState(null);
   const [receiptview, showReceiptView] = useState(false);
 
@@ -150,6 +185,26 @@ const VirtualAccount = (props) => {
 
   const [filterValues, setFilterValues] = useState(initialState);
 
+  const currentUserContext = useMemo(() => {
+    return {
+      roleName,
+      isAgentContext: showAccountNumberBadge,
+      accountName: pickFirst(
+        virtualAgentDetails?.accountName,
+        resolveUserFullName(token?.user),
+        token?.user?.agent?.accountName,
+        token?.user?.businessName
+      ),
+      accountNumber: pickFirst(
+        virtualAgentDetails?.virtualAccount,
+        virtualAgentDetails?.virtualAccountNumber,
+        virtualAgentDetails?.accountNumber,
+        resolveAccountNumber(token)
+      ),
+      bankName: pickFirst(virtualAgentDetails?.bankName, "Globus Bank"),
+    };
+  }, [roleName, showAccountNumberBadge, token, virtualAgentDetails]);
+
   useEffect(() => {
     if (isRestrictedRole) return;
     FetchVirtualTransactions(filterValues);
@@ -157,15 +212,6 @@ const VirtualAccount = (props) => {
   }, [isRestrictedRole]);
 
   // Token-only: do not call identity-scoped endpoints like `agent?username=...`.
-
-  useEffect(() => {
-    if (!showAccountNumberBadge) return;
-    if (resolvedAccountNumber) return;
-    const derived = deriveAccountNumberFromTransactions(virtualTransactions);
-    if (derived) {
-      setResolvedAccountNumber(derived);
-    }
-  }, [virtualTransactions, resolvedAccountNumber, showAccountNumberBadge]);
 
   const _handleFilterValue = (event) => {
     const { name, value } = event.target;
@@ -254,11 +300,11 @@ const VirtualAccount = (props) => {
     showFilterModal(true);
   };
 
-  const transactionsToRender = Array.isArray(virtualTransactions)
-    ? virtualTransactions
-    : [];
-
   const allProducts = useMemo(() => {
+    const transactionsToRender = Array.isArray(virtualTransactions)
+      ? virtualTransactions
+      : [];
+
     return transactionsToRender.map((transact, index) => {
       const rawDate =
         transact?.transactionDate ||
@@ -269,33 +315,23 @@ const VirtualAccount = (props) => {
 
       const statusRaw = pickFirst(
         transact?.statusMessage,
+        transact?.responseMessage,
         transact?.status,
-        transact?.statusCode,
-        transact?.responseMessage
+        transact?.statusCode
       );
 
-      const normalizedStatus = String(statusRaw || "").trim().toUpperCase();
-       let typeRaw = "Virtual transaction";
-       if (normalizedStatus) {
-         if (normalizedStatus.includes("CHARGE") && normalizedStatus.includes("DEDUCT")) {
-          typeRaw = "Transaction charge";
-        } else if (
-          normalizedStatus === "00" ||
-          normalizedStatus.includes("SUCCESS") ||
-          normalizedStatus.includes("APPROV")
-        ) {
-          typeRaw = "Successful virtual transaction";
-        } else if (normalizedStatus.includes("FAIL")) {
-          typeRaw = "Failed virtual transaction";
-        } else if (normalizedStatus.includes("PENDING")) {
-          typeRaw = "Pending virtual transaction";
-        } else {
-          typeRaw = `Virtual transaction (${statusRaw})`;
-        }
-      }
+      const typeRaw = pickFirst(
+        transact?.transactionType?.type,
+        transact?.type,
+        "Virtual transaction"
+      );
 
       const rrnRaw = pickFirst(transact?.rrn, transact?.RRN);
       const stanRaw = pickFirst(transact?.stan, transact?.STAN);
+      const transactionParties = getTransactionPartiesAndStatus(
+        transact,
+        currentUserContext
+      );
 
       const preBalanceRaw = pickFirst(
         transact?.preBalance,
@@ -310,40 +346,6 @@ const VirtualAccount = (props) => {
         transact?.postPurseBalance,
         transact?.postTransactionBalance,
         transact?.currentBalance
-      );
-
-      const accountNumberRaw = pickFirst(
-        transact?.accountNumber,
-        transact?.virtualAccountNumber,
-        transact?.destinationAccountNumber
-      );
-      const accountNameRaw = pickFirst(
-        transact?.accountName,
-        transact?.beneficiaryName,
-        transact?.customerName
-      );
-      const bankNameRaw = pickFirst(
-        transact?.bankName,
-        transact?.destinationBank,
-        transact?.bank?.name,
-        transact?.bank
-      );
-
-      const beneficiaryNameRaw = pickFirst(
-        transact?.beneficiaryAccountName,
-        transact?.beneficiaryName,
-        accountNameRaw
-      );
-      const beneficiaryAccountNoRaw = pickFirst(
-        transact?.beneficiaryAccountNumber,
-        transact?.beneficiaryAccountNo,
-        transact?.beneficiaryAccount,
-        accountNumberRaw
-      );
-      const beneficiaryBankRaw = pickFirst(
-        transact?.beneficiaryBankName,
-        transact?.beneficiaryBank,
-        bankNameRaw
       );
 
       return {
@@ -361,18 +363,75 @@ const VirtualAccount = (props) => {
         STAN: stanRaw,
         PreBalance: preBalanceRaw,
         PostBalance: postBalanceRaw,
-        AccountNumber: accountNumberRaw,
-        AccountName: accountNameRaw,
-        BankName: bankNameRaw,
+        SenderAccountName: transactionParties.sender?.name || "",
+        SenderBankName: transactionParties.sender?.bankName || "",
+        SenderAccountNumber: transactionParties.sender?.accountNumber || "",
+        ReceiverAccountName: transactionParties.receiver?.name || "",
+        ReceiverBankName: transactionParties.receiver?.bankName || "",
+        ReceiverAccountNumber: transactionParties.receiver?.accountNumber || "",
         Amount: formatAmount(transact?.amount ?? transact?.transactionAmount),
-        Status: statusRaw,
+        Status: statusRaw || transactionParties.status,
+        StatusVariant: transactionParties.status,
+        ErrorMessage: transactionParties.errorMessage,
         Narration: transact?.narration || transact?.description || "",
-        BeneficiaryAccountName: beneficiaryNameRaw,
-        BeneficiaryAccountNo: beneficiaryAccountNoRaw,
-        BeneficiaryBank: beneficiaryBankRaw,
       };
     });
-  }, [transactionsToRender]);
+  }, [currentUserContext, virtualTransactions]);
+
+  const virtualAccountSummary = useMemo(() => {
+    const transactionsToRender = Array.isArray(virtualTransactions)
+      ? [...virtualTransactions]
+      : [];
+
+    const latestSnapshot = transactionsToRender
+      .sort(
+        (left, right) =>
+          resolveTransactionTimestamp(right) - resolveTransactionTimestamp(left)
+      )
+      .find(
+        (transaction) =>
+          pickFirst(
+            transaction?.accountNumber,
+            transaction?.virtualAccountNumber,
+            transaction?.destinationAccountNumber,
+            transaction?.accountName,
+            transaction?.bankName,
+            transaction?.postBalance,
+            transaction?.postWalletBalance,
+            transaction?.postPurseBalance,
+            transaction?.postTransactionBalance,
+            transaction?.currentBalance
+          ) !== ""
+      );
+
+    return {
+      accountNumber: pickFirst(
+        virtualAgentDetails?.accountNumber,
+        virtualAgentDetails?.virtualAccount,
+        virtualAgentDetails?.virtualAccountNumber,
+        resolveAccountNumber(token),
+        latestSnapshot?.accountNumber,
+        latestSnapshot?.virtualAccountNumber,
+        latestSnapshot?.destinationAccountNumber,
+        deriveAccountNumberFromTransactions(virtualTransactions)
+      ),
+      bankName: pickFirst(
+        virtualAgentDetails?.bankName,
+        latestSnapshot?.bankName,
+        latestSnapshot?.destinationBank,
+        latestSnapshot?.bank?.name,
+        latestSnapshot?.bank
+      ),
+      balance:
+        pickFirst(
+          latestSnapshot?.postBalance,
+          latestSnapshot?.postWalletBalance,
+          latestSnapshot?.postPurseBalance,
+          latestSnapshot?.postTransactionBalance,
+          latestSnapshot?.currentBalance
+        ) || null,
+    };
+  }, [token, virtualAgentDetails, virtualTransactions]);
 
   const pagedProducts = useMemo(() => {
     const start = (activePage - 1) * length;
@@ -393,14 +452,15 @@ const VirtualAccount = (props) => {
       "Reference",
       "Pre-Balance",
       "Post-Balance",
-      "Beneficiary A/C Name",
-      "Beneficiary A/C No",
-      "Beneficiary Bank",
-      "Account Number",
-      "Account Name",
-      "Bank Name",
+      "Sender A/C Number",
+      "Sender A/C Name",
+      "Sender Bank Name",
+      "Receiver A/C Number",
+      "Receiver A/C Name",
+      "Receiver Bank Name",
       "Amount",
       "Status",
+      "Error Message",
       "Narration",
     ],
   ];
@@ -412,14 +472,15 @@ const VirtualAccount = (props) => {
     row.Reference || "",
     row.PreBalance || "",
     row.PostBalance || "",
-    row.BeneficiaryAccountName || "",
-    row.BeneficiaryAccountNo || "",
-    row.BeneficiaryBank || "",
-    row.AccountNumber || "",
-    row.AccountName || "",
-    row.BankName || "",
+    row.SenderAccountNumber || "",
+    row.SenderAccountName || "",
+    row.SenderBankName || "",
+    row.ReceiverAccountNumber || "",
+    row.ReceiverAccountName || "",
+    row.ReceiverBankName || "",
     row.Amount || "",
     row.Status || "",
+    row.ErrorMessage || "",
     row.Narration || "",
   ]);
 
@@ -438,27 +499,66 @@ const VirtualAccount = (props) => {
       text: "Post-Balance",
       formatter: (cellContent, row) => formatAmount(row?.PostBalance) || FALLBACK_TEXT,
     },
-    { dataField: "BeneficiaryAccountName", text: "Beneficiary A/C Name" },
-    { dataField: "BeneficiaryAccountNo", text: "Beneficiary A/C No" },
-    { dataField: "BeneficiaryBank", text: "Beneficiary Bank" },
-    { dataField: "AccountNumber", text: "Account Number" },
-    { dataField: "AccountName", text: "Account Name" },
-    { dataField: "BankName", text: "Bank Name" },
+    {
+      dataField: "SenderAccountNumber",
+      text: "Sender A/C Number",
+      style: { width: "12em", whiteSpace: "normal" },
+      headerStyle: () => ({ width: "180px", textAlign: "left" }),
+      bodyStyle: () => ({ width: "180px", whiteSpace: "normal" }),
+      formatter: (cellContent) => renderDetailCell(cellContent),
+    },
+    {
+      dataField: "SenderAccountName",
+      text: "Sender A/C Name",
+      style: { width: "13em", whiteSpace: "normal" },
+      headerStyle: () => ({ width: "200px", textAlign: "left" }),
+      bodyStyle: () => ({ width: "200px", whiteSpace: "normal" }),
+      formatter: (cellContent) => renderDetailCell(cellContent),
+    },
+    {
+      dataField: "SenderBankName",
+      text: "Sender Bank Name",
+      style: { width: "13em", whiteSpace: "normal" },
+      headerStyle: () => ({ width: "190px", textAlign: "left" }),
+      bodyStyle: () => ({ width: "190px", whiteSpace: "normal" }),
+      formatter: (cellContent) => renderDetailCell(cellContent),
+    },
+    {
+      dataField: "ReceiverAccountNumber",
+      text: "Receiver A/C Number",
+      style: { width: "12em", whiteSpace: "normal" },
+      headerStyle: () => ({ width: "180px", textAlign: "left" }),
+      bodyStyle: () => ({ width: "180px", whiteSpace: "normal" }),
+      formatter: (cellContent) => renderDetailCell(cellContent),
+    },
+    {
+      dataField: "ReceiverAccountName",
+      text: "Receiver A/C Name",
+      style: { width: "13em", whiteSpace: "normal" },
+      headerStyle: () => ({ width: "200px", textAlign: "left" }),
+      bodyStyle: () => ({ width: "200px", whiteSpace: "normal" }),
+      formatter: (cellContent) => renderDetailCell(cellContent),
+    },
+    {
+      dataField: "ReceiverBankName",
+      text: "Receiver Bank Name",
+      style: { width: "13em", whiteSpace: "normal" },
+      headerStyle: () => ({ width: "190px", textAlign: "left" }),
+      bodyStyle: () => ({ width: "190px", whiteSpace: "normal" }),
+      formatter: (cellContent) => renderDetailCell(cellContent),
+    },
     { dataField: "Amount", text: "Amount (N)" },
     {
       dataField: "Status",
       text: "Status",
-      style: { width: "12em", whiteSpace: "normal", wordWrap: "normal" },
+      style: { width: "14em", whiteSpace: "normal", wordWrap: "normal" },
       headerStyle: () => ({ width: "240px", textAlign: "center" }),
       bodyStyle: () => ({ width: "240px", textAlign: "center", wordWrap: "normal" }),
       formatter: (cellContent, row) => {
-        const statusMessage = row?.Status || "";
-        const statusColor = resolveStatusStyle(row?.Status);
-
-        return (
-          <h5>
-            <span className={`${statusColor}`}>{statusMessage}</span>
-          </h5>
+        return renderStatusCell(
+          row?.Status || row?.StatusVariant || "SUCCESS",
+          row?.StatusVariant || row?.Status || "SUCCESS",
+          row?.ErrorMessage || ""
         );
       },
     },
@@ -479,7 +579,8 @@ const VirtualAccount = (props) => {
           RRN: row?.RRN || row?.transact?.rrn || FALLBACK_TEXT,
           STAN: row?.STAN || row?.transact?.stan || FALLBACK_TEXT,
           transact: {
-            statusMessage: row?.Status || FALLBACK_TEXT,
+            statusMessage:
+              row?.ErrorMessage || row?.Status || row?.StatusVariant || FALLBACK_TEXT,
             pan: row?.transact?.pan || "",
             cardHolder: row?.transact?.cardHolder || "",
           },
@@ -545,6 +646,14 @@ const VirtualAccount = (props) => {
   const isNoAccessResponse =
     virtualError?.response?.data?.responseCode === "99";
   const showNoAccess = isRestrictedRole || isNoAccessResponse;
+  const showAccountSummary =
+    showAccountNumberBadge &&
+    !showNoAccess &&
+    Boolean(
+      virtualAccountSummary.accountNumber ||
+        virtualAccountSummary.bankName ||
+        virtualAccountSummary.balance !== null
+    );
 
   useEffect(() => {
     if (showNoAccess || !virtualError) return;
@@ -561,18 +670,6 @@ const VirtualAccount = (props) => {
       toast.error(message);
     }
   }, [virtualError, showNoAccess]);
-
-  const handleCopyAccount = async () => {
-    if (!resolvedAccountNumber) return;
-    try {
-      await navigator.clipboard.writeText(String(resolvedAccountNumber));
-      setCopied(true);
-      toast.success("Account number copied");
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      toast.error("Failed to copy account number");
-    }
-  };
 
   return (
     <DashboardTemplate>
@@ -625,6 +722,14 @@ const VirtualAccount = (props) => {
           </div>
         ) : (
           <div className="transaction-page-shell">
+            {showAccountSummary ? (
+              <VirtualAccountSummary
+                accountNumber={virtualAccountSummary.accountNumber}
+                bankName={virtualAccountSummary.bankName}
+                balance={virtualAccountSummary.balance}
+              />
+            ) : null}
+
             <div className="table-wrapper transaction-table-theme">
               <h4>All Virtual Account Transactions</h4>
 
@@ -721,6 +826,7 @@ const mapStateToProps = (state) => ({
   virtualLoading: state.virtualaccount?.loading,
   virtualError: state.virtualaccount?.error,
   virtualTotal: state.virtualaccount?.transactionTotal ?? 0,
+  virtualAgentDetails: state.virtualaccount?.agentDetails,
 });
 
 export default connect(mapStateToProps, {

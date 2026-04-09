@@ -1,8 +1,5 @@
 import React from "react";
 import "./style.css";
-import Search from "../../Assets/img/search.png";
-import Photo from "../../Assets/img/photo.png";
-import Notification from "../../Assets/img/new.png";
 
 export default function Header(props) {
   const token = JSON.parse(localStorage.getItem("data"));

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import {
   Form,
   Button,
@@ -57,7 +56,8 @@ console.log(roleGroups)
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -191,17 +191,17 @@ CreateAdminModal.propTypes = {
   create: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     createAdmin: state.admins.createAdmin,
     roleGroups: state.settings.roleGroups,
     loading: state.admins.loading,
     erroMessage: state.admins.errorMessage,
     success: state.admins.createAdminsuccess,
     error: state.admins.error,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
     FetchRoleGroup,

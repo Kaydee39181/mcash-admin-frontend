@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import GtImage from "../../../Assets/img/guaranty-trust-bank-gtbank-vector-logo .svg";
 import { useHistory } from "react-router-dom";

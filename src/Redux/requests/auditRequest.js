@@ -2,7 +2,6 @@ import axios from "axios";
 import { asyncActions } from "../../utils/asyncUtil";
 import { FETCH_AUDIT } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from '../../utils/history'
 
 
 export const FetchAudit = (

@@ -1,38 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import DashboardTemplate from "../../Views/template/dashboardtemplate";
-import BootstrapTable from "react-bootstrap-table-next";
-import Loader from "../../Components/secondLoader"
+import Loader from "../../Components/secondLoader";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { RiSuitcaseLine } from "react-icons/ri";
 import { FiEdit2 } from "react-icons/fi";
-import { Container, Button, Modal } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import Upload from "../../Assets/img/upload.png";
-import Filter from "../../Assets/img/filter.png";
-import Print from "../../Assets/img/printer.png";
-import Success from "../../Assets/img/success.svg";
 import image from "../../Assets/img/agentimage.png";
-import SweetAlert from 'react-bootstrap-sweetalert';
-import EditUser from "../../Views/pages/Agents/editAgent";
-import { connect } from "react-redux";
 
 // import "./style.css";
 const Profile = (props) => {
-    const { loading, ActivateDeactivateUser: ActivateDeactivateUsers, ResetPassword: ResetPasswords, resetSuccess, agents, activateDeacivate, successActivation, ActivatateCode: ActivatateCodes,
-    } = props
-    const [smShow, setSmShow] = useState(false)
-    const [title, setTitle] = useState('');
-    const [danger, setDanger] = useState(false);
-    const [success, setSucess] = useState(false);
-    const [editagent, showEditAgentModal] = useState(false);
-    const [agentDetails, setAgentDetails] = useState([]);
+    const { loading } = props;
 
 
-    const { state } = props.location
+    const { state } = props.location;
 
-    const { Agent } = state.row
-console.log(Agent)
+    const { Agent } = state.row;
+    console.log(Agent);
     return (
         <DashboardTemplate>
 
@@ -40,7 +24,6 @@ console.log(Agent)
             <div className="transact-wrapper">
                 {loading && (
                     <Loader
-                        type="TailSpin"
                         type="Oval"
                         height={60}
                         width={60}
@@ -67,7 +50,7 @@ console.log(Agent)
                     <div className="biodata">
                         <div className="address">
                             <div className="profile-image">
-                                <img src={image}></img>
+                                <img src={image} alt="Agent profile" />
                             </div>
                             <div className="info">
                             <h6>{Agent ? Agent.user.fullName : ''}</h6>

@@ -2,7 +2,6 @@ import axios from "axios";
 import { asyncActions } from "../../utils/asyncUtil";
 import { LOGIN_USER, LOGOUT_USER, USER_CHANGE_PASSWORD } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from '../../utils/history'
 
 
 export const loginUser = ({ username, password }) => async (dispatch) => {

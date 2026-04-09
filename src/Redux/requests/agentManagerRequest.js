@@ -2,7 +2,6 @@ import axios from "axios";
 import { asyncActions } from "../../utils/asyncUtil";
 import { FETCH_AGENTS_MANAGER, FETCH_LGA, FETCH_STATE, FETCH_BANK, CREATE_AGENTS_MANAGER, AGENT_MANAGER_SETTLEMENT } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from '../../utils/history'
 
 
 export const FetchAgentManager = (
@@ -22,8 +21,8 @@ export const FetchAgentManager = (
             },
         })
         .then(res => {
-            console.log(res.status == 200)
-            if (res.status == 200) {
+            console.log(res.status === 200)
+            if (res.status === 200) {
                 dispatch(asyncActions(FETCH_AGENTS_MANAGER).success(res.data));
             }
         })

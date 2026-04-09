@@ -47,7 +47,6 @@ const EditBvnDetails = ({
   const [accountDetails, setAccountDetails] = useState([]);
   // const [logvt, setIsLogvt] = useState({});
   const [loading, setLoading] = useState(false);
-  const [show, setShow] = useState(false);
   const [CreateAgentData, setCreateAgentData] = useState({
     RequestId: "",
     FirstName: data?.firstName,
@@ -79,24 +78,22 @@ const EditBvnDetails = ({
     ReferenceNumber: "",
   });
   
-  const [allAgents, setAllAgents] = useState();
   const getToken = JSON.parse(localStorage.getItem("data"));
   const [clicked, setClicked] = useState(false);
   // const { access_token } = getToken;
   useEffect(() => {
     FetchStates();
     FetchBankS();
-  }, []);
+  }, [FetchBankS, FetchStates]);
 
   useEffect(() => {
     if (erroMessage) {
       if (error && erroMessage.error !== "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
+        SetSuccessMessage([]);
+        return;
       } else if (erroMessage) {
         return setErrors(erroMessage.error);
       }
@@ -105,7 +102,8 @@ const EditBvnDetails = ({
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -114,12 +112,6 @@ const EditBvnDetails = ({
     setCreateAgentData({
       ...CreateAgentData,
       [event.target.name]: event.target.value,
-    });
-  };
-  const updatedob = (e) => {
-    setCreateAgentData({
-      ...CreateAgentData,
-      [e.target.name]: moment(e.target.value).locale("en").format("MM/DD/YYYY"),
     });
   };
   const _handleSelectState = (e) => {
@@ -540,8 +532,8 @@ const EditBvnDetails = ({
   );
 };
 
-const mapStateToProps = (state) => (
-  {
+const mapStateToProps = (state) => {
+  return {
     createAgent: state.agents.createAgent,
     agentStates: state.agentmanager.agentStates,
     agentLgas: state.agentmanager.agentLga,
@@ -550,11 +542,8 @@ const mapStateToProps = (state) => (
     erroMessage: state.agents.errorMessage,
     success: state.agents.createAgentsuccess,
     error: state.agents.error,
-    loading: false,
-    error: null,
-    success: false,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchState,

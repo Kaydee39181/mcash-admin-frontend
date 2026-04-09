@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-import { Modal, Form, Container, Button, Image, Row, Col,Alert } from "react-bootstrap";
+import { Modal, Form, Container, Button, Row, Col,Alert } from "react-bootstrap";
 import Cancel from "../../../Assets/img/x.png";
 import Loader from "../../../Components/secondLoader"
 
@@ -13,15 +13,14 @@ const CreateRole = ({ show, close, FetchRole:FetchRoles,CreateRoleGroup:CreateRo
   const [successMessage, SetSuccessMessage] = useState([]);
   useEffect(() => {
     FetchRoles();
-
-  }, []);
+  }, [FetchRoles]);
 console.log(erroMessage)
 
 
 useEffect(() => { 
   console.log(error,erroMessage)
 if(erroMessage){
-  if (error && erroMessage.error!="Rolegroup already registered"){
+  if (error && erroMessage.error !== "Rolegroup already registered"){
     return setErrors(['There was an error sending your request, please try again later.']);
 }else if(erroMessage){
   return setErrors(erroMessage.error);
@@ -53,7 +52,6 @@ console.log(data)
         <Modal.Body>
         {loading && (
               <Loader
-                type="TailSpin"
                 type="Oval"
                 height={60}
                 width={60}
@@ -67,7 +65,7 @@ console.log(data)
             >
               <div className="modal-header">Create Role Group</div>
               <div onClick={() => close()} className="align-item-center  pt-3">
-                <img src={Cancel} />
+                <img src={Cancel} alt="Close" />
               </div>
             </div>
           </Container>
@@ -88,7 +86,6 @@ console.log(data)
                     <Form.Control
                       type="text"
                       placeholder="Enter Role group name"
-                      onChange={""}
                       name="name"
                       ref={register}
                       required
@@ -121,14 +118,16 @@ console.log(data)
     );
 
 }
- const mapStateToProps = state => (console.log(state),{
-  roles:state.settings.roles,
-  loading:state.settings.loading,
-  error:state.settings.error,
-  success:state.settings.successRole,
-  erroMessage:state.settings.errorMessage
-  
-});
+ const mapStateToProps = (state) => {
+  console.log(state);
+  return {
+    roles:state.settings.roles,
+    loading:state.settings.loading,
+    error:state.settings.error,
+    success:state.settings.successRole,
+    erroMessage:state.settings.errorMessage
+  };
+ };
 
 export default connect(
   mapStateToProps,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Form, Container, Button, Row, Col, Alert } from "react-bootstrap";
 import { connect } from "react-redux";
 import Loader from "../secondLoader"
@@ -9,6 +9,25 @@ import Cancel from "../../Assets/img/x.png";
 import "./style.css";
 
 const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,businessName ,loading,error,success}) => {
+  const [formValues, setFormValues] = useState({
+    action: "",
+    amount: "",
+    reason: "",
+    transactionId: "",
+  });
+  const successMessage = success?.responseMessage || "Operation successful";
+
+  const updateInput = (event) => {
+    setFormValues({
+      ...formValues,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+    CreditDebitPurses(formValues, idAgent);
+  };
 
 
   return (
@@ -23,7 +42,6 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
       <Modal.Body>
       {loading && (
             <Loader
-              type="TailSpin"
               type="Oval"
               height={60}
               width={60}
@@ -37,7 +55,7 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
           >
             <div className="modal-header">Credit/Debit Purse</div>
             <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+              <img src={Cancel} alt="Close" />
             </div>
           </div>
         </Container>
@@ -152,9 +170,10 @@ const CreditDebit = ({ show, close,CreditDebitPurse:CreditDebitPurses,idAgent,bu
   );
 };
 
-const mapStateToProps = state => (console.log(state),{
-
-});
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {};
+};
 
 export default connect(
   mapStateToProps,

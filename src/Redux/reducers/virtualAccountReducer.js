@@ -4,6 +4,7 @@ import { FETCH_VIRTUAL_ACCOUNT_TRANSACTIONS } from "../actions/actionTypes";
 const initialState = {
   transactions: [],
   transactionTotal: 0,
+  agentDetails: null,
   loading: false,
   error: null,
 };
@@ -17,6 +18,7 @@ const VirtualAccountReducer = (state = initialState, action) => {
         ...state,
         transactions: action.payload.data,
         transactionTotal: action.payload.total,
+        agentDetails: action.payload.agentDetails,
         loading: false,
         error: null,
       };
@@ -27,6 +29,7 @@ const VirtualAccountReducer = (state = initialState, action) => {
         error: action.payload,
         transactions: [],
         transactionTotal: 0,
+        agentDetails: null,
       };
     default:
       return state;

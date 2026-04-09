@@ -51,7 +51,7 @@ const DashBoard = (props) => {
   const isAgentRole = roleName.trim().toUpperCase() === "AGENT";
   const [accessToken, setAccessToken] = useState(token?.access_token || "");
   const agentFetchOnceRef = useRef(false);
-  const [agentRecord, setAgentRecord] = useState(null);
+  const [, setAgentRecord] = useState(null);
 
   useEffect(() => {
     // Debug: confirm component mounts

@@ -1,20 +1,19 @@
 import React, { useState ,useEffect} from 'react';
 import { useHistory } from "react-router-dom";
 
-import { Container, Row, Col,Nav,Form,Button,Alert} from "react-bootstrap";
+import { Row, Col,Form,Button,Alert} from "react-bootstrap";
 import { ChangePassword } from "../../../Redux/requests/settingsRequest";
 import Loader from "../../../Components/secondLoader"
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 // import {history} from '../../../utils/history'
-import ErrorAlert from '../../../Components/alerts';
 import './style.css';
 
 
 
 
 const PasswordChange = ({  ChangePassword: handlePassword, loading ,error,success,errorMessage,passworderror}) => {
-    let history = useHistory();
+    const history = useHistory();
 
     const getToken = JSON.parse(localStorage.getItem("data"))
     const {username} = getToken.user
@@ -25,7 +24,7 @@ const PasswordChange = ({  ChangePassword: handlePassword, loading ,error,succes
         confirmPassword:null
     });
     const [errors, setErrors] = useState([]);
-    const [successMessage, SetSuccessMessage] = useState([]);
+    const [successMessage] = useState([]);
 
     console.log(history)
     function handleInputChange(event) {
@@ -36,7 +35,7 @@ const PasswordChange = ({  ChangePassword: handlePassword, loading ,error,succes
     useEffect(() => { 
         console.log(error,errorMessage)
         if(errorMessage){
-          if (error && errorMessage.error!="Old Password is incorrect"){
+          if (error && errorMessage.error !== "Old Password is incorrect"){
             return setErrors(['There was an error sending your request, please try again later.']);
         }else if(errorMessage){
           return setErrors([errorMessage.error]);
@@ -50,12 +49,12 @@ const PasswordChange = ({  ChangePassword: handlePassword, loading ,error,succes
         if (success) {
             history.push("/");
         }
-    }, [success]);
+    }, [history, success]);
 
 
 
     const {
-        userName,oldPassword,newPassword,confirmPassword
+        newPassword,confirmPassword
       } = userCredentials;
     
       const onSubmit = async (event) => {
@@ -70,7 +69,7 @@ const PasswordChange = ({  ChangePassword: handlePassword, loading ,error,succes
       return ( 
         <div className='main-tabs'>
             <Form onSubmit={onSubmit}>
-            {loading && <Loader type="TailSpin" type="Oval" height={60} width={60} color="#1E4A86" />}
+            {loading && <Loader type="Oval" height={60} width={60} color="#1E4A86" />}
             {
                     success ? <Alert variant="success">{successMessage}</Alert> : null
                 }
@@ -115,7 +114,6 @@ const PasswordChange = ({  ChangePassword: handlePassword, loading ,error,succes
 }
 ChangePassword.propTypes = {
         ChangePassword: PropTypes.func.isRequired,
-        history: PropTypes.object.isRequired,
         loading: PropTypes.bool.isRequired
     };
 

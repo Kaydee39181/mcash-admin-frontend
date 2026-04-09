@@ -2,12 +2,9 @@ import React, { useState } from "react";
 import {
   Modal,
   Form,
-  Container,
   Button,
-  Image,
   Row,
   Col,
-  Alert,
   InputGroup,
 } from "react-bootstrap";
 import axios from "axios";
@@ -107,7 +104,7 @@ const LinkCard = ({ accountNumber }) => {
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && response.length > 0 ? (
-        response[0]?.responseCode == "00" ? (
+        response[0]?.responseCode === "00" ? (
           <Modal
             show={clicked}
             onHide={() => {

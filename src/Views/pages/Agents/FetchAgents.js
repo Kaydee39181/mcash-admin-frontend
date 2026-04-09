@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import AssignTerminal from "../../../Components/Assign Terminal";
@@ -19,8 +18,6 @@ import {
   FetchBankTerminal,
   UnAssignTerminal,
 } from "../../../Redux/requests/agentRequest";
-
-import { FetchTransactionSingle } from "../../../Redux/requests/transactionRequest";
 import { connect } from "react-redux";
 import "./style.css";
 import Pagination from "react-js-pagination";
@@ -37,7 +34,7 @@ const resolveFullName = (person) => {
 };
 
 const getAgentManagerId = (agentManager) => {
-  if (agentManager == null) return "";
+  if (agentManager === null || agentManager === undefined) return "";
 
   if (typeof agentManager !== "object") {
     return String(agentManager);
@@ -68,7 +65,6 @@ const Agents = (props) => {
     FetchAgent: FetchAgents,
     UnAssignTerminal: UnAssignTerminals,
     ActivatateCode: ActivatateCodes,
-    FetchTransactionSingle: FetchTransactionSingles,
     FetchHardWare: FetchHardWares,
     bankTerminal,
     agents,
@@ -90,16 +86,13 @@ const Agents = (props) => {
   const [memberID, setmemberID] = useState("");
   const [showhardware, setshowhardware] = useState(false);
   const [smShow, setSmShow] = useState(false);
-  const [activation, setActivation] = useState(null);
   const [terminalID, showTerminalID] = useState(false);
   const [agentID, setAgentId] = useState("");
   const [nextPage, setNextPage] = useState(0);
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
   const [type, SetType] = useState("assigndevice");
-  const [columnHidden, SetcolumnHidden] = useState(
-    name == "AMBASSADOR" ? true : false
-  );
+  const columnHidden = name === "AMBASSADOR";
 
   const closehardware = () => {
     setshowhardware(false);
@@ -118,10 +111,10 @@ const Agents = (props) => {
     setmemberID(agentId);
     setshowhardware(true);
   }
-  const reload = () => {
+  const reload = useCallback(() => {
     FetchAgents(nextPage, length, filterValues);
     FetchBankTerminals();
-  };
+  }, [FetchAgents, FetchBankTerminals, filterValues, length, nextPage]);
   const closeExport = () => {
     showExportModal(false);
   };
@@ -132,13 +125,13 @@ const Agents = (props) => {
   useEffect(() => {
     FetchHardWares();
     // console.log(hardwares)
-  }, []);
+  }, [FetchHardWares]);
 
   useEffect(() => {
     setSmShow(false);
     FetchAgents(nextPage, length, filterValues);
     FetchBankTerminals();
-  }, [nextPage, length, filterValues]);
+  }, [FetchAgents, FetchBankTerminals, filterValues, length, nextPage]);
 
   function _handleFilterValue(event) {
     event.preventDefault();
@@ -154,7 +147,6 @@ const Agents = (props) => {
     console.log(successActivation, activationCode);
     if (successActivation && activationCode != null) {
       setSmShow(true);
-      setActivation(activationCode);
       return;
     }
   }, [successActivation, activationCode]);
@@ -164,7 +156,7 @@ const Agents = (props) => {
       // FetchAgents(nextPage, length, filterValues);
       reload();
     }
-  }, [unassignSuccess, success]);
+  }, [reload, success, unassignSuccess]);
 
   function ActivatateCode(agentId) {
     // setActivation(null);
@@ -525,9 +517,9 @@ const Agents = (props) => {
     </div>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     hardwares: state.hardwaredevice.hardwares,
     agents: state.agents.agents,
     activationCode: state.agents.activationCode,
@@ -538,14 +530,13 @@ const mapStateToProps = (state) => (
     unassignSuccess: state.agents.unassignSuccess,
     successActivation: state.agents.successActivation,
     agentTotal: state.agents.agentTotal,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchAgent,
   ActivatateCode,
   FetchBankTerminal,
   UnAssignTerminal,
-  FetchTransactionSingle,
   FetchHardWare,
 })(Agents);

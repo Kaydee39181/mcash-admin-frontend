@@ -2,7 +2,6 @@ import axios from "axios";
 import { asyncActions } from "../../utils/asyncUtil";
 import { CHANGE_PASSWORD, FETCH_ROLE, CREATE_ROLE_GROUP, FETCH_ROLE_GROUP, UPDATE_ROLE_GROUP } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from '../../utils/history'
 
 
 export const ChangePassword = ({ userName, oldPassword, newPassword,confirmPassword }) => async (dispatch) => {

@@ -5,8 +5,8 @@ import axios from "axios";
 export const openGTBankAccount = (data) => async (dispatch) => {
   dispatch(asyncActions(OPEN_GTB_ACCOUNT).loading(true));
   try {
-    const data = await axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, data);
-    console.log(data);
+    const response = await axios.post(`${AgentConstant.OPEN_GTB_ACCOUNT}`, data);
+    console.log(response);
     /* if (data.responseCode === '00') {
       dispatch(asyncActions(OPEN_GTB_ACCOUNT).success(data.data));
     }

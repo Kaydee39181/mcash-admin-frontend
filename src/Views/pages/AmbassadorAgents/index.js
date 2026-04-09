@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
-import AssignTerminal from "../../../Components/Assign Terminal";
 import Loader from "../../../Components/secondLoader";
-import { Modal, DropdownButton, Dropdown } from "react-bootstrap";
+import { DropdownButton, Dropdown } from "react-bootstrap";
 import ExportModal from "../../../Components/Exports/index";
 import FilterModal from "../../../Components/Filter/index";
 import DashboardTemplate from "../../template/dashboardtemplate";
@@ -16,9 +14,7 @@ import Print from "../../../Assets/img/printer.png";
 
 import {
   FetchambassadorAgent,
-  ActivatateCode,
   FetchBankTerminal,
-  UnAssignTerminal,
 } from "../../../Redux/requests/agentRequest";
 
 import { connect } from "react-redux";
@@ -29,19 +25,10 @@ const Agents = (props) => {
   const {
     FetchBankTerminal: FetchBankTerminals,
     FetchambassadorAgent: FetchambassadorAgents,
-    UnAssignTerminal: UnAssignTerminals,
-    ActivatateCode: ActivatateCodes,
-    bankTerminal,
     agents,
     loading,
-    activationCode,
-    success,
-    unassignSuccess,
-    successActivation,
     agentTotal,
-    history,
   } = props;
-  const [businessName, setBusinessName] = useState("");
   const [ExportModalActive, showExportModal] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
 
@@ -56,18 +43,10 @@ const Agents = (props) => {
 
   const [filterValues, setFilterValues] = useState(initialState);
 
-  const [smShow, setSmShow] = useState(false);
-  const [activation, setActivation] = useState(null);
-  const [terminalID, showTerminalID] = useState(false);
-  const [agentID, setAgentId] = useState("");
   const [nextPage, setNextPage] = useState(0);
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
 
-  const reload = () => {
-    FetchambassadorAgents(nextPage, length, filterValues);
-    FetchBankTerminals();
-  };
   const closeExport = () => {
     showExportModal(false);
   };
@@ -76,10 +55,9 @@ const Agents = (props) => {
   };
 
   useEffect(() => {
-    setSmShow(false);
     FetchambassadorAgents(nextPage, length, filterValues);
     FetchBankTerminals();
-  }, [nextPage, length, filterValues]);
+  }, [FetchBankTerminals, FetchambassadorAgents, filterValues, length, nextPage]);
 
   function _handleFilterValue(event) {
     event.preventDefault();
@@ -93,50 +71,6 @@ const Agents = (props) => {
   const OpenFilter = () => {
     showFilterModal(true);
     setFilterValues(initialState);
-  };
-
-  useEffect(() => {
-    console.log(successActivation, activationCode);
-    if (successActivation && activationCode != null) {
-      setSmShow(true);
-      setActivation(activationCode);
-      return;
-    }
-  }, [successActivation, activationCode]);
-
-  useEffect(() => {
-    if (unassignSuccess) {
-      // FetchambassadorAgents(nextPage, length, filterValues);
-      reload();
-    }
-  }, [unassignSuccess, success]);
-
-  function ActivatateCode(agentId) {
-    // setActivation(null);
-    ActivatateCodes(agentId);
-  }
-
-  function ViewTransaction(agentId) {
-    // setActivation(null);
-    localStorage.setItem("agentId", agentId);
-    window.location = "/agenttransactions";
-  }
-  const AssignTerminals = (agentId, businessName) => {
-    setBusinessName(businessName);
-
-    showTerminalID(true);
-    setAgentId(agentId);
-    FetchBankTerminals(agentId);
-  };
-
-  const UnAssignTerminal = (agentId) => {
-    UnAssignTerminals(agentId);
-
-    FetchambassadorAgents(nextPage, length, initialState);
-  };
-
-  const closeAssignTerminal = () => {
-    showTerminalID(false);
   };
 
   const _handlePageChange = (pageNumber) => {
@@ -242,32 +176,23 @@ const Agents = (props) => {
           </div>
           <div className="manage-agent">
             <span>
-              <img src={Print} />
+              <img src={Print} alt="Print" />
               Print
             </span>
 
             <span onClick={() => OpenFilter()}>
-              <img src={Filter} />
+              <img src={Filter} alt="Filter" />
               Filter
             </span>
 
             <span onClick={() => showExportModal(true)}>
-              <img src={Upload} />
+              <img src={Upload} alt="Export" />
               Export
             </span>
           </div>
         </div>
 
         <div className="table-wrapper">
-          <Modal
-            size="sm"
-            show={smShow}
-            onHide={() => setSmShow(false)}
-            aria-labelledby="example-modal-sizes-title-sm"
-          >
-            <Modal.Header closeButton></Modal.Header>
-            <Modal.Body>{activationCode}</Modal.Body>
-          </Modal>
           {loading && (
             <Loader
               type="Oval"
@@ -287,16 +212,6 @@ const Agents = (props) => {
             bordered={false}
             hover
             condensed
-          />
-          {/* <button onClick={() => showTerminalID(true)}>Assign</button> */}
-          <AssignTerminal
-            bankTerminals={bankTerminal}
-            reload={reload}
-            load={loading}
-            show={terminalID}
-            close={closeAssignTerminal}
-            agentsId={agentID}
-            businessName={businessName}
           />
           <div className="pagination_wrap">
             <DropdownButton
@@ -353,24 +268,17 @@ const Agents = (props) => {
     </DashboardTemplate>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     agents: state.agents.agents,
-    activationCode: state.agents.activationCode,
-    bankTerminal: state.agents.bankTerminal,
     loading: state.agents.loading,
     error: state.agents.error,
-    success: state.agents.success,
-    unassignSuccess: state.agents.unassignSuccess,
-    successActivation: state.agents.successActivation,
     agentTotal: state.agents.agentTotal,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchambassadorAgent,
-  ActivatateCode,
   FetchBankTerminal,
-  UnAssignTerminal,
 })(Agents);

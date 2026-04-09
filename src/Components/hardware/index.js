@@ -41,8 +41,8 @@ const HardwareModal = ({
 
   const onSubmit = (event) => {
     event.preventDefault();
-    if (type == "assigndevice") ActivateHardWares(assignDevice, memberId);
-    if (type == "unassigndevice") DeActivateHardWares(assignDevice, memberId);
+    if (type === "assigndevice") ActivateHardWares(assignDevice, memberId);
+    if (type === "unassigndevice") DeActivateHardWares(assignDevice, memberId);
   };
   const updateInput = (event) => {
     setAssignDevice({
@@ -53,7 +53,7 @@ const HardwareModal = ({
   useEffect(() => {
     console.log("memberId", memberId);
     FetchHardWares(memberId);
-  }, [memberId]);
+  }, [FetchHardWares, memberId]);
 
   // useEffect(() => {
   //   console.log("error", error);
@@ -101,7 +101,6 @@ const HardwareModal = ({
       <Modal.Body>
         {loading && (
           <Loader
-            type="TailSpin"
             type="Oval"
             height={60}
             width={60}
@@ -112,12 +111,12 @@ const HardwareModal = ({
           <div
             className="header-wrapper d-flex justify-content-between align-item-center  justify-content-center"
             justify-content-center
-          >
-            <div className="modal-header">Assign Device</div>
-            <div onClick={close} className="align-item-center  pt-3">
-              <img src={Cancel} />
+            >
+              <div className="modal-header">Assign Device</div>
+              <div onClick={close} className="align-item-center  pt-3">
+              <img src={Cancel} alt="Close" />
+              </div>
             </div>
-          </div>
         </Container>
         <hr />
 
@@ -159,7 +158,7 @@ const HardwareModal = ({
                 </Form.Group>
               </Col>
               <Col>
-                {type == "assigndevice" ? (
+                {type === "assigndevice" ? (
                   <Form.Group controlId="">
                     <Form.Label>Serial Number</Form.Label>
                     <Form.Control
@@ -171,13 +170,12 @@ const HardwareModal = ({
                       required
                     />
                   </Form.Group>
-                ) : type == "unassigndevice" ? (
+                ) : type === "unassigndevice" ? (
                   <Form.Group controlId="">
                     <Form.Label>Select device</Form.Label>
                     <Form.Control
                       size="sm"
                       as="select"
-                      name="action"
                       onChange={updateInput}
                       name="serialNumber"
                       required
@@ -229,9 +227,9 @@ const HardwareModal = ({
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     hardwares: state.hardwaredevice.hardwares,
     hardwaresActivate: state.hardwaredevice.hardwaresActivate,
     hardwaresdeActivate: state.hardwaredevice.hardwaresdeActivate,
@@ -239,8 +237,8 @@ const mapStateToProps = (state) => (
     error: state.hardwaredevice.error,
     hardwaresuccess: state.hardwaredevice.hardwaresuccess,
     hardwareunassignsuccess: state.hardwaredevice.hardwareunassignsuccess,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   ActivateHardWare,

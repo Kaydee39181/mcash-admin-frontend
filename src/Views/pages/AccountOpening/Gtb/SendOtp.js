@@ -1,36 +1,16 @@
 import React, { useState } from "react";
 import { JSEncrypt } from "jsencrypt";
 import {
-  Modal,
   Form,
-  Container,
   Button,
-  Image,
   Row,
   Col,
-  Alert,
 } from "react-bootstrap";
 import axios from "axios";
 import LinkCard from "./LinkCard";
 import Loader from "../../../../Components/secondLoader";
 
-const SendOtp = ({
-  create,
-  show,
-  CreateAgent: handleCreateAgent,
-  close,
-  FetchState: FetchStates,
-  FetchLga: FetchLgas,
-  FetchBank: FetchBankS,
-  success,
-  error,
-  /* loading, */
-  erroMessage,
-  agentStates,
-  agentLgas,
-  agentBanks,
-  createAgent,
-}) => {
+const SendOtp = () => {
   const [accountNumber, setAccountNumber] = useState("");
   const [clicked, setClicked] = useState(false);
   const [loading, setLoading] = useState("");
@@ -125,12 +105,12 @@ const SendOtp = ({
       </Form>
 
       <p>{responseMessage}</p>
-      {clicked && loading == false && responseCode == "00" && (
+      {clicked && loading === false && responseCode === "00" && (
         <div style={{ marginTop: "10px" }}>
           <LinkCard accountNumber={accountNumber} />
         </div>
       )}
-      {clicked && loading == false && responseCode != "00" && (
+      {clicked && loading === false && responseCode !== "00" && (
         <p style={{ marginTop: "10px" }}>An error occurred</p>
       )}
       {/* <LinkCard accountNumber={accountNumber} /> */}

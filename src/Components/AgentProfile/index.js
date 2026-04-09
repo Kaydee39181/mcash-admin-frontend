@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from "react";
 import DashboardTemplate from "../../Views/template/dashboardtemplate";
-import BootstrapTable from "react-bootstrap-table-next";
 import Loader from "../../Components/secondLoader";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import { RiSuitcaseLine } from "react-icons/ri";
 import { FiEdit2 } from "react-icons/fi";
-import { Container, Button, Modal } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
-import Upload from "../../Assets/img/upload.png";
-import Filter from "../../Assets/img/filter.png";
-import Print from "../../Assets/img/printer.png";
-import Success from "../../Assets/img/success.svg";
 import image from "../../Assets/img/agentimage.png";
 import SweetAlert from "react-bootstrap-sweetalert";
 import EditUser from "../../Views/pages/Agents/editAgent";
@@ -54,7 +48,7 @@ const Profile = (props) => {
 
   React.useEffect(() => {
     FetchSingleAgents(state.row.UserName);
-  }, []);
+  }, [FetchSingleAgents, state.row.UserName]);
 
   React.useEffect(() => {
     if (activateDeacivate) {
@@ -66,7 +60,7 @@ const Profile = (props) => {
   }, [activateDeacivate]);
 
   useEffect(() => {
-    if (activateDeacivate == false) {
+    if (activateDeacivate === false) {
       setTitle("Action not perform successfully");
       setDanger(true);
       setSucess(false);
@@ -76,15 +70,14 @@ const Profile = (props) => {
 
   const ActivateAgent = async (agentId, activationuser) => {
     // ActivateDeactivateUsers(agentId, !activationuser)
-    const res = await ActivateDeactivateUsers(agentId, !activationuser);
-    console.log(res);
+    await ActivateDeactivateUsers(agentId, !activationuser);
   };
   function DeActivateAgent(agentId, activationuser) {
     ActivateDeactivateUsers(agentId, !activationuser);
   }
 
   const ResetAgentPassword = async (agentId) => {
-    const res = await ResetPasswords(agentId);
+    await ResetPasswords(agentId);
   };
 
   useEffect(() => {
@@ -97,7 +90,7 @@ const Profile = (props) => {
   }, [resetSuccess]);
 
   useEffect(() => {
-    if (resetSuccess == false) {
+    if (resetSuccess === false) {
       setTitle(resetErrorMessage || "Password can't be reset");
       setDanger(true);
       setSucess(false);
@@ -121,7 +114,7 @@ const Profile = (props) => {
   }, [successActivation]);
 
   useEffect(() => {
-    if (successActivation == false) {
+    if (successActivation === false) {
       setTitle("Activation code could not be generated ");
       setDanger(true);
       setSucess(false);
@@ -179,7 +172,6 @@ const Profile = (props) => {
       <div className="transact-wrapper">
         {loading && (
           <Loader
-            type="TailSpin"
             type="Oval"
             height={60}
             width={60}
@@ -208,7 +200,7 @@ const Profile = (props) => {
                 <div className="edit">
                   <FiEdit2 />
                 </div>
-                <img src={image}></img>
+                <img src={image} alt="Agent profile" />
               </div>
               <div className="info">
                 <h6>{state.row ? state.row.agent.user.fullName : ""}</h6>
@@ -249,36 +241,36 @@ const Profile = (props) => {
                 </p>
               </div>
             </div>
-            <div className="btn-group">
-              {console.log(singleAgent)}
-              {singleAgent && singleAgent.enabled == true ? (
-                <button
-                  disabled={
-                    name == "AMBASSADOR" && name == "AGENT" ? true : false
-                  }
+              <div className="btn-group">
+               {console.log(singleAgent)}
+               {singleAgent && singleAgent.enabled === true ? (
+                 <button
+                   disabled={
+                     name === "AMBASSADOR" && name === "AGENT" ? true : false
+                   }
                   onClick={() =>
                     DeActivateAgent(
                       state.row.agent.user.id,
                       singleAgent.enabled
                     )
-                  }
-                  className={`btn1 btns ${
-                    name == "AMBASSADOR" && name == "AGENT" ? "hideAction" : ""
-                  }`}
+                   }
+                   className={`btn1 btns ${
+                     name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
+                   }`}
                 >
                   DEACTIVATE
                 </button>
-              ) : (
-                <button
-                  disabled={
-                    name == "AMBASSADOR" && name == "AGENT" ? true : false
-                  }
-                  onClick={() =>
-                    ActivateAgent(state.row.agent.user.id, singleAgent.enabled)
-                  }
-                  className={`btn3 btns ${
-                    name == "AMBASSADOR" && name == "AGENT" ? "hideAction" : ""
-                  }`}
+               ) : (
+                 <button
+                   disabled={
+                     name === "AMBASSADOR" && name === "AGENT" ? true : false
+                   }
+                   onClick={() =>
+                     ActivateAgent(state.row.agent.user.id, singleAgent.enabled)
+                   }
+                   className={`btn3 btns ${
+                     name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
+                   }`}
                 >
                   ACTIVATE
                 </button>
@@ -286,10 +278,10 @@ const Profile = (props) => {
 
               <button
                 disabled={
-                  name == "AMBASSADOR" && name == "AGENT" ? true : false
+                   name === "AMBASSADOR" && name === "AGENT" ? true : false
                 }
                 className={`btn2 btns ${
-                  name == "AMBASSADOR" && name == "AGENT" ? "hideAction" : ""
+                  name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
                 }`}
                 onClick={() => EditAgent(agents[0])}
               >
@@ -298,17 +290,17 @@ const Profile = (props) => {
 
               <button
                 disabled={
-                  name == "AMBASSADOR" && name == "AGENT" ? true : false
+                  name === "AMBASSADOR" && name === "AGENT" ? true : false
                 }
                 className={`btn2 btns ${
-                  name == "AMBASSADOR" && name == "AGENT" ? "hideAction" : ""
+                  name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
                 }`}
                 onClick={() => ResetAgentPassword(state.row.agent.user.id)}
               >
                 RESET PASSWORD
               </button>
               {state.row ? state.row.agent.activationCode : ""}
-              {activationcodenumber == null ? (
+              {activationcodenumber === null ? (
                 <button
                   onClick={() => ActivatateCode(state.row.AgentID)}
                   className="btn3 btns"
@@ -332,9 +324,9 @@ const Profile = (props) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     agents: state.agents.agents,
     loading: state.agents.loading,
     error: state.agents.error,
@@ -342,10 +334,9 @@ const mapStateToProps = (state) => (
     success: state.agents.success,
     resetSuccess: state.agents.resetSuccess,
     resetErrorMessage: state.agents.resetErrorMessage,
-    agents: state.agents.agents,
     successActivation: state.agents.successActivation,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   ActivateDeactivateUser,

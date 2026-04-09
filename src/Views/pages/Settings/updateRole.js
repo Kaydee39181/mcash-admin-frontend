@@ -6,7 +6,6 @@ import {
   Form,
   Container,
   Button,
-  Image,
   Row,
   Col,
   Alert,
@@ -33,16 +32,11 @@ const EditRole = ({
   udatedetails,
 }) => {
   const [errors, setErrors] = useState([]);
-  const [inputform, setinputform] = useState("");
-
   const [successMessage, SetSuccessMessage] = useState([]);
   useEffect(() => {
     FetchRoles();
-  }, []);
+  }, [FetchRoles]);
   console.log(udatedetails);
-  useEffect(() => {
-    setinputform(udatedetails.name);
-  }, [udatedetails])
 
   useEffect(() => {
     console.log(error, erroMessage);

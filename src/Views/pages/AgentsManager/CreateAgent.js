@@ -38,7 +38,6 @@ const CreateAgentModal = ({
   error,
   errorMessage,
 }) => {
-  const [isPublic, setIsPublic] = useState(true);
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([
     "Create Agent Manager",
@@ -66,7 +65,7 @@ const CreateAgentModal = ({
   useEffect(() => {
     FetchStates();
     FetchBankS();
-  }, []);
+  }, [FetchBankS, FetchStates]);
 
   useEffect(() => {
     if (error) {

@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import {
   Modal,
   Form,
-  Container,
   Button,
-  Image,
   Row,
   Col,
   Alert,
@@ -23,7 +20,6 @@ import "./style.css";
 import moment from "moment";
 import axios from "axios";
 import { AgentConstant } from "../../../../constants/constants";
-import AsyncSelect from "react-select/async";
 
 const KycForm = ({
   create,
@@ -41,7 +37,6 @@ const KycForm = ({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
-  const [logvt, setIsLogvt] = useState({});
   const [CreateAgentData, setCreateAgentData] = useState({
     RequestId: "",
     FirstName: "",
@@ -67,24 +62,22 @@ const KycForm = ({
     NDPRConsentFlag: "YES",
     AgentWalletID: "",
   });
-  const [allAgents, setAllAgents] = useState();
   const [accountDetails, setAccountDetails] = useState([]);
   const getToken = JSON.parse(localStorage.getItem("data"));
   const [clicked, setClicked] = useState(false);
   useEffect(() => {
     FetchStates();
     FetchBankS();
-  }, []);
+  }, [FetchBankS, FetchStates]);
 
   useEffect(() => {
     if (erroMessage) {
       if (error && erroMessage.error !== "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
+        SetSuccessMessage([]);
+        return;
       } else if (erroMessage) {
         return setErrors(erroMessage.error);
       }
@@ -93,7 +86,8 @@ const KycForm = ({
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -196,7 +190,7 @@ const KycForm = ({
         <Loader type="TailSpin" height={60} width={60} color="#1E4A86" />
       )}
       {clicked && accountDetails.length > 0 ? (
-        accountDetails[0]?.ResponseCode == "00" ? (
+        accountDetails[0]?.ResponseCode === "00" ? (
           <Modal
             show={clicked}
             onHide={() => {
@@ -507,9 +501,9 @@ KycForm.propTypes = {
   create: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     createAgent: state.agents.createAgent,
     agentStates: state.agentmanager.agentStates,
     agentLgas: state.agentmanager.agentLga,
@@ -518,11 +512,8 @@ const mapStateToProps = (state) => (
     erroMessage: state.agents.errorMessage,
     success: state.agents.createAgentsuccess,
     error: state.agents.error,
-    loading: false,
-    error: null,
-    success: false,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchState,

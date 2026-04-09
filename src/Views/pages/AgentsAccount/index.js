@@ -1,10 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import BootstrapTable from "react-bootstrap-table-next";
+import React, { useState, useEffect } from "react";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
-import Upload from "../../../Assets/img/upload.png";
-import Filter from "../../../Assets/img/filter.png";
-import Print from "../../../Assets/img/printer.png";
 import Briefcase from "../../../Assets/img/briefcase.png";
 import AgentImage from "../../../Assets/img/agentimage.png";
 import Pin from "../../../Assets/img/mappin.png";
@@ -17,22 +13,11 @@ import axios from "axios";
 //   ToastsStore,
 //   ToastsContainerPosition,
 // } from "react-toasts";
-import { ToastContainer, toast } from "react-toastify";
 import {
   FetchTransaction,
   FetchTransactionTypes,
   FetchTransactionStatus,
 } from "../../../Redux/requests/transactionRequest";
-import {
-  Nav,
-  NavItem,
-  NavLink,
-  DropdownButton,
-  Dropdown,
-} from "react-bootstrap";
-import Pagination from "react-js-pagination";
-import ViewReceipts from "../../../Components/viewReceipt";
-
 import { connect } from "react-redux";
 
 import "./style.css";
@@ -42,6 +27,8 @@ import SweetAlert from "react-bootstrap-sweetalert";
 
 const Transactions = (props) => {
   const token = JSON.parse(localStorage.getItem("data"));
+  const accessToken = token?.access_token;
+  const username = token?.user?.username;
   const [details, setDetails] = useState([]);
   const [title, setTitle] = useState("");
   const [smShow, setSmShow] = useState(false);
@@ -52,13 +39,13 @@ const Transactions = (props) => {
   useEffect(() => {
     axios
       .get(
-        `https://api.mcashpoint.com/api/v1/agent/?username=${token.user.username}`,
-        {
-          headers: {
-            Authorization: `bearer ${token.access_token}`,
-            "Content-Type": "application/json",
-          },
-        }
+          `https://api.mcashpoint.com/api/v1/agent/?username=${username}`,
+          {
+            headers: {
+              Authorization: `bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
       )
       .then((res) => {
         const response = res.data;
@@ -68,7 +55,7 @@ const Transactions = (props) => {
         console.log(error);
         // dispatch(asyncActions(FETCH_ADMIN_USERS).failure(true, error));
       });
-  }, []);
+  }, [accessToken, username]);
 
   useEffect(() => {
     if (successActivation) {
@@ -120,6 +107,7 @@ const Transactions = (props) => {
                   <img
                     src={AgentImage}
                     style={{ position: "relative", width: "100%" }}
+                    alt="Agent"
                   />
                   <div
                     style={{
@@ -142,6 +130,7 @@ const Transactions = (props) => {
                         display: "block",
                         margin: "auto",
                       }}
+                      alt="Edit profile"
                     />
                   </div>
                 </div>
@@ -161,6 +150,7 @@ const Transactions = (props) => {
                   <img
                     src={Briefcase}
                     style={{ width: "20px", height: "auto" }}
+                    alt="Business name"
                   />
                   <span
                     className="m-2 mt-5 p-1 pb-0"
@@ -174,7 +164,7 @@ const Transactions = (props) => {
                   </span>
                 </div>
                 <div className="container-fluid pl-0">
-                  <img src={Pin} style={{ width: "20px", height: "auto" }} />
+                  <img src={Pin} style={{ width: "20px", height: "auto" }} alt="Business address" />
                   <span
                     className="m-2 mt-5 p-1 pb-0"
                     style={{
@@ -338,9 +328,9 @@ const Transactions = (props) => {
     </DashboardTemplate>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     transaction: state.transactions.transactions,
     transactionsType: state.transactions.transactionsType,
     transactionStatus: state.transactions.transactionStatus,
@@ -349,8 +339,8 @@ const mapStateToProps = (state) => (
     transactionTotal: state.transactions.transactionTotal,
     successTransaction: state.transactions.successTransaction,
     successActivation: state.agents.successActivation,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchTransaction,

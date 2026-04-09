@@ -26,7 +26,7 @@ const AppVersion = ({
 
   useEffect(() => {
     FetchAllApiVersion();
-  }, []);
+  }, [FetchAllApiVersion]);
 
   useEffect(() => {
 console.log(success,deleteApiSuccess)

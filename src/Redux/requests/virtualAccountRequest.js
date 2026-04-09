@@ -24,6 +24,18 @@ const normalizeTransactions = (payload) => {
   return [];
 };
 
+const normalizeAgentDetails = (payload) => {
+  if (payload?.agentDetails && typeof payload.agentDetails === "object") {
+    return payload.agentDetails;
+  }
+
+  if (payload?.data?.agentDetails && typeof payload.data.agentDetails === "object") {
+    return payload.data.agentDetails;
+  }
+
+  return null;
+};
+
 const buildVirtualAccountUrl = (filters) => {
   const params = new URLSearchParams();
 
@@ -75,11 +87,15 @@ export const FetchVirtualAccountTransactions =
 
       const payload = response?.data;
       const data = normalizeTransactions(payload);
+      const total =
+        payload?.recordsFiltered ?? payload?.recordsTotal ?? payload?.total ?? data.length;
+      const agentDetails = normalizeAgentDetails(payload);
 
       dispatch(
         asyncActions(FETCH_VIRTUAL_ACCOUNT_TRANSACTIONS).success({
           data,
-          total: data.length,
+          total,
+          agentDetails,
           raw: payload,
         })
       );

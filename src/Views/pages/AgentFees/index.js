@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
@@ -45,11 +45,17 @@ const AgentFees = (props) => {
 
   const values = watch();
   console.log('values', values)
-  const transactionMap = values.fees ? values.fees.reduce((map, data, index) => {
-    const transactionData = map[data.transactionTypeId] || []
-    const updateMap = data.transactionTypeId ? { [data.transactionTypeId]: [...transactionData, { ...data, index }] } : {}
-    return ({ ...map, ...updateMap })
-  }, {}) : {}
+  const transactionMap = useMemo(() => {
+    if (!values.fees) return {};
+
+    return values.fees.reduce((map, data, index) => {
+      const transactionData = map[data.transactionTypeId] || [];
+      const updateMap = data.transactionTypeId
+        ? { [data.transactionTypeId]: [...transactionData, { ...data, index }] }
+        : {};
+      return { ...map, ...updateMap };
+    }, {});
+  }, [values.fees]);
 
   function isFirstTransactionTypeOccurence(index, transactionTypeId) {
     const transactionTypeData = transactionMap[transactionTypeId] || [];
@@ -106,7 +112,18 @@ const AgentFees = (props) => {
     FetchTransactionType();
     FetchRangeMaxs();
     FetchConvieneceFees();
-    handleAdd();
+    setRangeType([
+      {
+        transactionTypeId: "",
+        max: "",
+        min: "",
+        fee: "",
+        ambassadorCut: "",
+        rangeType: "",
+      },
+    ]);
+    setIndexes([{ id: 0, increment: 0 }]);
+    setCounter(1);
   }, [FetchTransactionType, FetchRangeMaxs, FetchConvieneceFees]);
 
   useEffect(() => {

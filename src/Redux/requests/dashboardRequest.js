@@ -2,7 +2,6 @@ import axios from "axios";
 import { asyncActions } from "../../utils/asyncUtil";
 import { DASHBOARD_BREAKDOWN , DASHBOARD_TRANSACTION_DETAILS} from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
-import { history } from '../../utils/history'
 
 
 export const DashboardBreakdown = () => dispatch => {

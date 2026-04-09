@@ -44,7 +44,7 @@ const isAccessDeniedFromBody = (response) => {
   return ACCESS_DENIED_MESSAGE.test(responseText);
 };
 
-export default {
+const interceptor = {
   setupInterceptors: (store, history) => {
     axios.interceptors.response.use(
       (response) => {
@@ -85,3 +85,5 @@ export default {
     );
   },
 };
+
+export default interceptor;

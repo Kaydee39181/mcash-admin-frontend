@@ -11,7 +11,7 @@ COPY ./yarn.lock /app/
 #RUN apk add --update --no-cache python3 build-base gcc && ln -sf /usr/bin/python3 /usr/bin/python
 #RUN apk add g++ make py3-pip
 
-RUN yarn
+RUN yarn install --frozen-lockfile
 
 COPY . /app
 

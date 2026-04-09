@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import {
   Modal,
   Form,
   Container,
   Button,
-  Image,
   Row,
   Col,
   Alert,
@@ -34,7 +32,7 @@ const EditFeeModal = ({
   const [successMessage, SetSuccessMessage] = useState([]);
   const [editFeeData, seteditFeeData] = useState([]);
 
-  const { id, fee, rangeType, ambassadorCut } = editFeeData;
+  const { fee, rangeType, ambassadorCut } = editFeeData;
 
   // console.log(editFeeData,fee,rangeType,ambassadorCut)
 
@@ -46,13 +44,12 @@ const EditFeeModal = ({
   useEffect(() => {
     // console.log(error, erroMessage);
     if (erroMessage) {
-      if (error && erroMessage.error != "Already registered user") {
-        return (
-          setErrors([
-            "There was an error sending your request, please try again later.",
-          ]),
-          SetSuccessMessage([])
-        );
+      if (error && erroMessage.error !== "Already registered user") {
+        setErrors([
+          "There was an error sending your request, please try again later.",
+        ]);
+        SetSuccessMessage([]);
+        return;
       } else if (erroMessage) {
         return setErrors(erroMessage.error);
       }
@@ -61,7 +58,8 @@ const EditFeeModal = ({
 
   useEffect(() => {
     if (success) {
-      return SetSuccessMessage(["operation Successful"]), setErrors([]);
+      SetSuccessMessage(["operation Successful"]);
+      setErrors([]);
     }
   }, [success]);
 
@@ -69,13 +67,6 @@ const EditFeeModal = ({
     seteditFeeData({
       ...editFeeData,
       [event.target.name]: event.target.value,
-    });
-  };
-
-  const _handleSelectRoles = (e) => {
-    seteditFeeData({
-      ...editFeeData,
-      [e.target.name]: e.target.value,
     });
   };
 
@@ -88,7 +79,7 @@ const EditFeeModal = ({
   return (
     <Modal
       size="lg"
-      show={show && SetSuccessMessage}
+      show={show}
       onHide={close}
       centered={true}
       aria-labelledby="edit-profile-modal"
@@ -97,7 +88,6 @@ const EditFeeModal = ({
       <Modal.Body>
         {load && (
           <Loader
-            type="TailSpin"
             type="Oval"
             height={60}
             width={60}

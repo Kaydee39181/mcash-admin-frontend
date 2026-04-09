@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import {
-  Nav,
-  NavItem,
-  NavLink,
-  DropdownButton,
-  Dropdown,
-} from "react-bootstrap"
-import paginationFactory from "react-bootstrap-table2-paginator";
+import { DropdownButton, Dropdown } from "react-bootstrap"
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import { FetchAudit } from "../../../Redux/requests/auditRequest";
@@ -29,12 +22,7 @@ const Audit = (props) => {
   const [activePage, setActivePage] = useState(1);
   const [exportModalActive, showExportModal] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
-  const [viewReceipt, setViewReceipt] = useState("");
-  const [receiptview, showReceiptView] = useState(false);
   console.log(audits);
-  useEffect(() => {
-    FetchAudits(nextPage, length, filterValues);
-  }, [nextPage, length]);
 
   const initialState = {
     startDate: "",
@@ -42,6 +30,10 @@ const Audit = (props) => {
 
   };
   const [filterValues, setFilterValues] = useState(initialState);
+
+  useEffect(() => {
+    FetchAudits(nextPage, length, filterValues);
+  }, [FetchAudits, filterValues, nextPage, length]);
 
   const products = audits.map((aud, index) => {
     return {
@@ -117,11 +109,6 @@ const Audit = (props) => {
     showExportModal(false);
   };
 
-  const resetFilter = (event) => {
-    event.preventDefault();
-
-    setFilterValues({ ...initialState });
-  };
   const handleSelect = (e) => {
     setLength(e);
   };
@@ -131,16 +118,6 @@ const Audit = (props) => {
     closeFilter();
     setNextPage(0);
   };
-  const ViewReceipt = (details) => {
-    console.log(details);
-    showReceiptView(true);
-    setViewReceipt(details);
-  };
-
-  const closeViewReceipt = () => {
-    showReceiptView(false);
-  };
-
   const _handlePageChange = (pageNumber) => {
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
@@ -174,17 +151,17 @@ const Audit = (props) => {
           <div>Overview of agent activities on mCashPoint</div>
           <div className="manage-agent">
             <span>
-              <img src={Print} />
+              <img src={Print} alt="Print" />
               Print
             </span>
 
             <span onClick={() => OpenFilter()}>
-              <img src={Filter} />
+              <img src={Filter} alt="Filter" />
               Filter
             </span>
 
             <span>
-              <img src={Upload} onClick={() => showExportModal(true)} />
+              <img src={Upload} alt="Export" onClick={() => showExportModal(true)} />
               Export
             </span>
           </div>
@@ -261,15 +238,15 @@ const Audit = (props) => {
   );
 };
 
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     audits: state.audit.audit,
     auditTotal: state.audit.auditTotal,
     loading: state.audit.loading,
     error: state.audit.error,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchAudit,

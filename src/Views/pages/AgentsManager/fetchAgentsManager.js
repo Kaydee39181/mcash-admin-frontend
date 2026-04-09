@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
-import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
-import Upload from "../../../Assets/img/upload.png";
-import Filter from "../../../Assets/img/filter.png";
 import { NavLink } from "react-router-dom";
 import { FetchAgentManager } from "../../../Redux/requests/agentManagerRequest";
 import Loader from "../../../Components/secondLoader";
-import DashboardTemplate from "../../template/dashboardtemplate";
 import { connect } from "react-redux";
 import ExportModal from "../../../Components/Exports/index";
 //import FilterModal from "../../../Components/Filter/index";
@@ -29,7 +25,6 @@ const FetchAgentsManager = (props) => {
     showExportModal,
     ExportModalActive,
     agentManagerTotal,
-    initialState,
     filterValues,
     setFilterValues,
   } = props;
@@ -40,7 +35,7 @@ const FetchAgentsManager = (props) => {
   //const [filterValues, setFilterValues] = useState({});
   useEffect(() => {
     FetchAgentManagers(nextPage, length, filterValues);
-  }, []);
+  }, [FetchAgentManagers, filterValues, length, nextPage]);
 
   const closeExport = () => {
     showExportModal(false);
@@ -284,15 +279,15 @@ const FetchAgentsManager = (props) => {
     </div>
   );
 };
-const mapStateToProps = (state) => (
-  console.log(state),
-  {
+const mapStateToProps = (state) => {
+  console.log(state);
+  return {
     agentmanager: state.agentmanager.agentmanager,
     loading: state.agentmanager.loading,
     error: state.agentmanager.error,
     agentManagerTotal: state.agentmanager.agentManagerTotal,
-  }
-);
+  };
+};
 
 export default connect(mapStateToProps, {
   FetchAgentManager,
