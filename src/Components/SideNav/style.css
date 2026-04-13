@@ -5,7 +5,7 @@
 }
 
 .navbarwrapper {
-  background: #ffffff;
+  background: var(--theme-surface);
   height: 100%;
   width: var(--sidebar-width, clamp(220px, 17vw, 272px));
   position: fixed;
@@ -14,6 +14,8 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding-top: 20px;
+  border-right: 1px solid var(--theme-border);
+  box-shadow: var(--theme-shadow-soft);
 }
 
 .sidenavlist {
@@ -46,12 +48,12 @@
 }
 a {
   text-decoration: none !important;
-  color: #00249c;
+  color: var(--theme-primary-strong);
 }
 .sidenavlist .current {
   color: white !important;
 
-  background: #00249c !important;
+  background: linear-gradient(135deg, var(--theme-primary-strong) 0%, var(--theme-primary) 100%) !important;
   width: 100%;
 
   /* border-left: 9px solid #BE4D00; */
@@ -76,7 +78,7 @@ a {
   /* position: absolute; */
   /* bottom: 0; */
   margin-top:50px ;
-  background: #ffffff;
+  background: var(--theme-surface);
   width: 100%;
 }
 .mobile-logo {
@@ -90,6 +92,14 @@ a {
 
 .menu-overlay {
   display: none;
+}
+
+:root[data-theme="dark"] .sidenavlist img {
+  filter: brightness(0) saturate(100%) invert(86%) sepia(14%) saturate(320%) hue-rotate(182deg) brightness(95%) contrast(89%);
+}
+
+:root[data-theme="dark"] .sidenavlist .current img {
+  filter: brightness(0) saturate(100%) invert(100%);
 }
 
 @media (max-width: 991px) {
@@ -143,7 +153,7 @@ a {
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.35);
+    background: var(--theme-overlay);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.24s ease;

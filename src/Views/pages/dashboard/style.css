@@ -124,7 +124,7 @@
   font-size: 26px;
   line-height: 32px;
   letter-spacing: 0.2px;
-  color: #00249c;
+  color: var(--theme-primary-strong);
 }
 .dashboard-wrapper {
   padding: 0 clamp(16px, 2.6vw, 32px);
@@ -138,7 +138,7 @@
   font-size: 18px;
   line-height: 24px;
   letter-spacing: 0.2px;
-  color: #52575c;
+  color: var(--theme-text-muted);
 }
 .graphs-wrapper {
   width: 100%;
@@ -162,10 +162,10 @@
 }
 
 .flex-box {
-  background: #ffffff;
+  background: var(--theme-surface);
   /* Stroke/1 */
   padding:10px;
-  border: 1px solid #e2e2e2;
+  border: 1px solid var(--theme-border);
   border-radius: 10px;
   font-family: Montserrat;
   font-style: normal;
@@ -200,11 +200,11 @@
 .chart-bg {
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
-  background: #ffffff;
+  background: var(--theme-surface);
 
   /* Stroke/1 */
   padding: 30px;
-  border: 1px solid #e2e2e2;
+  border: 1px solid var(--theme-border);
   box-sizing: border-box;
   /* grid-column: 1 / span 2; */
   /* border-radius: 10px; */
@@ -226,9 +226,9 @@
   border-bottom-right-radius: 10px;
 }
 .transaction-details {
-  border: 1px solid #dfe0eb;
+  border: 1px solid var(--theme-border);
   padding: 10px 0px 20px 0px;
-  background: #ffffff;
+  background: var(--theme-surface);
   font-family: Montserrat;
   font-style: normal;
   font-weight: 500;
@@ -240,11 +240,11 @@
   letter-spacing: 0.1px;
   height: 33.3%;
   /* Text/Secondary */
-  color: #52575c;
+  color: var(--theme-text-muted);
 }
 .barchart-bg {
-  background: #ffffff;
-  border: 1px solid #e2e2e2;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
   box-sizing: border-box;
   border-radius: 10px;
   /* grid-column: 1; */
@@ -279,8 +279,8 @@
 }
 
 .daily-per-agent {
-  background: #ffffff;
-  border: 1px solid #e2e2e2;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
   box-sizing: border-box;
   border-radius: 10px;
   width: 100%;
@@ -300,8 +300,8 @@
 .daily-per-agent-item {
   padding: 10px 0;
   font-size: small;
-  color: #25282b;
-  border-bottom: 1px solid #eef0f7;
+  color: var(--theme-text);
+  border-bottom: 1px solid var(--theme-border);
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -320,15 +320,16 @@
 
 .daily-per-agent #daily-header {
   padding: 10px 0px 7px;
-  border-bottom: 1px solid #eef0f7;
+  border-bottom: 1px solid var(--theme-border);
   text-align: center;
   font-size: small;
+  color: var(--theme-text);
 }
 
 .dougnut-wrapper {
  
-  background: #ffffff;
-  border: 1px solid #e2e2e2;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
   border-radius: 10px;
   font-size: small;
   width: auto;
@@ -344,8 +345,8 @@
   /* identical to box height, or 133% */
   /* padding: 30px; */
   letter-spacing: 0.2px;
-  border-bottom: 1px solid #eef0f7;
-  color: #25282b;
+  border-bottom: 1px solid var(--theme-border);
+  color: var(--theme-text);
 }
 
 .transaction-types-wrapper {
@@ -362,7 +363,7 @@
   height: 100%;
   display: flex;
   align-items: center;
-  color: #52575c;
+  color: var(--theme-text-muted);
 }
 .dough-agent{
   display: flex;

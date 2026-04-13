@@ -1,12 +1,13 @@
 /* Agents Page - Matching Agent Manager UI Look */
 
 .agents-page {
-    background: #ffffff;
+    background: var(--theme-surface);
     border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--theme-shadow-soft);
     padding: 20px;
     margin-bottom: 20px;
     overflow: hidden;
+    border: 1px solid var(--theme-border);
 }
 
 .generate-code {
@@ -33,7 +34,7 @@
 }
 
 .assign-terminal {
-    background: linear-gradient(180deg, #00249C 0%, #001a6e 100%);
+    background: linear-gradient(180deg, var(--theme-primary-strong) 0%, var(--theme-primary) 100%);
     border-radius: 6px;
     font-family: Montserrat, sans-serif;
     font-style: normal;
@@ -45,7 +46,7 @@
     border: none;
     padding: 8px 14px;
     text-transform: uppercase;
-    box-shadow: 0 3px 8px rgba(0, 36, 156, 0.4);
+    box-shadow: var(--theme-shadow-soft);
     transition: all 0.2s ease;
     min-width: 100px;
     display: inline-block;
@@ -53,13 +54,13 @@
 
 .assign-terminal:hover {
     transform: translateY(-1px);
-    box-shadow: 0 5px 12px rgba(0, 36, 156, 0.5);
-    background: linear-gradient(180deg, #003399 0%, #00249C 100%);
+    box-shadow: var(--theme-shadow);
+    background: linear-gradient(180deg, var(--theme-primary) 0%, var(--theme-primary-strong) 100%);
 }
 
 .assign-terminal:active {
     transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(0, 36, 156, 0.4);
+    box-shadow: var(--theme-shadow-soft);
 }
 
 .unassign-terminal {
@@ -91,20 +92,21 @@
     font-size: 14px;
     line-height: 18px;
     letter-spacing: 0.5px;
-    color: #00249C;
+    color: var(--theme-primary-strong);
     text-transform: uppercase;
 }
 
 .agent-table-wrapper {
-    background: #FFFFFF;
+    background: var(--theme-surface);
     width: 100%;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--theme-shadow-soft);
+    border: 1px solid var(--theme-border);
 }
 
 h5 {
-    color: #00249C;
+    color: var(--theme-primary-strong);
     font-weight: 700;
 }
 
@@ -133,10 +135,10 @@ h5 {
 
 /* Agents Page Table - Matching Consistent Style */
 .agents-page .table-wrapper {
-    background: #ffffff;
+    background: var(--theme-surface);
     border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+    border: 2px solid var(--theme-border);
+    box-shadow: var(--theme-shadow-soft);
     padding: 16px;
     overflow-x: auto;
     overflow-y: visible;
@@ -146,10 +148,10 @@ h5 {
     font-family: Montserrat, sans-serif;
     font-weight: 700;
     font-size: 18px;
-    color: #00249C;
+    color: var(--theme-primary-strong);
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 3px solid #00249C;
+    border-bottom: 3px solid var(--theme-primary-strong);
 }
 
 .agents-page table {
@@ -164,26 +166,26 @@ h5 {
 }
 
 .agents-page table thead th {
-    background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
+    background: linear-gradient(180deg, var(--theme-primary-strong) 0%, var(--theme-primary) 100%) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 11px !important;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     padding: 14px 12px !important;
-    border-bottom: 3px solid #001a6e !important;
+    border-bottom: 3px solid var(--theme-primary) !important;
     vertical-align: middle;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
 }
 
 .agents-page table tbody td {
-    color: #4a5568 !important;
+    color: var(--theme-text-muted) !important;
     font-weight: 500 !important;
     font-size: 12px !important;
     padding: 10px 12px !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-    background: #ffffff !important;
+    border-bottom: 1px solid var(--theme-border) !important;
+    background: var(--theme-surface) !important;
     vertical-align: middle;
     white-space: normal;
     overflow-wrap: anywhere;
@@ -195,12 +197,12 @@ h5 {
 }
 
 .agents-page table tbody tr:hover {
-    background: #f7fafc !important;
+    background: var(--theme-surface-muted) !important;
 }
 
 .agents-page .editadmin {
     font-weight: 700;
-    color: #00249C;
+    color: var(--theme-primary-strong);
     text-decoration: none;
     padding: 4px 8px;
     border-radius: 4px;

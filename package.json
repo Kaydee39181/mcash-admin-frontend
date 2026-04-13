@@ -45,6 +45,10 @@
     "xlsx": "^0.16.9"
   },
   "scripts": {
+    "postinstall": "powershell -ExecutionPolicy Bypass -File scripts\\patch-react-scripts.ps1",
+    "prestart": "powershell -ExecutionPolicy Bypass -File scripts\\patch-react-scripts.ps1",
+    "prebuild": "powershell -ExecutionPolicy Bypass -File scripts\\patch-react-scripts.ps1",
+    "pretest": "powershell -ExecutionPolicy Bypass -File scripts\\patch-react-scripts.ps1",
     "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
     "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",

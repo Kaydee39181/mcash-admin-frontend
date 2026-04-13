@@ -36,7 +36,7 @@ export const AgentConstant = {
 
   // Terminal / Activation
   ACTIVATION_CODE_URL: `${BASE_URL}/api/v1/terminal/activation/generate?agentId=`,
-  FETCH_BANK_TERMINAAL_URL: `${BASE_URL}/api/v1/terminal/banks?agentId=`,
+  FETCH_BANK_TERMINAL_URL: `${BASE_URL}/api/v1/terminal/banks?agentId=`,
   ACTIVATE_ASSIGN_TERMINAL_URL: `${BASE_URL}/api/v1/terminal/assign?agentId=`,
   UNACTIVATE_ASSIGN_TERMINAL_URL: `${BASE_URL}/api/v1/terminal/unassign?agentId=`,
 

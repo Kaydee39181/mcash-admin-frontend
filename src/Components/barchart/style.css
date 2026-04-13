@@ -12,7 +12,12 @@
     
     /* Text/General */
     
-    color: #25282B;
+    color: var(--theme-text);
+}
+.bar-wrap__label {
+    border-bottom: 1px solid var(--theme-border);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 .bar-wrap .success-green{
     background: #1AB759;

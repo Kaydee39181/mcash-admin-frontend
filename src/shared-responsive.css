@@ -5,6 +5,11 @@ html,body,#root {
   overflow-x: hidden;
 }
 
+:root {
+  --page-shell-max-width: 1800px;
+  --page-shell-gutter: clamp(18px, 2.4vw, 44px);
+}
+
 *,
 *::before,
 *::after {
@@ -29,9 +34,11 @@ svg {
 .transact-wrapper,
 .dashboard-wrapper {
   box-sizing: border-box;
-  width: min(100%, 1400px) !important;
+  width: min(100%, var(--page-shell-max-width)) !important;
   margin-left: auto !important;
   margin-right: auto !important;
+  padding-left: var(--page-shell-gutter) !important;
+  padding-right: var(--page-shell-gutter) !important;
 }
 
 .mainwrapper {
@@ -50,18 +57,19 @@ svg {
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-soft);
+  border: 1px solid var(--theme-border);
 }
 
 .agent-table-wrapper h5 {
   font-family: Montserrat, sans-serif;
   font-weight: 700;
   font-size: 18px;
-  color: #00249C;
+  color: var(--theme-primary-strong);
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 3px solid #00249C;
+  border-bottom: 3px solid var(--theme-primary-strong);
 }
 
 .table-wrapper .table,
@@ -218,7 +226,8 @@ svg {
 @media screen and (max-width: 1199px) {
   .transact-wrapper,
   .dashboard-wrapper {
-    padding: 0 20px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
   }
 
   .table-wrapper,
@@ -230,7 +239,8 @@ svg {
 @media screen and (max-width: 991px) {
   .transact-wrapper,
   .dashboard-wrapper {
-    padding: 0 16px !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 
   .header-title h3 {
@@ -295,7 +305,8 @@ svg {
 
   .transact-wrapper,
   .dashboard-wrapper {
-    padding: 0 12px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
   }
 
   .header-title {
@@ -390,7 +401,8 @@ svg {
 @media screen and (max-width: 479px) {
   .transact-wrapper,
   .dashboard-wrapper {
-    padding: 0 10px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
   }
 
   .header-title h3 {

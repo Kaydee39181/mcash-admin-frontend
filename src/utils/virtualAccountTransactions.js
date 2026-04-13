@@ -1,4 +1,15 @@
 const AGENT_BANK_NAME = "Globus Bank";
+const PENDING_STATUS_MARKERS = ["PENDING", "PROCESSING", "IN PROGRESS", "INITIATED", "QUEUED", "AWAITING"];
+const FAILURE_STATUS_MARKERS = [
+  "FAIL",
+  "FAILED",
+  "ERROR",
+  "DECLINED",
+  "REVERSED",
+  "UNSUCCESSFUL",
+  "NOT SUCCESSFUL",
+  "TIMEOUT",
+];
 
 const toText = (value) => {
   if (value === null || value === undefined) {
@@ -28,6 +39,8 @@ const combineName = (...values) => {
 const combineFirstAndLastName = (firstname, lastname) =>
   combineName(firstname, lastname);
 
+const normalizeSearchValue = (value) => toText(value).toLowerCase();
+
 const parseAmount = (value) => {
   const normalizedValue = toText(value).replace(/,/g, "");
 
@@ -37,6 +50,67 @@ const parseAmount = (value) => {
 
   const amount = Number(normalizedValue);
   return Number.isNaN(amount) ? null : amount;
+};
+
+const getPreBalance = (transaction) =>
+  parseAmount(
+    pickFirst(
+      transaction?.preBalance,
+      transaction?.preWalletBalance,
+      transaction?.prePurseBalance,
+      transaction?.preTransactionBalance,
+      transaction?.previousBalance
+    )
+  );
+
+const getPostBalance = (transaction) =>
+  parseAmount(
+    pickFirst(
+      transaction?.postBalance,
+      transaction?.postWalletBalance,
+      transaction?.postPurseBalance,
+      transaction?.postTransactionBalance,
+      transaction?.currentBalance
+    )
+  );
+
+const parseMetaPayload = (meta) => {
+  if (!meta) {
+    return null;
+  }
+
+  if (typeof meta === "object") {
+    return meta;
+  }
+
+  const normalizedMeta = toText(meta);
+  if (!normalizedMeta) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(normalizedMeta);
+  } catch {
+    return null;
+  }
+};
+
+const getTransactionTimestamp = (transaction) => {
+  const rawValue = pickFirst(
+    transaction?.transactionDate,
+    transaction?.createdAt,
+    transaction?.systemTime,
+    transaction?.appTime,
+    transaction?.date,
+    transaction?.timestamp
+  );
+
+  if (!rawValue) {
+    return null;
+  }
+
+  const parsedTimestamp = new Date(rawValue).getTime();
+  return Number.isNaN(parsedTimestamp) ? null : parsedTimestamp;
 };
 
 const createParty = (name = "", bankName = "", accountNumber = "") => ({
@@ -73,6 +147,7 @@ const readNameFromEntity = (entity) => {
     entity.accountName,
     entity.name,
     entity.fullName,
+    entity.user?.fullName,
     entity.businessName,
     entity.customerName,
     entity.beneficiaryName,
@@ -89,6 +164,7 @@ const readAccountNumberFromEntity = (entity) => {
   }
 
   return pickFirst(
+    entity.globusVirtualAccount,
     entity.accountNumber,
     entity.virtualAccount,
     entity.virtualAccountNumber,
@@ -116,10 +192,13 @@ const readBankNameFromEntity = (entity) => {
   );
 };
 
-const getCounterpartyParty = (transaction) =>
-  createParty(
+const getCounterpartyParty = (transaction) => {
+  const meta = parseMetaPayload(transaction?.meta);
+
+  return createParty(
     pickFirst(
       transaction?.accountName,
+      meta?.sourceAccountName,
       transaction?.beneficiaryAccountName,
       transaction?.beneficiaryName,
       transaction?.destinationAccountName,
@@ -132,6 +211,7 @@ const getCounterpartyParty = (transaction) =>
     ),
     pickFirst(
       transaction?.bankName,
+      meta?.sourceBankName,
       transaction?.beneficiaryBankName,
       transaction?.beneficiaryBank,
       transaction?.destinationBank,
@@ -143,11 +223,11 @@ const getCounterpartyParty = (transaction) =>
     ),
     pickFirst(
       transaction?.accountNumber,
+      meta?.sourceAccount,
       transaction?.beneficiaryAccountNumber,
       transaction?.beneficiaryAccountNo,
       transaction?.destinationAccountNumber,
       transaction?.receiverAccountNumber,
-      transaction?.virtualAccountNumber,
       readAccountNumberFromEntity(transaction?.receiver),
       readAccountNumberFromEntity(transaction?.destinationAccount),
       readAccountNumberFromEntity(transaction?.beneficiary),
@@ -155,6 +235,231 @@ const getCounterpartyParty = (transaction) =>
       readAccountNumberFromEntity(transaction?.account)
     )
   );
+};
+
+const getAdminAgentParty = (transaction) =>
+  createParty(
+    pickFirst(
+      transaction?.agent?.user?.fullName,
+      combineFirstAndLastName(
+        transaction?.agent?.user?.firstname,
+        transaction?.agent?.user?.lastname
+      ),
+      readNameFromEntity(transaction?.agent?.user),
+      readNameFromEntity(transaction?.agent)
+    ),
+    AGENT_BANK_NAME,
+    pickFirst(
+      transaction?.agent?.globusVirtualAccount,
+      transaction?.globusVirtualAccount
+    )
+  );
+
+const getAdminCustomerParty = (transaction) => {
+  const meta = parseMetaPayload(transaction?.meta);
+
+  return createParty(
+    pickFirst(transaction?.accountName, meta?.sourceAccountName),
+    pickFirst(transaction?.bankName, meta?.sourceBankName),
+    pickFirst(transaction?.accountNumber, meta?.sourceAccount)
+  );
+};
+
+const getAdminParticipantDetails = (transaction) => ({
+  agent: getAdminAgentParty(transaction),
+  customer: getAdminCustomerParty(transaction),
+});
+
+const getTransactionTypeLabel = (transaction) =>
+  pickFirst(transaction?.transactionType?.type, transaction?.type, "Virtual transaction");
+
+const isChargeType = (transaction) =>
+  getTransactionTypeLabel(transaction).toUpperCase() === "CHARGE";
+
+const hasStatusMarker = (statusMessage, markers) => {
+  const normalizedStatusMessage = toText(statusMessage).toUpperCase();
+
+  if (!normalizedStatusMessage) {
+    return false;
+  }
+
+  return markers.some((marker) => normalizedStatusMessage.includes(marker));
+};
+
+export const getTransactionStatusCategory = (transaction) => {
+  const preBalance = getPreBalance(transaction);
+  const postBalance = getPostBalance(transaction);
+  const statusCode = toText(transaction?.statusCode).toUpperCase();
+  const statusMessage = pickFirst(
+    transaction?.statusMessage,
+    transaction?.responseMessage,
+    transaction?.message,
+    transaction?.errorMessage
+  );
+
+  if (isChargeType(transaction)) {
+    return "CHARGE";
+  }
+
+  if (preBalance !== null && postBalance !== null && preBalance === postBalance) {
+    if (hasStatusMarker(statusMessage, PENDING_STATUS_MARKERS)) {
+      return "PENDING";
+    }
+
+    return "FAILED";
+  }
+
+  if (hasStatusMarker(statusMessage, PENDING_STATUS_MARKERS)) {
+    return "PENDING";
+  }
+
+  if (hasStatusMarker(statusMessage, FAILURE_STATUS_MARKERS)) {
+    return "FAILED";
+  }
+
+  if (preBalance !== null && postBalance !== null && preBalance !== postBalance) {
+    if (statusCode === "00" || !statusCode) {
+      return "SUCCESS";
+    }
+
+    return "FAILED";
+  }
+
+  return "PENDING";
+};
+
+const matchesSearch = (needle, values) => {
+  const normalizedNeedle = normalizeSearchValue(needle);
+
+  if (!normalizedNeedle) {
+    return true;
+  }
+
+  return values.some((value) =>
+    normalizeSearchValue(value).includes(normalizedNeedle)
+  );
+};
+
+const matchesExactType = (selectedType, transactionType) => {
+  const normalizedSelectedType = normalizeSearchValue(selectedType);
+
+  if (!normalizedSelectedType) {
+    return true;
+  }
+
+  return normalizeSearchValue(transactionType) === normalizedSelectedType;
+};
+
+const matchesDateRange = (transaction, startDate, endDate) => {
+  if (!toText(startDate) && !toText(endDate)) {
+    return true;
+  }
+
+  const transactionTimestamp = getTransactionTimestamp(transaction);
+  if (transactionTimestamp === null) {
+    return false;
+  }
+
+  const startTimestamp = toText(startDate)
+    ? new Date(`${startDate}T00:00:00`).getTime()
+    : null;
+  const endTimestamp = toText(endDate)
+    ? new Date(`${endDate}T23:59:59.999`).getTime()
+    : null;
+
+  if (startTimestamp !== null && !Number.isNaN(startTimestamp) && transactionTimestamp < startTimestamp) {
+    return false;
+  }
+
+  if (endTimestamp !== null && !Number.isNaN(endTimestamp) && transactionTimestamp > endTimestamp) {
+    return false;
+  }
+
+  return true;
+};
+
+export const filterTransactions = (transactions, filters = {}) => {
+  const transactionsToFilter = Array.isArray(transactions) ? transactions : [];
+  const normalizedFilters = {
+    startDate: toText(filters?.startDate),
+    endDate: toText(filters?.endDate),
+    transactionId: toText(filters?.transactionId),
+    status: toText(filters?.status).toUpperCase(),
+    accountNumber: toText(filters?.accountNumber),
+    accountName: toText(filters?.accountName),
+    bankName: toText(filters?.bankName),
+    type: toText(filters?.type),
+    reference: toText(filters?.reference),
+  };
+
+  return transactionsToFilter.filter((transaction) => {
+    const { agent, customer } = getAdminParticipantDetails(transaction);
+    const transactionType = getTransactionTypeLabel(transaction);
+    const transactionStatus = getTransactionStatusCategory(transaction);
+
+    if (!matchesDateRange(transaction, normalizedFilters.startDate, normalizedFilters.endDate)) {
+      return false;
+    }
+
+    if (
+      !matchesSearch(normalizedFilters.transactionId, [
+        transaction?.transactionId,
+      ])
+    ) {
+      return false;
+    }
+
+    if (
+      normalizedFilters.status &&
+      transactionStatus !== normalizedFilters.status
+    ) {
+      return false;
+    }
+
+    if (
+      !matchesSearch(normalizedFilters.accountNumber, [
+        agent.accountNumber,
+        customer.accountNumber,
+      ])
+    ) {
+      return false;
+    }
+
+    if (
+      !matchesSearch(normalizedFilters.accountName, [
+        agent.name,
+        customer.name,
+      ])
+    ) {
+      return false;
+    }
+
+    if (
+      !matchesSearch(normalizedFilters.bankName, [
+        agent.bankName,
+        customer.bankName,
+      ])
+    ) {
+      return false;
+    }
+
+    if (!matchesExactType(normalizedFilters.type, transactionType)) {
+      return false;
+    }
+
+    if (
+      !matchesSearch(normalizedFilters.reference, [
+        transaction?.transactionId,
+        transaction?.rrn,
+        transaction?.stan,
+      ])
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+};
 
 const getTransactionProvidedSender = (transaction) =>
   createParty(
@@ -277,6 +582,11 @@ const getAgentParty = (transaction, currentUser) =>
     )
   );
 
+const isVirtualAccountTransaction = (transaction) =>
+  pickFirst(transaction?.transactionType?.type, transaction?.type)
+    .toUpperCase()
+    .includes("VIRTUAL ACCOUNT");
+
 const detectChargeTransaction = (transaction) => {
   const fingerprint = [
     transaction?.transactionType?.type,
@@ -320,31 +630,89 @@ export const formatPartyForExport = (party) => {
   ].join(" | ");
 };
 
-export const getTransactionPartiesAndStatus = (transaction, currentUser = {}) => {
-  const preBalance = parseAmount(
-    pickFirst(
-      transaction?.preBalance,
-      transaction?.preWalletBalance,
-      transaction?.prePurseBalance,
-      transaction?.preTransactionBalance,
-      transaction?.previousBalance
-    )
-  );
-  const postBalance = parseAmount(
-    pickFirst(
-      transaction?.postBalance,
-      transaction?.postWalletBalance,
-      transaction?.postPurseBalance,
-      transaction?.postTransactionBalance,
-      transaction?.currentBalance
-    )
-  );
+export const formatTransactionForAdmin = (transaction) => {
+  const transactionType = getTransactionTypeLabel(transaction);
+  const statusMessage = pickFirst(transaction?.statusMessage, transaction?.responseMessage);
+  const { agent: agentParty, customer: customerParty } = getAdminParticipantDetails(transaction);
+  const preBalance = getPreBalance(transaction);
+  const postBalance = getPostBalance(transaction);
+  const statusCategory = getTransactionStatusCategory(transaction);
+  const isCharge = statusCategory === "CHARGE";
 
-  const isCharge = preBalance !== null && postBalance !== null &&
-    postBalance < preBalance &&
-    detectChargeTransaction(transaction);
+  if (isCharge) {
+    return {
+      sender: createEmptyParty(),
+      receiver: createEmptyParty(),
+      type: transactionType,
+      status: "CHARGE",
+      statusMessage,
+    };
+  }
+
+  if (statusCategory === "PENDING") {
+    return {
+      sender: agentParty,
+      receiver: customerParty,
+      type: transactionType,
+      status: "PENDING",
+      statusMessage: statusMessage || "PENDING",
+    };
+  }
+
+  if (preBalance !== null && postBalance !== null && preBalance === postBalance) {
+    return {
+      sender: agentParty,
+      receiver: customerParty,
+      type: transactionType,
+      status: "FAILED",
+      statusMessage: statusMessage || "FAILED",
+    };
+  }
+
+  if (preBalance !== null && postBalance !== null && postBalance > preBalance) {
+    return {
+      sender: customerParty,
+      receiver: agentParty,
+      type: `${transactionType} Credit`,
+      status: "SUCCESS",
+      statusMessage: statusMessage || "TRANSACTION SUCCESSFUL",
+    };
+  }
+
+  if (preBalance !== null && postBalance !== null && preBalance > postBalance) {
+    return {
+      sender: agentParty,
+      receiver: customerParty,
+      type: `${transactionType} Debit`,
+      status: "SUCCESS",
+      statusMessage: statusMessage || "TRANSACTION SUCCESSFUL",
+    };
+  }
+
+  return {
+    sender: agentParty,
+    receiver: customerParty,
+    type: transactionType,
+    status: "SUCCESS",
+    statusMessage: statusMessage || "TRANSACTION SUCCESSFUL",
+  };
+};
+
+export const getTransactionPartiesAndStatus = (transaction, currentUser = {}) => {
+  const preBalance = getPreBalance(transaction);
+  const postBalance = getPostBalance(transaction);
+  const transactionStatusCategory = getTransactionStatusCategory(transaction);
+
+  const isCharge =
+    transactionStatusCategory === "CHARGE" ||
+    (preBalance !== null &&
+      postBalance !== null &&
+      postBalance < preBalance &&
+      detectChargeTransaction(transaction));
   const isFailed =
-    preBalance !== null && postBalance !== null && preBalance === postBalance;
+    transactionStatusCategory === "FAILED" ||
+    (preBalance !== null && postBalance !== null && preBalance === postBalance);
+  const isPending = transactionStatusCategory === "PENDING";
   const isIncoming =
     preBalance !== null && postBalance !== null && postBalance > preBalance;
   const isOutgoing =
@@ -363,6 +731,7 @@ export const getTransactionPartiesAndStatus = (transaction, currentUser = {}) =>
   const apiSender = getTransactionProvidedSender(transaction);
   const apiReceiver = getTransactionProvidedReceiver(transaction);
   const agentParty = getAgentParty(transaction, currentUser);
+  const counterpartyParty = getCounterpartyParty(transaction);
 
   if (hasAgentContext) {
     if (isIncoming) {
@@ -393,6 +762,29 @@ export const getTransactionPartiesAndStatus = (transaction, currentUser = {}) =>
         errorMessage: getFailedMessage(transaction),
       };
     }
+
+    if (isPending) {
+      return {
+        sender: withFallbackParty(agentParty),
+        receiver: withFallbackParty(apiReceiver),
+        status: "PENDING",
+        errorMessage: "",
+      };
+    }
+  }
+
+  if (isVirtualAccountTransaction(transaction)) {
+    const adminFormatted = formatTransactionForAdmin(transaction);
+
+    return {
+      sender: withFallbackParty(adminFormatted.sender),
+      receiver: withFallbackParty(adminFormatted.receiver),
+      status: adminFormatted.status,
+      errorMessage:
+        adminFormatted.status === "FAILED"
+          ? adminFormatted.statusMessage || getFailedMessage(transaction)
+          : "",
+    };
   }
 
   const senderParty = hasPartyData(apiSender)
@@ -400,8 +792,8 @@ export const getTransactionPartiesAndStatus = (transaction, currentUser = {}) =>
     : createEmptyParty();
   const receiverParty = hasPartyData(apiReceiver)
     ? apiReceiver
-    : hasPartyData(getCounterpartyParty(transaction))
-      ? getCounterpartyParty(transaction)
+    : hasPartyData(counterpartyParty)
+      ? counterpartyParty
       : createEmptyParty();
 
   return {

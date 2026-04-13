@@ -1,32 +1,33 @@
 .transaction-page-shell {
-  background: #ffffff;
+  background: var(--theme-surface);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--theme-shadow-soft);
   padding: 20px;
   margin-bottom: 20px;
+  border: 1px solid var(--theme-border);
 }
 
 .transaction-page-shell .table-wrapper.transaction-table-theme {
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--theme-border);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  box-shadow: var(--theme-shadow-soft);
 }
 
 .transaction-page-shell .pagination_wrap {
   margin-top: 16px;
   padding: 16px 0 0;
-  border-top: 2px solid #e2e8f0;
+  border-top: 2px solid var(--theme-border);
 }
 
 .transaction-page-shell .pagination_wrap p {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--theme-text);
 }
 
 .transaction-table-theme.table-wrapper {
   padding: 16px;
-  background: #ffffff;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-soft);
   text-align: center;
   border-radius: 12px;
   overflow-x: auto;
@@ -42,8 +43,8 @@
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: 0;
-  color: #00249C;
-  border-bottom: 3px solid #00249C;
+  color: var(--theme-primary-strong);
+  border-bottom: 3px solid var(--theme-primary-strong);
   padding-bottom: 12px;
 }
 
@@ -66,7 +67,7 @@
 
 .transaction-table-theme .react-bootstrap-table thead th,
 .transaction-table-theme table thead th {
-  background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
+  background: linear-gradient(180deg, var(--theme-primary-strong) 0%, var(--theme-primary) 100%) !important;
   color: #ffffff !important;
   font-size: 13px !important;
   font-weight: 800 !important;
@@ -79,15 +80,15 @@
   overflow-wrap: break-word !important;
   min-width: 0;
   text-transform: uppercase;
-  border-bottom: 3px solid #001a6e !important;
+  border-bottom: 3px solid var(--theme-primary) !important;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
 
 /* General table-wrapper styling for pages without transaction-table-theme */
 .table-wrapper:not(.transaction-table-theme) {
-  background: #ffffff;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+  background: var(--theme-surface);
+  box-shadow: var(--theme-shadow-soft);
   border-radius: 12px;
   overflow-x: auto;
   overflow-y: visible;
@@ -98,49 +99,49 @@
   font-family: Montserrat, sans-serif;
   font-weight: 700;
   font-size: 18px;
-  color: #00249C;
+  color: var(--theme-primary-strong);
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 3px solid #00249C;
+  border-bottom: 3px solid var(--theme-primary-strong);
 }
 
 .table-wrapper:not(.transaction-table-theme) table thead th {
-  background: linear-gradient(180deg, #00249c 0%, #001a6e 100%) !important;
+  background: linear-gradient(180deg, var(--theme-primary-strong) 0%, var(--theme-primary) 100%) !important;
   color: #ffffff !important;
   font-size: 11px !important;
   font-weight: 700 !important;
   letter-spacing: 0.8px;
   padding: 14px 12px !important;
   text-transform: uppercase;
-  border-bottom: 3px solid #001a6e !important;
+  border-bottom: 3px solid var(--theme-primary) !important;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }
 
 .table-wrapper:not(.transaction-table-theme) table tbody td {
-  color: #4a5568 !important;
+  color: var(--theme-text-muted) !important;
   font-weight: 500 !important;
   font-size: 12px !important;
   padding: 10px 12px !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  background: #ffffff !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+  background: var(--theme-surface) !important;
   vertical-align: middle;
 }
 
 .table-wrapper:not(.transaction-table-theme) table tbody tr:hover td {
-  background: #f7fafc !important;
+  background: var(--theme-surface-muted) !important;
 }
 
 .transaction-table-theme .react-bootstrap-table tbody td,
 .transaction-table-theme table tbody td {
-  border-top: 1px solid #e6ecf3 !important;
-  color: #4a5568 !important;
+  border-top: 1px solid var(--theme-border) !important;
+  color: var(--theme-text-muted) !important;
   font-size: 13px !important;
   font-weight: 600 !important;
   line-height: 1.5 !important;
   padding: 10px 12px !important;
   vertical-align: middle;
-  background: #ffffff !important;
+  background: var(--theme-surface) !important;
   white-space: normal !important;
   word-break: normal !important;
   overflow-wrap: break-word !important;
@@ -149,7 +150,7 @@
 
 .transaction-table-theme .react-bootstrap-table tbody tr:hover td,
 .transaction-table-theme table tbody tr:hover td {
-  background: #fafcff !important;
+  background: var(--theme-surface-muted) !important;
 }
 
 .transaction-table-theme .react-bootstrap-table tbody td h5,

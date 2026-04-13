@@ -10,18 +10,23 @@
 .header {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: #1e4a86;
+  color: var(--theme-primary);
   text-align: right;
   max-width: 100%;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  border-radius: 999px;
+  padding: 6px 10px 6px 12px;
+  box-shadow: var(--theme-shadow-soft);
 }
 
 .mobile-menu-btn {
   display: none;
   border: 0;
-  background: #ffffff;
+  background: var(--theme-surface);
   width: 42px;
   height: 42px;
   padding: 0;
@@ -30,7 +35,8 @@
   justify-content: center;
   flex-direction: column;
   gap: 5px;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+  box-shadow: var(--theme-shadow-soft);
+  border: 1px solid var(--theme-border);
 }
 
 .mobile-menu-btn span {
@@ -38,19 +44,22 @@
   width: 18px;
   height: 2px;
   border-radius: 999px;
-  background: #1e4a86;
+  background: var(--theme-primary);
 }
 
 .header span {
-  padding-right: 10px;
-}
-
-.header img {
-  padding-right: 15px;
+  padding-right: 0;
 }
 
 .divider {
-  border: 1px solid #dfe0eb;
+  color: var(--theme-border-strong);
+  opacity: 0.9;
+}
+
+.header-role {
+  color: var(--theme-primary-strong);
+  text-transform: uppercase;
+  font-size: 0.9rem;
 }
 
 @media screen and (max-width: 767px) {
@@ -65,7 +74,7 @@
   }
 
   .header span {
-    padding-right: 6px;
+    padding-right: 0;
   }
 
   .mobile-menu-btn {

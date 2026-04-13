@@ -66,19 +66,19 @@ const EyeIcon = ({ hidden = false }) => (
 
 const formatBalance = (value) => {
   if (value === null || value === undefined || value === "") {
-    return "--";
+    return "₦0.00";
   }
 
   const numeric = Number(String(value).replace(/,/g, ""));
 
   if (Number.isNaN(numeric)) {
-    return String(value);
+    return "₦0.00";
   }
 
-  return numeric.toLocaleString("en-NG", {
+  return `₦${numeric.toLocaleString("en-NG", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
+  })}`;
 };
 
 const readValue = (value) => {
@@ -86,15 +86,18 @@ const readValue = (value) => {
   return text || "--";
 };
 
+const MASKED_BALANCE = "₦ •••••";
+
 const VirtualAccountSummary = ({
+  accountName = "",
   accountNumber = "",
   bankName = "",
   balance = null,
+  balanceLoading = false,
 }) => {
   const [copied, setCopied] = useState(false);
   const [isBalanceVisible, setIsBalanceVisible] = useState(true);
 
-  const hasBalance = balance !== null && balance !== undefined && balance !== "";
   const formattedBalance = useMemo(() => formatBalance(balance), [balance]);
 
   useEffect(() => {
@@ -144,13 +147,31 @@ const VirtualAccountSummary = ({
             </button>
           </div>
 
-          <div className="virtual-account-summary__balance-value">
-            {hasBalance
-              ? isBalanceVisible
-                ? `₦${formattedBalance}`
-                : "₦****"
-              : "--"}
+          <div
+            className={`virtual-account-summary__balance-value${
+              !isBalanceVisible && !balanceLoading
+                ? " virtual-account-summary__balance-value--masked"
+                : ""
+            }`}
+          >
+            {balanceLoading ? (
+              <span
+                className="virtual-account-summary__balance-skeleton"
+                aria-hidden="true"
+              />
+            ) : isBalanceVisible ? (
+              formattedBalance
+            ) : (
+              MASKED_BALANCE
+            )}
           </div>
+        </div>
+
+        <div className="virtual-account-summary__detail-card">
+          <span className="virtual-account-summary__detail-label">Account Name</span>
+          <span className="virtual-account-summary__detail-value">
+            {readValue(accountName)}
+          </span>
         </div>
 
         <div className="virtual-account-summary__detail-card">

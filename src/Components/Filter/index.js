@@ -12,10 +12,21 @@ import Cancel from "../../Assets/img/x.png";
 import "./style.css";
 
 const Filter = ({ show, close, ...props }) => {
-  const { handleFilterValue, submitFilter, transactionStatus } = props;
+  const {
+    handleFilterValue,
+    submitFilter,
+    transactionStatus = [],
+    transactionsType = [],
+    resetFilter,
+    filterValues = {},
+  } = props;
 
   const isTransaction = props.name === "transaction";
   const isVirtualAccount = props.name === "virtualAccount";
+  const getFieldValue = (fieldName) =>
+    Object.prototype.hasOwnProperty.call(filterValues, fieldName)
+      ? filterValues[fieldName]
+      : undefined;
   return (
     <Modal
       size="xl"
@@ -71,6 +82,7 @@ const Filter = ({ show, close, ...props }) => {
                       type="date"
                       placeholder="Start Date"
                       name="startDate"
+                      value={getFieldValue("startDate")}
                       onChange={handleFilterValue}
                     />
                   </Form.Group>
@@ -83,6 +95,7 @@ const Filter = ({ show, close, ...props }) => {
                       type="date"
                       placeholder="Enter End Date"
                       name="endDate"
+                      value={getFieldValue("endDate")}
                       onChange={handleFilterValue}
                     />
                   </Form.Group>
@@ -95,9 +108,10 @@ const Filter = ({ show, close, ...props }) => {
                         size="sm"
                         as="select"
                         name="status"
+                        value={getFieldValue("status")}
                         onChange={handleFilterValue}
                       >
-                        <option>Select Status</option>
+                        <option value="">{isVirtualAccount ? "All" : "Select Status"}</option>
                         {transactionStatus.map((tranStatus, i) => {
                           return (
                             <option key={i} value={tranStatus.statusCode}>
@@ -123,6 +137,7 @@ const Filter = ({ show, close, ...props }) => {
                       size="sm"
                       as="select"
                       name='transactionType'
+                      value={getFieldValue("transactionType")}
                       onChange={handleFilterValue}
                     >
                       <option>{props.typetext}</option>
@@ -146,6 +161,7 @@ const Filter = ({ show, close, ...props }) => {
                       type="text"
                       name='transactionId'
                       placeholder="Enter Transaction ID"
+                      value={getFieldValue("transactionId")}
                       onChange={handleFilterValue}
                     />
                   </Form.Group>
@@ -155,6 +171,7 @@ const Filter = ({ show, close, ...props }) => {
             }
 
             {isVirtualAccount ? (
+              <>
               <Row>
                 <Col md={4} sm={12}>
                   <Form.Group controlId="">
@@ -163,12 +180,92 @@ const Filter = ({ show, close, ...props }) => {
                       size="sm"
                       type="text"
                       name="transactionId"
-                      placeholder={props.idtext || "Enter Transaction ID"}
+                      value={getFieldValue("transactionId")}
+                      placeholder="Search Transaction ID"
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="">
+                    <Form.Label>Reference</Form.Label>
+                    <Form.Control
+                      size="sm"
+                      type="text"
+                      name="reference"
+                      value={getFieldValue("reference")}
+                      placeholder="Search Reference"
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="">
+                    <Form.Label>Type</Form.Label>
+                    <Form.Control
+                      size="sm"
+                      as="select"
+                      name="type"
+                      value={getFieldValue("type")}
+                      onChange={handleFilterValue}
+                    >
+                      <option value="">All</option>
+                      {transactionsType.map((transactionType, index) => (
+                        <option key={index} value={transactionType.type}>
+                          {transactionType.type}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </Form.Group>
+                </Col>
+              </Row>
+
+              <Row>
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="">
+                    <Form.Label>Account Number</Form.Label>
+                    <Form.Control
+                      size="sm"
+                      type="text"
+                      name="accountNumber"
+                      value={getFieldValue("accountNumber")}
+                      placeholder="Search Account Number"
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="">
+                    <Form.Label>Account Name</Form.Label>
+                    <Form.Control
+                      size="sm"
+                      type="text"
+                      name="accountName"
+                      value={getFieldValue("accountName")}
+                      placeholder="Search Account Name"
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
+                </Col>
+
+                <Col md={4} sm={12}>
+                  <Form.Group controlId="">
+                    <Form.Label>Bank Name</Form.Label>
+                    <Form.Control
+                      size="sm"
+                      type="text"
+                      name="bankName"
+                      value={getFieldValue("bankName")}
+                      placeholder="Search Bank Name"
                       onChange={handleFilterValue}
                     />
                   </Form.Group>
                 </Col>
               </Row>
+              </>
             ) : (
               ""
             )}
@@ -179,37 +276,40 @@ const Filter = ({ show, close, ...props }) => {
                     <Form.Group controlId="">
                       <Form.Label>RRN</Form.Label>
                       <Form.Control
-                        size="sm"
-                        type="text"
-                        name="rrn"
-                        placeholder="Enter RRN"
-                        onChange={handleFilterValue}
-                      />
-                    </Form.Group>
+                      size="sm"
+                      type="text"
+                      name="rrn"
+                      placeholder="Enter RRN"
+                      value={getFieldValue("rrn")}
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
                   </Col>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
                       <Form.Label>PAN</Form.Label>
                       <Form.Control
-                        size="sm"
-                        type="text"
-                        placeholder="Enter PAN"
-                        name="pan"
-                        onChange={handleFilterValue}
-                      />
-                    </Form.Group>
+                      size="sm"
+                      type="text"
+                      placeholder="Enter PAN"
+                      name="pan"
+                      value={getFieldValue("pan")}
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
                   </Col>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">
                       <Form.Label>STAN</Form.Label>
                       <Form.Control
-                        size="sm"
-                        type="text"
-                        name="stan"
-                        placeholder="STAN"
-                        onChange={handleFilterValue}
-                      />
-                    </Form.Group>
+                      size="sm"
+                      type="text"
+                      name="stan"
+                      placeholder="STAN"
+                      value={getFieldValue("stan")}
+                      onChange={handleFilterValue}
+                    />
+                  </Form.Group>
                   </Col>
                 </Row> : ''
 
@@ -228,6 +328,7 @@ const Filter = ({ show, close, ...props }) => {
                         type="text"
                         placeholder="Enter user Name"
                         name="username"
+                        value={getFieldValue("username")}
                         onChange={handleFilterValue}
                       />
                     </Form.Group>
@@ -237,25 +338,27 @@ const Filter = ({ show, close, ...props }) => {
                       <Form.Group controlId="">
                         <Form.Label>Business Name</Form.Label>
                         <Form.Control
-                          size="sm"
-                          type="text"
-                          name="businessName"
-                          placeholder="Enter business Name"
-                          onChange={handleFilterValue}
-                        />
-                      </Form.Group>
+                        size="sm"
+                        type="text"
+                        name="businessName"
+                        placeholder="Enter business Name"
+                        value={getFieldValue("businessName")}
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
                     </Col>
                     : (<Col md={4} sm={12}>
                       <Form.Group controlId="">
                         <Form.Label>Business Name</Form.Label>
                         <Form.Control
-                          size="sm"
-                          type="text"
-                          name="businessName"
-                          placeholder="Enter business Name"
-                          onChange={handleFilterValue}
-                        />
-                      </Form.Group>
+                        size="sm"
+                        type="text"
+                        name="businessName"
+                        placeholder="Enter business Name"
+                        value={getFieldValue("businessName")}
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
                     </Col>)
                   }
 
@@ -267,6 +370,7 @@ const Filter = ({ show, close, ...props }) => {
                         type="text"
                         name="phone"
                         placeholder="phone number"
+                        value={getFieldValue("phone")}
                         onChange={handleFilterValue}
                       />
                     </Form.Group>
@@ -288,6 +392,7 @@ const Filter = ({ show, close, ...props }) => {
                         // variant="light"
                         name="terminalId"
                         placeholder="Enter Terminal ID"
+                        value={getFieldValue("terminalId")}
                         onChange={handleFilterValue}
                       />
                     </Form.Group>
@@ -300,6 +405,7 @@ const Filter = ({ show, close, ...props }) => {
                         type="text"
                         name="agentId"
                         placeholder="Enter Agent ID"
+                        value={getFieldValue("agentId")}
                         onChange={handleFilterValue}
                       />
                     </Form.Group>
@@ -312,6 +418,7 @@ const Filter = ({ show, close, ...props }) => {
                         type="text"
                         name="agentManagerId"
                         placeholder="Enter Agent Manager ID"
+                        value={getFieldValue("agentManagerId")}
                         onChange={handleFilterValue}
                       />
                     </Form.Group>
@@ -331,6 +438,7 @@ const Filter = ({ show, close, ...props }) => {
                         type="text"
                         name="agentManagerName"
                         placeholder="Enter Agent Manager Name"
+                        value={getFieldValue("agentManagerName")}
                         onChange={handleFilterValue}
                       />
                     </Form.Group>
@@ -355,9 +463,9 @@ const Filter = ({ show, close, ...props }) => {
               <Button
                 variant="outline-primary"
                 className="filter-btn"
-                type="reset"
+                type={resetFilter ? "button" : "reset"}
                 size="sm"
-              // onClick={resetFilter}
+                onClick={resetFilter}
               >
                 CLEAR FILTER
               </Button>
@@ -367,7 +475,6 @@ const Filter = ({ show, close, ...props }) => {
                 className="filter-btn filter"
                 type="submit"
                 size="sm"
-                onClick={close}
               >
                 FILTER
               </Button>

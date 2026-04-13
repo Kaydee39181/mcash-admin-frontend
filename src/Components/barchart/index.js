@@ -1,6 +1,7 @@
-import React, { Component } from "react";
-import {Bar} from 'react-chartjs-2';
-import './style.css';
+import React, { useMemo } from "react";
+import { Bar } from "react-chartjs-2";
+import { useTheme } from "../../theme";
+import "./style.css";
 
 const data = {
   labels: ['January', 'February', 'March', 'April'],
@@ -28,54 +29,61 @@ const data = {
   ]
 };
 
-const options={
-  legend: {
-    display: false
-},
+const BarChart = () => {
+  const { isDark } = useTheme();
 
-  tooltips: {
-    callbacks: {
-       label: function(tooltipItem) {
-              return tooltipItem.yLabel;
-       }
-    }
-  },
-    scales: {
-        xAxes: [{
-            barPercentage: 0.2
-        }]
-    },
-        maintainAspectRatio: false
-}
+  const options = useMemo(
+    () => ({
+      legend: {
+        display: false,
+      },
+      tooltips: {
+        callbacks: {
+          label(tooltipItem) {
+            return tooltipItem.yLabel;
+          },
+        },
+      },
+      scales: {
+        xAxes: [
+          {
+            barPercentage: 0.2,
+            gridLines: {
+              color: isDark ? "rgba(148, 163, 184, 0.14)" : "rgba(15, 23, 42, 0.08)",
+            },
+            ticks: {
+              fontColor: isDark ? "#c7d2e0" : "#5b6573",
+            },
+          },
+        ],
+        yAxes: [
+          {
+            gridLines: {
+              color: isDark ? "rgba(148, 163, 184, 0.14)" : "rgba(15, 23, 42, 0.08)",
+            },
+            ticks: {
+              fontColor: isDark ? "#c7d2e0" : "#5b6573",
+            },
+          },
+        ],
+      },
+      maintainAspectRatio: false,
+    }),
+    [isDark]
+  );
 
-class BarChart extends Component {
-    state = {
-  
-    };
-  
-    
-    render() {
-    return (
-      <div className="bar-wrap">
-        <div
-          className="label-wrap"
-          style={{
-            borderBottom: "1px solid #E2E2E2",
-            paddingBottom: "5px",
-            marginBottom: "10px",
-          }}
-        >
-          Transaction Success per Month(volume)
-          <div className="success-green"></div>
-          <span>Successful </span>
-          <div className="failure-red"></div>
-          <span>Failed </span>
-        </div>
-        <Bar data={data} width={80} height={100} options={options} />
+  return (
+    <div className="bar-wrap">
+      <div className="label-wrap bar-wrap__label">
+        Transaction Success per Month(volume)
+        <div className="success-green"></div>
+        <span>Successful </span>
+        <div className="failure-red"></div>
+        <span>Failed </span>
       </div>
-    );
-}
+      <Bar data={data} width={80} height={100} options={options} />
+    </div>
+  );
 };
 
-
-export default BarChart
+export default BarChart;

@@ -167,7 +167,7 @@ export const FetchBankTerminal = (agentid) => (dispatch) => {
   dispatch(asyncActions(FETCH_BANK_TERMINAL).loading(true));
   const token = JSON.parse(localStorage.getItem("data"));
   axios
-    .get(`${AgentConstant.FETCH_BANK_TERMINAAL_URL}${encodeURIComponent(agentid)}`, {
+    .get(`${AgentConstant.FETCH_BANK_TERMINAL_URL}${encodeURIComponent(agentid)}`, {
       headers: {
         Authorization: `bearer ${token.access_token}`,
         "Content-Type": "application/json",

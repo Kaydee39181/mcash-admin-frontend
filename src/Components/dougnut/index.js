@@ -1,5 +1,6 @@
-import React, { Component } from "react";
+import React, { useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
+import { useTheme } from "../../theme";
 
 const data = {
   datasets: [
@@ -11,22 +12,34 @@ const data = {
   ],
 };
 
-class DoughnutChart extends Component {
-  state = {};
+const DoughnutChart = () => {
+  const { isDark } = useTheme();
 
-  render() {
-    return (
-      <div
-        className="donut-chart"
-        style={{ margin: "0", alignItems: "center" }}
+  const options = useMemo(
+    () => ({
+      legend: {
+        labels: {
+          fontColor: isDark ? "#c7d2e0" : "#5b6573",
+        },
+      },
+    }),
+    [isDark]
+  );
+
+  return (
+    <div className="donut-chart" style={{ margin: "0", alignItems: "center" }}>
+      <p
+        style={{
+          borderBottom: "1px solid var(--theme-border)",
+          padding: "10px",
+          color: "var(--theme-text)",
+        }}
       >
-        <p style={{ borderBottom: "1px solid #EEF0F7", padding: " 10px" }}>
-          Transaction Types
-        </p>
-        <Doughnut data={data} />
-      </div>
-    );
-  }
-}
+        Transaction Types
+      </p>
+      <Doughnut data={data} options={options} />
+    </div>
+  );
+};
 
 export default DoughnutChart;

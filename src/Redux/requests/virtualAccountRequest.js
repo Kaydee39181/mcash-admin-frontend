@@ -36,32 +36,36 @@ const normalizeAgentDetails = (payload) => {
   return null;
 };
 
-const buildVirtualAccountUrl = (filters) => {
+const appendIfPresent = (params, key, value) => {
+  if (value === null || value === undefined) return;
+
+  const normalizedValue = String(value).trim();
+  if (!normalizedValue) return;
+
+  params.append(key, normalizedValue);
+};
+
+const buildVirtualAccountUrl = (page = 0, length = 10, filters = {}) => {
   const params = new URLSearchParams();
 
-  if (filters?.status) {
-    params.append("status", filters.status);
-  }
+  params.append("startPage", String(Math.max(0, Number(page) || 0)));
+  params.append("length", String(Math.max(1, Number(length) || 10)));
 
-  if (filters?.transactionId) {
-    params.append("transactionId", filters.transactionId);
-  }
+  appendIfPresent(params, "status", filters?.status);
+  appendIfPresent(params, "transactionId", filters?.transactionId);
+  appendIfPresent(params, "startDate", filters?.startDate);
+  appendIfPresent(params, "endDate", filters?.endDate);
+  appendIfPresent(params, "accountNumber", filters?.accountNumber);
+  appendIfPresent(params, "accountName", filters?.accountName);
+  appendIfPresent(params, "bankName", filters?.bankName);
+  appendIfPresent(params, "type", filters?.type);
+  appendIfPresent(params, "reference", filters?.reference);
 
-  if (filters?.startDate) {
-    params.append("startDate", filters.startDate);
-  }
-
-  if (filters?.endDate) {
-    params.append("endDate", filters.endDate);
-  }
-
-  const query = params.toString();
-  if (!query) return `${AgentConstant.VIRTUAL_ACCOUNT_TRANSACTIONS_URL}?`;
-  return `${AgentConstant.VIRTUAL_ACCOUNT_TRANSACTIONS_URL}?${query}`;
+  return `${AgentConstant.VIRTUAL_ACCOUNT_TRANSACTIONS_URL}?${params.toString()}`;
 };
 
 export const FetchVirtualAccountTransactions =
-  (filters = {}) =>
+  (page = 0, length = 10, filters = {}) =>
   async (dispatch) => {
     dispatch(asyncActions(FETCH_VIRTUAL_ACCOUNT_TRANSACTIONS).loading(true));
     const token = safeParseToken();
@@ -77,7 +81,7 @@ export const FetchVirtualAccountTransactions =
     }
 
     try {
-      const url = buildVirtualAccountUrl(filters);
+      const url = buildVirtualAccountUrl(page, length, filters);
       const response = await virtualAxios.get(url, {
         headers: {
           Authorization: `Bearer ${token.access_token}`,

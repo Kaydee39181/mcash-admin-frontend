@@ -23,7 +23,12 @@ import VirtualAccountSummary from "../../../Components/VirtualAccountSummary";
 import ViewReceipts from "../../../Components/viewReceipt";
 import { AgentConstant } from "../../../constants/constants";
 import { FetchVirtualAccountTransactions } from "../../../Redux/requests/virtualAccountRequest";
-import { getTransactionPartiesAndStatus } from "../../../utils/virtualAccountTransactions";
+import useMainTransactionsForBalance from "../../../hooks/useMainTransactionsForBalance";
+import {
+  filterTransactions,
+  formatTransactionForAdmin,
+  getTransactionPartiesAndStatus,
+} from "../../../utils/virtualAccountTransactions";
 
 import "../Transactions/style.css";
 import "./style.css";
@@ -42,10 +47,19 @@ const safeParseToken = () => {
 
 const FALLBACK_TEXT = "-----";
 
+const combineName = (...values) =>
+  values
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
 const resolveAccountNumber = (token) => {
   if (!token?.user) return "";
 
   return (
+    token.user.agent?.globusVirtualAccount ||
+    token.user.globusVirtualAccount ||
     token.user.accountNumber ||
     token.user.account?.accountNumber ||
     token.user.agent?.accountNumber ||
@@ -60,6 +74,10 @@ const deriveAccountNumberFromTransactions = (transactions) => {
   const candidates = rows
     .map((t) => {
       return (
+        t?.agent?.globusVirtualAccount ||
+        t?.globusVirtualAccount ||
+        t?.agent?.virtualAccount ||
+        t?.agent?.virtualAccountNumber ||
         t?.accountNumber ||
         t?.virtualAccountNumber ||
         t?.destinationAccountNumber ||
@@ -81,6 +99,7 @@ const resolveTransactionTimestamp = (transaction) => {
     transaction?.transactionDate ||
     transaction?.createdAt ||
     transaction?.systemTime ||
+    transaction?.appTime ||
     transaction?.date ||
     transaction?.timestamp;
 
@@ -132,6 +151,11 @@ const resolveDisplayStatusClass = (statusValue) => {
   }
 };
 
+const isChargeTransaction = (transaction) =>
+  pickFirst(transaction?.transactionType?.type, transaction?.type)
+    .trim()
+    .toUpperCase() === "CHARGE";
+
 const renderDetailCell = (value) => {
   const normalizedValue = pickFirst(value, "N/A");
 
@@ -159,8 +183,8 @@ const VirtualAccount = (props) => {
     virtualTransactions,
     virtualLoading,
     virtualError,
-    virtualTotal,
     virtualAgentDetails,
+    virtualTransactionTotal,
   } = props;
   const token = safeParseToken();
   const roleName = token?.user?.roleGroup?.name || "";
@@ -173,17 +197,23 @@ const VirtualAccount = (props) => {
   const [exportModalActive, showExportModal] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
 
-  const [length, setLength] = useState(10);
-  const [activePage, setActivePage] = useState(1);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const initialState = {
     startDate: "",
     endDate: "",
     status: "",
     transactionId: "",
+    accountNumber: "",
+    accountName: "",
+    bankName: "",
+    type: "",
+    reference: "",
   };
 
   const [filterValues, setFilterValues] = useState(initialState);
+  const [draftFilterValues, setDraftFilterValues] = useState(initialState);
 
   const currentUserContext = useMemo(() => {
     return {
@@ -196,6 +226,7 @@ const VirtualAccount = (props) => {
         token?.user?.businessName
       ),
       accountNumber: pickFirst(
+        virtualAgentDetails?.globusVirtualAccount,
         virtualAgentDetails?.virtualAccount,
         virtualAgentDetails?.virtualAccountNumber,
         virtualAgentDetails?.accountNumber,
@@ -207,16 +238,25 @@ const VirtualAccount = (props) => {
 
   useEffect(() => {
     if (isRestrictedRole) return;
-    FetchVirtualTransactions(filterValues);
+    FetchVirtualTransactions(page, rowsPerPage, filterValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRestrictedRole]);
+  }, [FetchVirtualTransactions, filterValues, isRestrictedRole, page, rowsPerPage]);
+
+  const showNoAccess =
+    isRestrictedRole || virtualError?.response?.data?.responseCode === "99";
+  const {
+    balance: latestMainBalance,
+    loading: balanceLoading,
+  } = useMainTransactionsForBalance({
+    enabled: showAccountNumberBadge && !showNoAccess,
+  });
 
   // Token-only: do not call identity-scoped endpoints like `agent?username=...`.
 
   const _handleFilterValue = (event) => {
     const { name, value } = event.target;
 
-    setFilterValues((prev) => ({
+    setDraftFilterValues((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -224,9 +264,15 @@ const VirtualAccount = (props) => {
 
   const onFilterSubmit = (event) => {
     event.preventDefault();
-    setActivePage(1);
-    FetchVirtualTransactions(filterValues);
+    setFilterValues(draftFilterValues);
+    setPage(0);
     showFilterModal(false);
+  };
+
+  const resetFilters = () => {
+    setFilterValues(initialState);
+    setDraftFilterValues(initialState);
+    setPage(0);
   };
 
   const ViewReceipt = (details) => {
@@ -266,13 +312,17 @@ const VirtualAccount = (props) => {
       const data = res?.data;
       const topOk = data?.responseCode === "00";
       const innerOk = data?.data?.responseCode === "00";
-      const message =
-        (innerOk ? data?.data?.responseMessage : data?.data?.responseMessage) ||
+      const successMessage =
+        data?.data?.responseMessage ||
         data?.responseMessage ||
-        (topOk ? "Success" : "Query failed");
+        "Transfer query successful.";
+      const failureMessage =
+        data?.data?.responseMessage ||
+        data?.responseMessage ||
+        "Transfer query could not resolve this virtual account transaction.";
 
       toast.update(loadings, {
-        render: message,
+        render: topOk && innerOk ? successMessage : failureMessage,
         type: topOk && innerOk ? "success" : "error",
         isLoading: false,
         autoClose: 8000,
@@ -288,21 +338,29 @@ const VirtualAccount = (props) => {
   };
 
   const handleSelect = (value) => {
-    const nextLength = Math.max(1, Number(value));
-    setLength(nextLength);
-    setActivePage(1);
+    const nextRowsPerPage = Math.max(1, Number(value));
+    setRowsPerPage(nextRowsPerPage);
+    setPage(0);
   };
 
   const closeExport = () => showExportModal(false);
-  const closeFilter = () => showFilterModal(false);
+  const closeFilter = () => {
+    setDraftFilterValues(filterValues);
+    showFilterModal(false);
+  };
 
   const OpenFilter = () => {
+    setDraftFilterValues(filterValues);
     showFilterModal(true);
   };
 
+  const filteredTransactions = useMemo(() => {
+    return filterTransactions(virtualTransactions, filterValues);
+  }, [filterValues, virtualTransactions]);
+
   const allProducts = useMemo(() => {
-    const transactionsToRender = Array.isArray(virtualTransactions)
-      ? virtualTransactions
+    const transactionsToRender = Array.isArray(filteredTransactions)
+      ? filteredTransactions
       : [];
 
     return transactionsToRender.map((transact, index) => {
@@ -310,6 +368,7 @@ const VirtualAccount = (props) => {
         transact?.transactionDate ||
         transact?.createdAt ||
         transact?.systemTime ||
+        transact?.appTime ||
         transact?.date ||
         transact?.timestamp;
 
@@ -328,10 +387,11 @@ const VirtualAccount = (props) => {
 
       const rrnRaw = pickFirst(transact?.rrn, transact?.RRN);
       const stanRaw = pickFirst(transact?.stan, transact?.STAN);
-      const transactionParties = getTransactionPartiesAndStatus(
-        transact,
-        currentUserContext
-      );
+      const normalizedTransaction = formatTransactionForAdmin(transact);
+      const adminFormatted = showAccountNumberBadge ? null : normalizedTransaction;
+      const transactionParties = showAccountNumberBadge
+        ? getTransactionPartiesAndStatus(transact, currentUserContext)
+        : adminFormatted;
 
       const preBalanceRaw = pickFirst(
         transact?.preBalance,
@@ -357,8 +417,10 @@ const VirtualAccount = (props) => {
           transact?.reference ||
           transact?.transactionReference ||
           transact?.externalReference ||
+          transact?.transactionId ||
+          transact?.rrn ||
           "",
-        Type: typeRaw,
+        Type: pickFirst(normalizedTransaction?.type, typeRaw),
         RRN: rrnRaw,
         STAN: stanRaw,
         PreBalance: preBalanceRaw,
@@ -370,13 +432,16 @@ const VirtualAccount = (props) => {
         ReceiverBankName: transactionParties.receiver?.bankName || "",
         ReceiverAccountNumber: transactionParties.receiver?.accountNumber || "",
         Amount: formatAmount(transact?.amount ?? transact?.transactionAmount),
-        Status: statusRaw || transactionParties.status,
+        Status: pickFirst(adminFormatted?.statusMessage, statusRaw, transactionParties.status),
         StatusVariant: transactionParties.status,
-        ErrorMessage: transactionParties.errorMessage,
+        ErrorMessage:
+          transactionParties.status === "FAILED"
+            ? pickFirst(adminFormatted?.statusMessage, transactionParties.errorMessage)
+            : transactionParties.errorMessage,
         Narration: transact?.narration || transact?.description || "",
       };
     });
-  }, [currentUserContext, virtualTransactions]);
+  }, [currentUserContext, filteredTransactions, showAccountNumberBadge]);
 
   const virtualAccountSummary = useMemo(() => {
     const transactionsToRender = Array.isArray(virtualTransactions)
@@ -391,6 +456,10 @@ const VirtualAccount = (props) => {
       .find(
         (transaction) =>
           pickFirst(
+            transaction?.agent?.globusVirtualAccount,
+            transaction?.globusVirtualAccount,
+            transaction?.agent?.virtualAccount,
+            transaction?.agent?.virtualAccountNumber,
             transaction?.accountNumber,
             transaction?.virtualAccountNumber,
             transaction?.destinationAccountNumber,
@@ -405,11 +474,35 @@ const VirtualAccount = (props) => {
       );
 
     return {
+      accountName: pickFirst(
+        virtualAgentDetails?.agent?.user?.fullName,
+        combineName(
+          virtualAgentDetails?.agent?.user?.firstname,
+          virtualAgentDetails?.agent?.user?.lastname
+        ),
+        virtualAgentDetails?.user?.fullName,
+        combineName(
+          virtualAgentDetails?.user?.firstname,
+          virtualAgentDetails?.user?.lastname
+        ),
+        latestSnapshot?.agent?.user?.fullName,
+        combineName(
+          latestSnapshot?.agent?.user?.firstname,
+          latestSnapshot?.agent?.user?.lastname
+        ),
+        virtualAgentDetails?.accountName,
+        currentUserContext.accountName
+      ),
       accountNumber: pickFirst(
-        virtualAgentDetails?.accountNumber,
+        virtualAgentDetails?.globusVirtualAccount,
         virtualAgentDetails?.virtualAccount,
         virtualAgentDetails?.virtualAccountNumber,
+        virtualAgentDetails?.accountNumber,
         resolveAccountNumber(token),
+        latestSnapshot?.agent?.globusVirtualAccount,
+        latestSnapshot?.globusVirtualAccount,
+        latestSnapshot?.agent?.virtualAccount,
+        latestSnapshot?.agent?.virtualAccountNumber,
         latestSnapshot?.accountNumber,
         latestSnapshot?.virtualAccountNumber,
         latestSnapshot?.destinationAccountNumber,
@@ -422,22 +515,8 @@ const VirtualAccount = (props) => {
         latestSnapshot?.bank?.name,
         latestSnapshot?.bank
       ),
-      balance:
-        pickFirst(
-          latestSnapshot?.postBalance,
-          latestSnapshot?.postWalletBalance,
-          latestSnapshot?.postPurseBalance,
-          latestSnapshot?.postTransactionBalance,
-          latestSnapshot?.currentBalance
-        ) || null,
     };
-  }, [token, virtualAgentDetails, virtualTransactions]);
-
-  const pagedProducts = useMemo(() => {
-    const start = (activePage - 1) * length;
-    const end = start + length;
-    return allProducts.slice(start, end);
-  }, [allProducts, activePage, length]);
+  }, [currentUserContext.accountName, token, virtualAgentDetails, virtualTransactions]);
 
   const noDataIndication = () => {
     if (virtualLoading) return "Loading virtual account transactions...";
@@ -571,7 +650,13 @@ const VirtualAccount = (props) => {
       text: "View Receipt",
       formatter: (cellContent, row) => {
         const receiptDetails = {
-          Agent: token?.user?.username || token?.user?.name || FALLBACK_TEXT,
+          Agent:
+            row?.transact?.agent?.user?.fullName ||
+            row?.transact?.agent?.user?.username ||
+            row?.transact?.agent?.businessName ||
+            token?.user?.username ||
+            token?.user?.name ||
+            FALLBACK_TEXT,
           totalAmount: row?.Amount || FALLBACK_TEXT,
           Type: row?.Type || FALLBACK_TEXT,
           TransactionID: row?.TransactionID || FALLBACK_TEXT,
@@ -603,7 +688,7 @@ const VirtualAccount = (props) => {
       dataField: "QueryTrans",
       text: "Query Transaction",
       formatter: (cellContent, row) => {
-        const canQuery = Boolean(row?.TransactionID);
+        const canQuery = Boolean(row?.TransactionID) && !isChargeTransaction(row?.transact);
         return (
           <h5>
             {canQuery ? (
@@ -623,6 +708,34 @@ const VirtualAccount = (props) => {
     },
   ];
 
+  const typeOptions = useMemo(() => {
+    const tableTransactionTypes = Array.isArray(allProducts)
+      ? allProducts.map((product) => pickFirst(product?.Type)).filter(Boolean)
+      : [];
+
+    const fallbackTransactionTypes = Array.isArray(virtualTransactions)
+      ? virtualTransactions
+          .map((transaction) =>
+            pickFirst(
+              formatTransactionForAdmin(transaction)?.type,
+              transaction?.transactionType?.type,
+              transaction?.type
+            )
+          )
+          .filter(Boolean)
+      : [];
+
+    const transactionTypes =
+      tableTransactionTypes.length > 0 ? tableTransactionTypes : fallbackTransactionTypes;
+
+    return Array.from(new Set(transactionTypes))
+      .sort((left, right) => left.localeCompare(right))
+      .map((type) => ({
+        id: type,
+        type,
+      }));
+  }, [allProducts, virtualTransactions]);
+
   const defaultSorted = [
     {
       dataField: "Date",
@@ -631,29 +744,24 @@ const VirtualAccount = (props) => {
   ];
 
   const _handlePageChange = (pageNumber) => {
-    setActivePage(pageNumber);
+    setPage(Math.max(0, pageNumber - 1));
   };
 
   const statusOptions = [
     { statusCode: "SUCCESS", statusMessage: "Success" },
     { statusCode: "FAILED", statusMessage: "Failed" },
     { statusCode: "PENDING", statusMessage: "Pending" },
+    { statusCode: "CHARGE", statusMessage: "Charge" },
   ];
 
-  const startRange = virtualTotal === 0 ? 0 : (activePage - 1) * length + 1;
-  const endRange = Math.min(activePage * length, virtualTotal);
-
-  const isNoAccessResponse =
-    virtualError?.response?.data?.responseCode === "99";
-  const showNoAccess = isRestrictedRole || isNoAccessResponse;
-  const showAccountSummary =
-    showAccountNumberBadge &&
-    !showNoAccess &&
-    Boolean(
-      virtualAccountSummary.accountNumber ||
-        virtualAccountSummary.bankName ||
-        virtualAccountSummary.balance !== null
-    );
+  const filteredTotal = allProducts.length;
+  const totalItemsCount = virtualTransactionTotal || filteredTotal;
+  const startRange = totalItemsCount === 0 ? 0 : page * rowsPerPage + 1;
+  const endRange =
+    totalItemsCount === 0
+      ? 0
+      : Math.min(totalItemsCount, page * rowsPerPage + filteredTotal);
+  const showAccountSummary = showAccountNumberBadge && !showNoAccess;
 
   useEffect(() => {
     if (showNoAccess || !virtualError) return;
@@ -724,9 +832,11 @@ const VirtualAccount = (props) => {
           <div className="transaction-page-shell">
             {showAccountSummary ? (
               <VirtualAccountSummary
+                accountName={virtualAccountSummary.accountName}
                 accountNumber={virtualAccountSummary.accountNumber}
                 bankName={virtualAccountSummary.bankName}
-                balance={virtualAccountSummary.balance}
+                balance={latestMainBalance}
+                balanceLoading={balanceLoading}
               />
             ) : null}
 
@@ -736,7 +846,7 @@ const VirtualAccount = (props) => {
               <BootstrapTable
                 bootstrap4
                 keyField="id"
-                data={pagedProducts}
+                data={allProducts}
                 columns={columns}
                 noDataIndication={noDataIndication}
                 defaultSorted={defaultSorted}
@@ -749,7 +859,7 @@ const VirtualAccount = (props) => {
             <div className="pagination_wrap">
               <DropdownButton
                 menuAlign="right"
-                title={length}
+                title={rowsPerPage}
                 id="dropdown-menu-align-right"
                 onSelect={handleSelect}
               >
@@ -758,20 +868,20 @@ const VirtualAccount = (props) => {
                 <Dropdown.Item eventKey="30">30</Dropdown.Item>
                 <Dropdown.Item eventKey="50">50</Dropdown.Item>
                 <Dropdown.Item eventKey="100">100</Dropdown.Item>
-                <Dropdown.Item eventKey={String(virtualTotal || 0)}>
+                <Dropdown.Item eventKey={String(Math.max(totalItemsCount, 1))}>
                   All
                 </Dropdown.Item>
               </DropdownButton>
 
               <p>
-                Showing {startRange} to {endRange} of {virtualTotal}
+                Showing {startRange} to {endRange} of {totalItemsCount}
               </p>
 
               <div className="pagination">
                 <Pagination
-                  activePage={activePage}
-                  itemsCountPerPage={length}
-                  totalItemsCount={virtualTotal}
+                  activePage={page + 1}
+                  itemsCountPerPage={rowsPerPage}
+                  totalItemsCount={totalItemsCount}
                   pageRangeDisplayed={5}
                   onChange={_handlePageChange}
                 />
@@ -791,8 +901,10 @@ const VirtualAccount = (props) => {
             close={closeFilter}
             handleFilterValue={_handleFilterValue}
             submitFilter={onFilterSubmit}
+            resetFilter={resetFilters}
+            filterValues={draftFilterValues}
             name={"virtualAccount"}
-            transactionsType={[]}
+            transactionsType={typeOptions}
             transactionStatus={statusOptions}
           />
 
@@ -823,9 +935,9 @@ const VirtualAccount = (props) => {
 
 const mapStateToProps = (state) => ({
   virtualTransactions: state.virtualaccount?.transactions,
+  virtualTransactionTotal: state.virtualaccount?.transactionTotal,
   virtualLoading: state.virtualaccount?.loading,
   virtualError: state.virtualaccount?.error,
-  virtualTotal: state.virtualaccount?.transactionTotal ?? 0,
   virtualAgentDetails: state.virtualaccount?.agentDetails,
 });
 
