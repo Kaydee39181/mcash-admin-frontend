@@ -9,26 +9,26 @@ export default function Header(props) {
   return (
     <div className="container-fluid m-0">
       <div className="header-wrapper">
-        <button
-          type="button"
-          className="mobile-menu-btn"
-          onClick={props.onToggleSideNav}
-          aria-label="Open navigation menu"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-        <div className="header-actions">
-          {props.headerContent ? (
-            <div className="header-extra-content">{props.headerContent}</div>
-          ) : null}
+        <div className="header-top-row">
+          <button
+            type="button"
+            className="mobile-menu-btn"
+            onClick={props.onToggleSideNav}
+            aria-label="Open navigation menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
           <div className="header">
             <ThemeToggle />
             <span className="divider">|</span>
             <span className="header-role">{roleName}</span>
           </div>
         </div>
+        {props.headerContent ? (
+          <div className="header-extra-content">{props.headerContent}</div>
+        ) : null}
       </div>
     </div>
 
