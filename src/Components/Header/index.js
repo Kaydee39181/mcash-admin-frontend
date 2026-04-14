@@ -19,10 +19,15 @@ export default function Header(props) {
           <span></span>
           <span></span>
         </button>
-        <div className="header">
-          <ThemeToggle />
-          <span className="divider">|</span>
-          <span className="header-role">{roleName}</span>
+        <div className="header-actions">
+          {props.headerContent ? (
+            <div className="header-extra-content">{props.headerContent}</div>
+          ) : null}
+          <div className="header">
+            <ThemeToggle />
+            <span className="divider">|</span>
+            <span className="header-role">{roleName}</span>
+          </div>
         </div>
       </div>
     </div>

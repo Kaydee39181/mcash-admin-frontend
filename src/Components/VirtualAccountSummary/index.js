@@ -4,6 +4,9 @@ import { copyTextToClipboard } from "../../utils/copyToClipboard";
 
 import "./style.css";
 
+const BALANCE_VISIBILITY_STORAGE_KEY =
+  "mcash_virtual_account_balance_visibility";
+
 const CopyIcon = () => (
   <svg
     width="18"
@@ -86,6 +89,107 @@ const readValue = (value) => {
   return text || "--";
 };
 
+const safeParseToken = () => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const rawToken = window.localStorage.getItem("data");
+  if (!rawToken) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawToken);
+  } catch {
+    return null;
+  }
+};
+
+const resolvePreferenceKey = (accountNumber = "") => {
+  const token = safeParseToken();
+  const user = token?.user;
+
+  const userId = String(user?.id ?? "").trim();
+  if (userId) {
+    return `user-id:${userId}`;
+  }
+
+  const username = String(user?.username ?? "").trim();
+  if (username) {
+    return `username:${username.toLowerCase()}`;
+  }
+
+  const agentId = String(user?.agent?.id ?? "").trim();
+  if (agentId) {
+    return `agent-id:${agentId}`;
+  }
+
+  const normalizedAccountNumber = String(accountNumber ?? "").trim();
+  if (normalizedAccountNumber) {
+    return `account:${normalizedAccountNumber}`;
+  }
+
+  return "";
+};
+
+const readBalanceVisibilityPreference = (preferenceKey) => {
+  if (typeof window === "undefined" || !preferenceKey) {
+    return true;
+  }
+
+  try {
+    const rawPreferences = window.localStorage.getItem(
+      BALANCE_VISIBILITY_STORAGE_KEY
+    );
+    if (!rawPreferences) {
+      return true;
+    }
+
+    const parsedPreferences = JSON.parse(rawPreferences);
+    if (
+      !parsedPreferences ||
+      typeof parsedPreferences !== "object" ||
+      Array.isArray(parsedPreferences)
+    ) {
+      return true;
+    }
+
+    const storedValue = parsedPreferences[preferenceKey];
+    return typeof storedValue === "boolean" ? storedValue : true;
+  } catch {
+    return true;
+  }
+};
+
+const writeBalanceVisibilityPreference = (preferenceKey, isVisible) => {
+  if (typeof window === "undefined" || !preferenceKey) {
+    return;
+  }
+
+  try {
+    const rawPreferences = window.localStorage.getItem(
+      BALANCE_VISIBILITY_STORAGE_KEY
+    );
+    const parsedPreferences = rawPreferences ? JSON.parse(rawPreferences) : {};
+    const nextPreferences =
+      parsedPreferences &&
+      typeof parsedPreferences === "object" &&
+      !Array.isArray(parsedPreferences)
+        ? parsedPreferences
+        : {};
+
+    nextPreferences[preferenceKey] = isVisible;
+
+    window.localStorage.setItem(
+      BALANCE_VISIBILITY_STORAGE_KEY,
+      JSON.stringify(nextPreferences)
+    );
+  } catch {
+    // Ignore persistence failures and keep the in-memory toggle working.
+  }
+};
+
 const MASKED_BALANCE = "₦ •••••";
 
 const VirtualAccountSummary = ({
@@ -96,7 +200,13 @@ const VirtualAccountSummary = ({
   balanceLoading = false,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [isBalanceVisible, setIsBalanceVisible] = useState(true);
+  const preferenceKey = useMemo(
+    () => resolvePreferenceKey(accountNumber),
+    [accountNumber]
+  );
+  const [isBalanceVisible, setIsBalanceVisible] = useState(() =>
+    readBalanceVisibilityPreference(resolvePreferenceKey(accountNumber))
+  );
 
   const formattedBalance = useMemo(() => formatBalance(balance), [balance]);
 
@@ -112,6 +222,10 @@ const VirtualAccountSummary = ({
     return () => window.clearTimeout(timeoutId);
   }, [copied]);
 
+  useEffect(() => {
+    setIsBalanceVisible(readBalanceVisibilityPreference(preferenceKey));
+  }, [preferenceKey]);
+
   const handleCopy = async () => {
     if (!accountNumber) {
       return;
@@ -123,6 +237,14 @@ const VirtualAccountSummary = ({
     } catch {
       setCopied(false);
     }
+  };
+
+  const handleBalanceVisibilityToggle = () => {
+    setIsBalanceVisible((previousState) => {
+      const nextState = !previousState;
+      writeBalanceVisibilityPreference(preferenceKey, nextState);
+      return nextState;
+    });
   };
 
   return (
@@ -138,7 +260,7 @@ const VirtualAccountSummary = ({
             <button
               type="button"
               className="virtual-account-summary__icon-btn"
-              onClick={() => setIsBalanceVisible((previousState) => !previousState)}
+              onClick={handleBalanceVisibilityToggle}
               aria-label={isBalanceVisible ? "Hide available balance" : "Show available balance"}
               aria-pressed={!isBalanceVisible}
               title={isBalanceVisible ? "Hide balance" : "Show balance"}

@@ -269,7 +269,63 @@ const DashBoard = (props) => {
   const name = roleName;
   console.log(name);
   return (
-    <DashboardTemplate>
+    <DashboardTemplate
+      headerContent={
+        isAgentRole ? (
+          <section
+            className="dashboard-account-spotlight"
+            aria-label="Agent virtual account details"
+          >
+            <div className="dashboard-account-spotlight__orb">VA</div>
+            <div className="dashboard-account-spotlight__content">
+              <div className="dashboard-account-spotlight__eyebrow">
+                Virtual Account Details
+              </div>
+              <div className="dashboard-account-spotlight__grid">
+                <div className="dashboard-account-spotlight__item dashboard-account-spotlight__item--number">
+                  <span className="dashboard-account-spotlight__label">
+                    Account Number
+                  </span>
+                  <div className="dashboard-account-spotlight__value-row">
+                    <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--mono">
+                      {virtualAccountLoading ? "Loading..." : virtualAccountNumber}
+                    </span>
+                    <button
+                      type="button"
+                      className="dashboard-account-copy-btn"
+                      onClick={handleCopyAccountNumber}
+                      disabled={
+                        virtualAccountLoading || !virtualAccountNumber || virtualAccountNumber === "N/A"
+                      }
+                      aria-label="Copy account number"
+                      title={copiedAccountNumber ? "Copied" : "Copy account number"}
+                    >
+                      {copiedAccountNumber ? <FiCheck /> : <FiCopy />}
+                    </button>
+                  </div>
+                </div>
+                <div className="dashboard-account-spotlight__item dashboard-account-spotlight__item--name">
+                  <span className="dashboard-account-spotlight__label">
+                    Account Name
+                  </span>
+                  <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--name">
+                    {virtualAccountLoading ? "Loading..." : virtualAccountName}
+                  </span>
+                </div>
+                <div className="dashboard-account-spotlight__item dashboard-account-spotlight__item--bank">
+                  <span className="dashboard-account-spotlight__label">
+                    Bank Name
+                  </span>
+                  <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--bank">
+                    {virtualAccountLoading ? "Loading..." : virtualAccountBankName}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null
+      }
+    >
       <div className="dashboard-wrapper">
         {loading && (
           <Loader
@@ -285,59 +341,6 @@ const DashBoard = (props) => {
             <h3>Dashboard</h3>
             <p>An overview of all activities on mCashPoint</p>
           </div>
-          {isAgentRole ? (
-            <section
-              className="dashboard-account-spotlight"
-              aria-label="Agent virtual account details"
-            >
-              <div className="dashboard-account-spotlight__orb">VA</div>
-              <div className="dashboard-account-spotlight__content">
-                <div className="dashboard-account-spotlight__eyebrow">
-                  Virtual Account Details
-                </div>
-                <div className="dashboard-account-spotlight__grid">
-                  <div className="dashboard-account-spotlight__item">
-                    <span className="dashboard-account-spotlight__label">
-                      Account Number
-                    </span>
-                    <div className="dashboard-account-spotlight__value-row">
-                      <span className="dashboard-account-spotlight__value">
-                        {virtualAccountLoading ? "Loading..." : virtualAccountNumber}
-                      </span>
-                      <button
-                        type="button"
-                        className="dashboard-account-copy-btn"
-                        onClick={handleCopyAccountNumber}
-                        disabled={
-                          virtualAccountLoading || !virtualAccountNumber || virtualAccountNumber === "N/A"
-                        }
-                        aria-label="Copy account number"
-                        title={copiedAccountNumber ? "Copied" : "Copy account number"}
-                      >
-                        {copiedAccountNumber ? <FiCheck /> : <FiCopy />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="dashboard-account-spotlight__item">
-                    <span className="dashboard-account-spotlight__label">
-                      Account Name
-                    </span>
-                    <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--name">
-                      {virtualAccountLoading ? "Loading..." : virtualAccountName}
-                    </span>
-                  </div>
-                  <div className="dashboard-account-spotlight__item">
-                    <span className="dashboard-account-spotlight__label">
-                      Bank Name
-                    </span>
-                    <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--bank">
-                      {virtualAccountLoading ? "Loading..." : virtualAccountBankName}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-          ) : null}
         </div>
 
         <div className="graphs-wrapper">

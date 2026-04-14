@@ -32,7 +32,10 @@ class DashboardTemplate extends Component {
           />
         </div>
         <div className="mainwrapper">
-          <Header onToggleSideNav={this.openSideNav} />
+          <Header
+            onToggleSideNav={this.openSideNav}
+            headerContent={this.props.headerContent}
+          />
           {this.props.children}
         </div>
       </div>
