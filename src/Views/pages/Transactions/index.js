@@ -27,6 +27,7 @@ import ViewReceipts from "../../../Components/viewReceipt";
 
 import { connect } from "react-redux";
 import moment from "moment";
+import { formatTransactionForAdmin } from "../../../utils/virtualAccountTransactions";
 
 import "./style.css";
 
@@ -39,6 +40,52 @@ const resolveFullName = (person) => {
     .filter(Boolean)
     .join(" ")
     .trim();
+};
+
+const resolveDisplayTransactionType = (transaction) => {
+  const rawType = String(
+    transaction?.transactionType?.type || transaction?.type || ""
+  ).trim();
+
+  if (!rawType) {
+    return "";
+  }
+
+  if (rawType.toUpperCase().includes("VIRTUAL ACCOUNT")) {
+    return formatTransactionForAdmin(transaction)?.type || rawType;
+  }
+
+  return rawType;
+};
+
+const normalizeTransactionType = (value) => String(value || "").trim().toLowerCase();
+
+const isFundsTransferType = (value) =>
+  normalizeTransactionType(value) === "funds transfer";
+
+const formatReceiptAmount = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  const numericValue = Number(String(value).replace(/,/g, ""));
+  if (Number.isNaN(numericValue)) {
+    return String(value);
+  }
+
+  return numericValue.toLocaleString();
+};
+
+const resolveReceiptTotalAmount = (transaction) => {
+  const transactionType = transaction?.transactionType?.type || transaction?.type || "";
+
+  if (isFundsTransferType(transactionType)) {
+    return formatReceiptAmount(transaction?.amount);
+  }
+
+  return formatReceiptAmount(
+    transaction?.totalAmount != null ? transaction?.totalAmount : transaction?.amount
+  );
 };
 
 const Transactions = (props) => {
@@ -326,7 +373,7 @@ const Transactions = (props) => {
     transact?.agent?.businessName || "",
     resolveManagerName(transact),
     transact?.transactionId || "",
-    transact?.transactionType?.type || "",
+    resolveDisplayTransactionType(transact),
     transact?.agent?.bankTerminal?.terminalId || "",
     transact?.amount ?? "",
     transact?.statusCode || "",
@@ -350,7 +397,7 @@ const Transactions = (props) => {
       Agent: transact?.agent?.businessName || "",
       AgentManager: resolveManagerName(transact),
       TransactionID: transact?.transactionId || "",
-      Type: transact?.transactionType?.type || "",
+      Type: resolveDisplayTransactionType(transact),
       TerminalID: transact?.agent?.bankTerminal?.terminalId || "",
       Amount: transact?.amount ?? "",
       Status: transact?.statusCode || "",
@@ -368,10 +415,7 @@ const Transactions = (props) => {
 
 
       AppVersion: transact?.appVersion || "",
-      totalAmount:
-        transact?.totalAmount != null
-          ? Number(transact.totalAmount).toLocaleString()
-          : "",
+      totalAmount: resolveReceiptTotalAmount(transact),
     };
   });
 

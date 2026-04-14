@@ -1,8 +1,22 @@
 node_modules
 build
+build-verify
 .git
+.idea
 .gitignore
+.env
 vercel.json
 Dockerfile
 npm-debug.log
 yarn-error.log
+
+
+
+# node_modules
+# build
+# .git
+# .gitignore
+# vercel.json
+# Dockerfile
+# npm-debug.log
+# yarn-error.log

@@ -70,6 +70,69 @@
   height: 550px;
 }
 
+.notification-settings-panel {
+  height: auto;
+  min-height: 550px;
+}
+
+.notification-settings-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.notification-settings-header h4 {
+  margin: 0 0 8px;
+  color: var(--theme-primary-strong);
+  font-weight: 700;
+}
+
+.notification-settings-header p {
+  margin: 0;
+  color: var(--theme-text-muted);
+  line-height: 1.6;
+}
+
+.notification-permission-pill {
+  border-radius: 999px;
+  background: var(--theme-primary-soft);
+  color: var(--theme-primary-strong);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.notification-settings-note {
+  background: var(--theme-surface-muted);
+  border: 1px solid var(--theme-border);
+  border-radius: 12px;
+  padding: 16px;
+  color: var(--theme-text-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.notification-settings-group {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.notification-settings-help {
+  color: var(--theme-text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+.notification-settings-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-start;
+}
+
 .form-note {
   background: #7ba4db;
   padding: 15px;
@@ -157,6 +220,12 @@ div.custom-switch > label {
     margin-bottom: 1rem;
     padding: 0;
     height: auto;
+  }
+  .notification-settings-header {
+    flex-direction: column;
+  }
+  .notification-permission-pill {
+    white-space: normal;
   }
   .main-tabs form {
     margin: 2rem;

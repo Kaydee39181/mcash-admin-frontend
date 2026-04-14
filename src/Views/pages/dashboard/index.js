@@ -4,6 +4,8 @@ import "./style.css";
 import Barchart from "../../../Components/barchart";
 import Doughnut from "../../../Components/dougnut";
 import axios from "axios";
+import { FiCheck, FiCopy } from "react-icons/fi";
+import { toast } from "react-toastify";
 import {
   DashboardBreakdown,
   DashboardDetails,
@@ -11,6 +13,8 @@ import {
 import { connect } from "react-redux";
 import Loader from "../../../Components/secondLoader";
 import { AgentConstant } from "../../../constants/constants";
+import useVirtualTransactionsForDashboard from "../../../hooks/useVirtualTransactionsForDashboard";
+import { copyTextToClipboard } from "../../../utils/copyToClipboard";
 
 const safeParseToken = () => {
   const raw = localStorage.getItem("data");
@@ -51,7 +55,47 @@ const DashBoard = (props) => {
   const isAgentRole = roleName.trim().toUpperCase() === "AGENT";
   const [accessToken, setAccessToken] = useState(token?.access_token || "");
   const agentFetchOnceRef = useRef(false);
+  const copyTimeoutRef = useRef(null);
   const [, setAgentRecord] = useState(null);
+  const [copiedAccountNumber, setCopiedAccountNumber] = useState(false);
+  const {
+    accountNumber: virtualAccountNumber,
+    accountName: virtualAccountName,
+    loading: virtualAccountLoading,
+  } = useVirtualTransactionsForDashboard({
+    enabled: isAgentRole,
+  });
+  const virtualAccountBankName = "Globus Bank";
+
+  const handleCopyAccountNumber = useCallback(async () => {
+    if (!virtualAccountNumber || virtualAccountNumber === "N/A") {
+      return;
+    }
+
+    try {
+      await copyTextToClipboard(virtualAccountNumber);
+      setCopiedAccountNumber(true);
+      window.clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = window.setTimeout(() => {
+        setCopiedAccountNumber(false);
+      }, 2200);
+      toast.success("Account number copied.", {
+        containerId: "transaction-alerts",
+        autoClose: 2200,
+      });
+    } catch {
+      toast.error("Unable to copy account number.", {
+        containerId: "transaction-alerts",
+        autoClose: 2200,
+      });
+    }
+  }, [virtualAccountNumber]);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     // Debug: confirm component mounts
@@ -236,9 +280,64 @@ const DashBoard = (props) => {
           />
         )}
 
-        <div className="header-title">
-          <h3>Dashboard</h3>
-          <p>An overview of all activities on mCashPoint</p>
+        <div className="dashboard-hero">
+          <div className="header-title">
+            <h3>Dashboard</h3>
+            <p>An overview of all activities on mCashPoint</p>
+          </div>
+          {isAgentRole ? (
+            <section
+              className="dashboard-account-spotlight"
+              aria-label="Agent virtual account details"
+            >
+              <div className="dashboard-account-spotlight__orb">VA</div>
+              <div className="dashboard-account-spotlight__content">
+                <div className="dashboard-account-spotlight__eyebrow">
+                  Virtual Account Details
+                </div>
+                <div className="dashboard-account-spotlight__grid">
+                  <div className="dashboard-account-spotlight__item">
+                    <span className="dashboard-account-spotlight__label">
+                      Account Number
+                    </span>
+                    <div className="dashboard-account-spotlight__value-row">
+                      <span className="dashboard-account-spotlight__value">
+                        {virtualAccountLoading ? "Loading..." : virtualAccountNumber}
+                      </span>
+                      <button
+                        type="button"
+                        className="dashboard-account-copy-btn"
+                        onClick={handleCopyAccountNumber}
+                        disabled={
+                          virtualAccountLoading || !virtualAccountNumber || virtualAccountNumber === "N/A"
+                        }
+                        aria-label="Copy account number"
+                        title={copiedAccountNumber ? "Copied" : "Copy account number"}
+                      >
+                        {copiedAccountNumber ? <FiCheck /> : <FiCopy />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="dashboard-account-spotlight__item">
+                    <span className="dashboard-account-spotlight__label">
+                      Account Name
+                    </span>
+                    <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--name">
+                      {virtualAccountLoading ? "Loading..." : virtualAccountName}
+                    </span>
+                  </div>
+                  <div className="dashboard-account-spotlight__item">
+                    <span className="dashboard-account-spotlight__label">
+                      Bank Name
+                    </span>
+                    <span className="dashboard-account-spotlight__value dashboard-account-spotlight__value--bank">
+                      {virtualAccountLoading ? "Loading..." : virtualAccountBankName}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          ) : null}
         </div>
 
         <div className="graphs-wrapper">

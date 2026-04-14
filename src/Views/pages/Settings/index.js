@@ -21,6 +21,10 @@ const Settings = () => {
   const token = JSON.parse(localStorage.getItem("data"));
 
   const { name } = token.user.roleGroup;
+  const defaultTab =
+    name === "ADMIN" || name === "Senior Management " || name === "Product"
+      ? "first"
+      : "second";
 
   const isVisibleToUser = (roleCode, user) =>
     user.roleGroup.role.some((role) => role.roleCode === roleCode);
@@ -32,7 +36,7 @@ const Settings = () => {
         <p className="settings-text">Set controls on mCashPoint</p>
 
         <div className="tabs-wrap">
-          <Tab.Container id="left-tabs-example" defaultActiveKey="first">
+          <Tab.Container id="left-tabs-example" defaultActiveKey={defaultTab}>
             <Row>
               <Col sm={3} className="side-tab">
                 <Nav variant="pills" className="flex-column">
@@ -113,25 +117,19 @@ const Settings = () => {
                       </Nav.Link>
                     </Nav.Item>
                   )}
-                  {name === "ADMIN" ||
-                  name === "Senior Management " ||
-                  name === "Product" ? (
-                    <Nav.Item>
-                      <Nav.Link eventKey="fourth">
-                        <div className="tab-navs">
-                          <div>
-                            <img src={Notifications} alt="Notifications" />
-                          </div>
-                          <div>
-                            <p>Notifications</p>
-                            <p>Notification preferences </p>
-                          </div>
+                  <Nav.Item>
+                    <Nav.Link eventKey="fourth">
+                      <div className="tab-navs">
+                        <div>
+                          <img src={Notifications} alt="Notifications" />
                         </div>
-                      </Nav.Link>
-                    </Nav.Item>
-                  ) : (
-                    ""
-                  )}
+                        <div>
+                          <p>Notifications</p>
+                          <p>Notification preferences </p>
+                        </div>
+                      </div>
+                    </Nav.Link>
+                  </Nav.Item>
                 </Nav>
               </Col>
               <Col sm={6}>
@@ -153,15 +151,9 @@ const Settings = () => {
                       <RoleGroups></RoleGroups>
                     </Tab.Pane>
                   )}
-                  {name === "ADMIN" ||
-                  name === "Senior Management " ||
-                  name === "Product" ? (
-                    <Tab.Pane eventKey="fourth">
-                      <NotificationSettings></NotificationSettings>
-                    </Tab.Pane>
-                  ) : (
-                    ""
-                  )}
+                  <Tab.Pane eventKey="fourth">
+                    <NotificationSettings></NotificationSettings>
+                  </Tab.Pane>
 
                   {name === "AGENT" && (
                     <Tab.Pane eventKey="fifth">
