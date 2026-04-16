@@ -1,6 +1,7 @@
 node_modules
 build
 build-verify
+.yarn-cache
 .git
 .idea
 .gitignore
@@ -9,6 +10,7 @@ vercel.json
 Dockerfile
 npm-debug.log
 yarn-error.log
+yarn-debug.log
 
 
 

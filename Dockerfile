@@ -4,12 +4,15 @@ WORKDIR /app
 
 ENV PATH=/app/node_modules/.bin:$PATH
 
+RUN apk add --no-cache git
+
 ARG REACT_APP_BASE_URL=https://api.mcashpoint.com
 ENV REACT_APP_BASE_URL=$REACT_APP_BASE_URL
 
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc ./
+COPY scripts ./scripts
 
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile || yarn install --frozen-lockfile || yarn install --frozen-lockfile
 
 COPY . .
 
@@ -26,7 +29,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 3000
 
 CMD ["nginx", "-g", "daemon off;"]
-
 
 
 # FROM node:16 AS build
