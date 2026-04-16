@@ -19,9 +19,20 @@ import {
 import { connect } from "react-redux";
 
 import "./style.css";
+
+const FALLBACK_TEXT = "Not available";
+
+const formatValue = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return FALLBACK_TEXT;
+  }
+
+  return value;
+};
+
 const Profile = (props) => {
   const token = JSON.parse(localStorage.getItem("data"));
-  let { name } = token.user.roleGroup;
+  const { name } = token.user.roleGroup;
   const {
     loading,
     ActivateDeactivateUser: ActivateDeactivateUsers,
@@ -42,13 +53,21 @@ const Profile = (props) => {
   const [agentDetails, setAgentDetails] = useState([]);
 
   const { state } = props.location;
-
+  const row = state?.row || {};
+  const agent = row.agent || {};
+  const agentUser = agent.user || {};
+  const bank = agent.bank || {};
   const singleAgent = agents[0] ? agents[0].user : "";
   const activationcodenumber = agents[0] ? agents[0].activationCode : "";
+  const accountInformation = [agent.accountNumber, agent.accountName]
+    .filter(Boolean)
+    .join(", ");
 
   React.useEffect(() => {
-    FetchSingleAgents(state.row.UserName);
-  }, [FetchSingleAgents, state.row.UserName]);
+    if (row.UserName) {
+      FetchSingleAgents(row.UserName);
+    }
+  }, [FetchSingleAgents, row.UserName]);
 
   React.useEffect(() => {
     if (activateDeacivate) {
@@ -69,9 +88,9 @@ const Profile = (props) => {
   }, [activateDeacivate]);
 
   const ActivateAgent = async (agentId, activationuser) => {
-    // ActivateDeactivateUsers(agentId, !activationuser)
     await ActivateDeactivateUsers(agentId, !activationuser);
   };
+
   function DeActivateAgent(agentId, activationuser) {
     ActivateDeactivateUsers(agentId, !activationuser);
   }
@@ -127,33 +146,18 @@ const Profile = (props) => {
     showEditAgentModal(true);
     setAgentDetails(details);
   };
+
   const closeAgentModal = () => {
     showEditAgentModal(false);
     window.location.reload();
   };
 
   function ActivatateCode(agentId) {
-    // setActivation(null);
     ActivatateCodes(agentId);
   }
 
   return (
     <DashboardTemplate>
-      {/* <Modal
-        size="sm"
-        show={smShow}
-        onHide={() => setSmShow(false)}
-        aria-labelledby="example-modal-sizes-title-sm"
-      >
-        <Modal.Body >
-          <div class="d-flex align-items-center justify-content-center  flex-column">
-            <img src={Success} />
-            <p className=''>Password Reset Successfully</p>
-            <button class='okaybotton' onClick={() => setSmShow(false)} >OK</button>
-          </div>
-
-        </Modal.Body>
-      </Modal> */}
       <SweetAlert
         show={smShow}
         success={success}
@@ -169,7 +173,7 @@ const Profile = (props) => {
         onEscapeKey={() => closemodal()}
         onOutsideClick={() => closemodal()}
       />
-      <div className="transact-wrapper">
+      <div className="transact-wrapper profile-page-shell">
         {loading && (
           <Loader
             type="Oval"
@@ -178,141 +182,153 @@ const Profile = (props) => {
             color="#1E4A86"
           />
         )}
-        <div className="header-title">
+        <div className="header-title profile-page-header">
           <h3>Agent Profile</h3>
         </div>
-        <div className="agent-transact-header">
+        <div className="agent-transact-header profile-page-subheader">
           <div>Details of Agents on mCashPoint</div>
         </div>
-        <NavLink to="/agents">
-          <button className="butn btns">
+        <NavLink to="/agents" className="profile-back-link">
+          <button className="profile-back-button">
             <AiOutlineArrowLeft /> Back
           </button>
         </NavLink>
 
-        <div className="profile-wrapper">
-          <p className="header">Agent Profile</p>
-          <hr />
+        <section className="profile-card">
+          <div className="profile-card-top">
+            <p className="profile-card-label">Agent Profile</p>
+            <span
+              className={`profile-status ${
+                singleAgent && singleAgent.enabled
+                  ? "profile-status--active"
+                  : "profile-status--inactive"
+              }`}
+            >
+              {singleAgent && singleAgent.enabled ? "Active" : "Inactive"}
+            </span>
+          </div>
 
-          <div className="biodata">
-            <div className="address">
-              <div className="profile-image">
-                <div className="edit">
-                  <FiEdit2 />
-                </div>
-                <img src={image} alt="Agent profile" />
-              </div>
-              <div className="info">
-                <h6>{state.row ? state.row.agent.user.fullName : ""}</h6>
-                <label>
-                  {" "}
+          <div className="profile-hero">
+            <div className="profile-image-frame">
+              <img
+                src={image}
+                alt="Agent profile"
+                className="profile-avatar"
+              />
+              <span className="profile-image-badge">
+                <FiEdit2 />
+              </span>
+            </div>
+
+            <div className="profile-identity">
+              <p className="profile-kicker">Registered agent</p>
+              <h4>{formatValue(agentUser.fullName)}</h4>
+              <div className="profile-meta">
+                <span>
                   <RiSuitcaseLine />
-                  {state.row ? state.row.BusinessName : ""}
-                </label>
-                <label>
-                  {" "}
+                  {formatValue(row.BusinessName)}
+                </span>
+                <span>
                   <HiOutlineLocationMarker />
-                  {state.row.agent ? state.row.agent.businessAddress : ""}
-                </label>
+                  {formatValue(agent.businessAddress)}
+                </span>
               </div>
             </div>
-            <div className="emailgender">
-              <div className="email">
-                <label>Email</label>
-                <p>
-                  <b>{state.row ? state.row.agent.user.email : ""}</b>
-                </p>
-              </div>
-              <div className="gender">
-                <label>Gender</label>
-                <p>{state.row ? state.row.agent.gender : ""}</p>
-              </div>
-            </div>
-            <div className="bank">
-              <div className="bank-name">
-                <label>Bank</label>
-                <p>{state.row ? state.row.agent.bank.name : ""}</p>
-              </div>
-              <div className="bank-acct">
-                <label>Account Information</label>
-                <p>
-                  {state.row ? state.row.agent.accountNumber : ""},{" "}
-                  {state.row ? state.row.agent.accountName : ""}
-                </p>
-              </div>
-            </div>
-              <div className="btn-group">
-               {console.log(singleAgent)}
-               {singleAgent && singleAgent.enabled === true ? (
-                 <button
-                   disabled={
-                     name === "AMBASSADOR" && name === "AGENT" ? true : false
-                   }
-                  onClick={() =>
-                    DeActivateAgent(
-                      state.row.agent.user.id,
-                      singleAgent.enabled
-                    )
-                   }
-                   className={`btn1 btns ${
-                     name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
-                   }`}
-                >
-                  DEACTIVATE
-                </button>
-               ) : (
-                 <button
-                   disabled={
-                     name === "AMBASSADOR" && name === "AGENT" ? true : false
-                   }
-                   onClick={() =>
-                     ActivateAgent(state.row.agent.user.id, singleAgent.enabled)
-                   }
-                   className={`btn3 btns ${
-                     name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
-                   }`}
-                >
-                  ACTIVATE
-                </button>
-              )}
+          </div>
 
-              <button
-                disabled={
-                   name === "AMBASSADOR" && name === "AGENT" ? true : false
-                }
-                className={`btn2 btns ${
-                  name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
-                }`}
-                onClick={() => EditAgent(agents[0])}
-              >
-                Edit Agent
-              </button>
+          <div className="profile-info-grid">
+            <div className="profile-info-card profile-info-card--wide">
+              <label>Email</label>
+              <p>{formatValue(agentUser.email)}</p>
+            </div>
 
+            <div className="profile-info-card">
+              <label>Gender</label>
+              <p>{formatValue(agent.gender)}</p>
+            </div>
+
+            <div className="profile-info-card">
+              <label>Bank</label>
+              <p>{formatValue(bank.name)}</p>
+            </div>
+
+            <div className="profile-info-card profile-info-card--wide">
+              <label>Account Information</label>
+              <p>{formatValue(accountInformation)}</p>
+            </div>
+          </div>
+
+          <div className="profile-actions">
+            {singleAgent && singleAgent.enabled === true ? (
               <button
                 disabled={
                   name === "AMBASSADOR" && name === "AGENT" ? true : false
                 }
-                className={`btn2 btns ${
-                  name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
+                onClick={() =>
+                  DeActivateAgent(agentUser.id, singleAgent.enabled)
+                }
+                className={`profile-action profile-action--danger ${
+                  name === "AMBASSADOR" && name === "AGENT"
+                    ? "hideAction"
+                    : ""
                 }`}
-                onClick={() => ResetAgentPassword(state.row.agent.user.id)}
               >
-                RESET PASSWORD
+                Deactivate
               </button>
-              {state.row ? state.row.agent.activationCode : ""}
-              {activationcodenumber === null ? (
-                <button
-                  onClick={() => ActivatateCode(state.row.AgentID)}
-                  className="btn3 btns"
-                >
-                  GENERATE ACTIVATION CODE
-                </button>
-              ) : (
-                <button className="btn3 btns">{activationcodenumber}</button>
-              )}
-            </div>
+            ) : (
+              <button
+                disabled={
+                  name === "AMBASSADOR" && name === "AGENT" ? true : false
+                }
+                onClick={() => ActivateAgent(agentUser.id, singleAgent.enabled)}
+                className={`profile-action profile-action--success ${
+                  name === "AMBASSADOR" && name === "AGENT"
+                    ? "hideAction"
+                    : ""
+                }`}
+              >
+                Activate
+              </button>
+            )}
+
+            <button
+              disabled={
+                name === "AMBASSADOR" && name === "AGENT" ? true : false
+              }
+              className={`profile-action profile-action--primary ${
+                name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
+              }`}
+              onClick={() => EditAgent(agents[0])}
+            >
+              Edit Agent
+            </button>
+
+            <button
+              disabled={
+                name === "AMBASSADOR" && name === "AGENT" ? true : false
+              }
+              className={`profile-action profile-action--primary ${
+                name === "AMBASSADOR" && name === "AGENT" ? "hideAction" : ""
+              }`}
+              onClick={() => ResetAgentPassword(agentUser.id)}
+            >
+              Reset Password
+            </button>
+
+            {activationcodenumber === null ? (
+              <button
+                onClick={() => ActivatateCode(row.AgentID)}
+                className="profile-action profile-action--success"
+              >
+                Generate Activation Code
+              </button>
+            ) : (
+              <button className="profile-action profile-action--success">
+                {activationcodenumber}
+              </button>
+            )}
           </div>
-        </div>
+        </section>
       </div>
       <EditUser
         load={loading}
@@ -325,7 +341,6 @@ const Profile = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  console.log(state);
   return {
     agents: state.agents.agents,
     loading: state.agents.loading,
