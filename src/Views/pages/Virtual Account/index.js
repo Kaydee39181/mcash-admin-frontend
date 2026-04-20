@@ -24,6 +24,7 @@ import ViewReceipts from "../../../Components/viewReceipt";
 import { AgentConstant } from "../../../constants/constants";
 import { FetchVirtualAccountTransactions } from "../../../Redux/requests/virtualAccountRequest";
 import useMainTransactionsForBalance from "../../../hooks/useMainTransactionsForBalance";
+import { isVirtualAccountRestrictedRole } from "../../../utils/roleLabel";
 import {
   filterTransactions,
   formatTransactionForAdmin,
@@ -189,8 +190,7 @@ const VirtualAccount = (props) => {
   const token = safeParseToken();
   const roleName = token?.user?.roleGroup?.name || "";
   const showAccountNumberBadge = roleName.trim().toUpperCase() === "AGENT";
-  const isRestrictedRole =
-    roleName.trim().toLowerCase() === "agent relationship officer";
+  const isRestrictedRole = isVirtualAccountRestrictedRole(roleName);
   const [viewReceipt, setViewReceipt] = useState(null);
   const [receiptview, showReceiptView] = useState(false);
 

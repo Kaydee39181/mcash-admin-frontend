@@ -15,6 +15,7 @@ import Loader from "../../../Components/secondLoader";
 import { AgentConstant } from "../../../constants/constants";
 import useVirtualTransactionsForDashboard from "../../../hooks/useVirtualTransactionsForDashboard";
 import { copyTextToClipboard } from "../../../utils/copyToClipboard";
+import { isAgentManagerRole } from "../../../utils/roleLabel";
 
 const safeParseToken = () => {
   const raw = localStorage.getItem("data");
@@ -341,7 +342,7 @@ const DashBoard = (props) => {
           <div className="Dashboard-overview-wrapper">
             {name === "ADMIN" ||
             name === "Senior Management" ||
-            name === "AMBASSADOR" || 
+            isAgentManagerRole(name) ||
             name === "Product" ? (
               <div className="flex-box ">
                 <div className="person-background"></div>
@@ -381,7 +382,7 @@ const DashBoard = (props) => {
           </div>
 
           {/* <div className="transaction-graph-wrapper"> */}
-          {   name === "AMBASSADOR" ? '': (
+          {isAgentManagerRole(name) ? "" : (
           <div className="line-and-details">
            <div className="chart-status">
               <div className="chart-bg">

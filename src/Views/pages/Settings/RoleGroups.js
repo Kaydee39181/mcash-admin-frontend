@@ -7,6 +7,7 @@ import "./style.css";
 import { connect } from "react-redux";
 
 import { FetchRoleGroup } from "../../../Redux/requests/settingsRequest";
+import { getDisplayRoleName } from "../../../utils/roleLabel";
 
 const RoleGroups = ({ FetchRoleGroup: FetchRoleGroups, roleGroups }) => {
   const [createModalActive, showCreateModal] = React.useState(false);
@@ -53,7 +54,7 @@ const RoleGroups = ({ FetchRoleGroup: FetchRoleGroups, roleGroups }) => {
                 <div>
                   <h5>{role.id}</h5>
                 </div>
-                <div>{role.name} </div>
+                <div>{getDisplayRoleName(role.name)} </div>
               </div>
             </div>
           );

@@ -15,6 +15,10 @@ import { removeToken } from "../../utils/localStorage";
 import { logoutUser } from "../../Redux/requests/userRequest";
 import { connect } from "react-redux";
 import HardWareModal from "../HardwareModal/HardWareModal";
+import {
+  isAgentManagerRole,
+  isVirtualAccountRestrictedRole,
+} from "../../utils/roleLabel";
 
 const isVisibleToUser = (roleCode, user) =>
   user.roleGroup.role.some((role) => role.roleCode === roleCode);
@@ -45,7 +49,7 @@ class SideNav extends Component {
     const token = JSON.parse(localStorage.getItem("data"));
     console.log("token", token);
     let { name } = token.user.roleGroup;
-    if (name === "AMBASSADOR") {
+    if (isAgentManagerRole(name)) {
       token.user.roleGroup.role = [{ roleCode: "ROLE_VIEW_ALL_AGENT" }];
     }
     if (name === "AGENT") {
@@ -96,16 +100,18 @@ class SideNav extends Component {
                     </li>
                   </NavLink>
                 )}
-                <NavLink
-                  to="/virtual-account"
-                  activeClassName="current"
-                  onClick={this.forceUpdateHandler}
-                >
-                  <li className="list-group-item ">
-                  <img src={Purse} alt="" />{" "}
-                  <span className="list-group-item-text">Virtual Account{" "}</span>
-                  </li>
-                </NavLink>
+                {!isVirtualAccountRestrictedRole(name) && (
+                  <NavLink
+                    to="/virtual-account"
+                    activeClassName="current"
+                    onClick={this.forceUpdateHandler}
+                  >
+                    <li className="list-group-item ">
+                    <img src={Purse} alt="" />{" "}
+                    <span className="list-group-item-text">Virtual Account{" "}</span>
+                    </li>
+                  </NavLink>
+                )}
                 {isVisibleToUser("ROLE_VIEW_ALL_AGENT", token.user) &&
                   name !== "AGENT" && (
                     <NavLink to="/agents" activeClassName="current">
@@ -127,7 +133,7 @@ class SideNav extends Component {
                     </NavLink>
                   )}
                 {isVisibleToUser("ROLE_VIEW_ALL_AGENT", token.user) &&
-                  name !==   "AMBASSADOR" &&
+                  !isAgentManagerRole(name) &&
                   name !== "AGENT" && (
                     <NavLink to="/agentsmanager" activeClassName="current">
                       <li className="list-group-item">

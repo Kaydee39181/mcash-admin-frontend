@@ -1,10 +1,11 @@
 import React from "react";
 import "./style.css";
 import ThemeToggle from "../ThemeToggle";
+import { getDisplayRoleName } from "../../utils/roleLabel";
 
 export default function Header(props) {
   const token = JSON.parse(localStorage.getItem("data"));
-  const roleName = token ? token.user.roleGroup.name : "";
+  const roleName = getDisplayRoleName(token ? token.user.roleGroup.name : "");
 
   return (
     <div className="container-fluid m-0">

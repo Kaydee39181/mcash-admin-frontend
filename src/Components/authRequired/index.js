@@ -3,6 +3,10 @@ import { Route, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { isLoggedIn } from "../../utils/isLoggedIn";
 import DashboardTemplate from "../../Views/template/dashboardtemplate";
+import {
+  isAgentManagerRole,
+  isVirtualAccountRestrictedRole,
+} from "../../utils/roleLabel";
 
 const safeGetToken = () => {
   const raw = localStorage.getItem("data");
@@ -19,6 +23,7 @@ const AuthRequired = ({
   role,
   roleCode,
   adminRequred,
+  restrictVirtualAccount,
   ...rest
 }) => {
   const token = safeGetToken();
@@ -27,7 +32,7 @@ const AuthRequired = ({
   const roleGroup = token.user.roleGroup;
   const name = roleGroup.name;
 
-  if (name === "AMBASSADOR") {
+  if (isAgentManagerRole(name)) {
     roleGroup.role = [{ roleCode: "ROLE_VIEW_ALL_AGENT" }];
   }
   if (name === "AGENT") {
@@ -41,6 +46,14 @@ const AuthRequired = ({
 
   if (adminRequred && name !== "ADMIN") {
     return <Redirect to="/" />;
+  }
+
+  if (restrictVirtualAccount && isVirtualAccountRestrictedRole(name)) {
+    return (
+      <DashboardTemplate>
+        <h2>You do not have permissions to view this page</h2>
+      </DashboardTemplate>
+    );
   }
 
   if (!roles.some((role) => role.roleCode === roleCode)) {

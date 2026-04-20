@@ -9,6 +9,7 @@ import ExportModal from "../../../Components/Exports/index";
 import FilterModal from "../../../Components/Filter/index";
 import Pagination from "react-js-pagination";
 import EditUser from "./editAdmin";
+import { getDisplayRoleName } from "../../../utils/roleLabel";
 
 import "./style.css";
 
@@ -88,7 +89,10 @@ const AdminFetch = (props) => {
       lastname: admin.user.lastname === null ? "" : admin.user.lastname,
       username: admin.user.username === null ? "" : admin.user.username,
       DateCreated: admin.user.createdAt === null ? "" : admin.user.createdAt,
-      roleGroupName: admin.user === null ? "" : admin.user.roleGroup.name,
+      roleGroupName:
+        admin.user === null
+          ? ""
+          : getDisplayRoleName(admin.user.roleGroup.name),
       Active: admin.user.enabled === null ? "" : admin.user.enabled,
       email: admin.user.email === null ? "" : admin.user.email,
 

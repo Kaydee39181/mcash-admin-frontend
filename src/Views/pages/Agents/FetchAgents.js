@@ -21,6 +21,7 @@ import {
 import { connect } from "react-redux";
 import "./style.css";
 import Pagination from "react-js-pagination";
+import { isAgentManagerRole } from "../../../utils/roleLabel";
 
 const resolveFullName = (person) => {
   if (!person || typeof person !== "object") return "";
@@ -92,7 +93,7 @@ const Agents = (props) => {
   const [length, setLength] = useState(10);
   const [activePage, setActivePage] = useState(1);
   const [type, SetType] = useState("assigndevice");
-  const columnHidden = name === "AMBASSADOR";
+  const columnHidden = isAgentManagerRole(name);
 
   const closehardware = () => {
     setshowhardware(false);

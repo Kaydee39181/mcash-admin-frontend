@@ -70,6 +70,7 @@ class Routes extends Component {
 
               <AuthRequired
                 roleCode="ROLE_VIEW_ALL_AGENT"
+                restrictVirtualAccount
                 exact
                 path="/virtual-account"
                 component={VirtualAccount}

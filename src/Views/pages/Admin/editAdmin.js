@@ -16,6 +16,7 @@ import { FetchRoleGroup } from "../../../Redux/requests/settingsRequest";
 
 import { UpdateAdmin } from "../../../Redux/requests/adminRequest";
 import Loader from "../../../Components/secondLoader";
+import { getDisplayRoleName } from "../../../utils/roleLabel";
 import "./style.css";
 const EditAdminModal = ({
   UpdateAdmin: handleUpdateAdmin,
@@ -188,11 +189,13 @@ const EditAdminModal = ({
                       onChange={_handleSelectRoles}
                       
                     >
-                      <option>{roleGroupName}</option>
+                      <option value={roleGroupName}>
+                        {getDisplayRoleName(roleGroupName)}
+                      </option>
                       {roleGroups.map((role, i) => {
                         return (
                           <option key={i} value={role.name}>
-                            {role.name}
+                            {getDisplayRoleName(role.name)}
                           </option>
                         );
                       })}

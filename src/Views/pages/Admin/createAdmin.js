@@ -12,6 +12,7 @@ import { FetchRoleGroup } from "../../../Redux/requests/settingsRequest";
 
 import { CreateAdmin } from "../../../Redux/requests/adminRequest";
 import Loader from "../../../Components/secondLoader";
+import { getDisplayRoleName } from "../../../utils/roleLabel";
 import "./style.css";
 const CreateAdminModal = ({
   CreateAdmin: handleCreateAdmin,
@@ -165,7 +166,7 @@ console.log(roleGroups)
                   {roleGroups.map((role, i) => {
                     return (
                       <option key={i} value={role.name}>
-                        {role.name}
+                        {getDisplayRoleName(role.name)}
                       </option>
                     );
                   })}
