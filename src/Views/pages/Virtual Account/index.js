@@ -214,6 +214,9 @@ const VirtualAccount = (props) => {
 
   const [filterValues, setFilterValues] = useState(initialState);
   const [draftFilterValues, setDraftFilterValues] = useState(initialState);
+  const hasDerivedTypeFilter = /(?:^|\s)(credit|debit)$/i.test(
+    String(filterValues?.type || "").trim()
+  );
 
   const currentUserContext = useMemo(() => {
     return {
@@ -237,10 +240,23 @@ const VirtualAccount = (props) => {
   }, [roleName, showAccountNumberBadge, token, virtualAgentDetails]);
 
   useEffect(() => {
-    if (isRestrictedRole) return;
+    if (isRestrictedRole || hasDerivedTypeFilter) return;
     FetchVirtualTransactions(page, rowsPerPage, filterValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [FetchVirtualTransactions, filterValues, isRestrictedRole, page, rowsPerPage]);
+  }, [
+    FetchVirtualTransactions,
+    filterValues,
+    hasDerivedTypeFilter,
+    isRestrictedRole,
+    page,
+    rowsPerPage,
+  ]);
+
+  useEffect(() => {
+    if (isRestrictedRole || !hasDerivedTypeFilter) return;
+    FetchVirtualTransactions(0, 100, filterValues, { fetchAll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [FetchVirtualTransactions, filterValues, hasDerivedTypeFilter, isRestrictedRole]);
 
   const showNoAccess =
     isRestrictedRole || virtualError?.response?.data?.responseCode === "99";
@@ -442,6 +458,15 @@ const VirtualAccount = (props) => {
       };
     });
   }, [currentUserContext, filteredTransactions, showAccountNumberBadge]);
+
+  const visibleProducts = useMemo(() => {
+    if (!hasDerivedTypeFilter) {
+      return allProducts;
+    }
+
+    const startIndex = page * rowsPerPage;
+    return allProducts.slice(startIndex, startIndex + rowsPerPage);
+  }, [allProducts, hasDerivedTypeFilter, page, rowsPerPage]);
 
   const virtualAccountSummary = useMemo(() => {
     const transactionsToRender = Array.isArray(virtualTransactions)
@@ -755,12 +780,18 @@ const VirtualAccount = (props) => {
   ];
 
   const filteredTotal = allProducts.length;
-  const totalItemsCount = virtualTransactionTotal || filteredTotal;
+  const totalItemsCount = hasDerivedTypeFilter
+    ? filteredTotal
+    : virtualTransactionTotal || filteredTotal;
   const startRange = totalItemsCount === 0 ? 0 : page * rowsPerPage + 1;
   const endRange =
     totalItemsCount === 0
       ? 0
-      : Math.min(totalItemsCount, page * rowsPerPage + filteredTotal);
+      : Math.min(
+          totalItemsCount,
+          page * rowsPerPage +
+            (hasDerivedTypeFilter ? visibleProducts.length : filteredTotal)
+        );
   const showAccountSummary = showAccountNumberBadge && !showNoAccess;
 
   useEffect(() => {
@@ -846,7 +877,7 @@ const VirtualAccount = (props) => {
               <BootstrapTable
                 bootstrap4
                 keyField="id"
-                data={allProducts}
+                data={visibleProducts}
                 columns={columns}
                 noDataIndication={noDataIndication}
                 defaultSorted={defaultSorted}

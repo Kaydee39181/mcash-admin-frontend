@@ -340,14 +340,21 @@ const matchesSearch = (needle, values) => {
   );
 };
 
-const matchesExactType = (selectedType, transactionType) => {
+const matchesExactType = (selectedType, transactionTypes) => {
   const normalizedSelectedType = normalizeSearchValue(selectedType);
 
   if (!normalizedSelectedType) {
     return true;
   }
 
-  return normalizeSearchValue(transactionType) === normalizedSelectedType;
+  const candidates = Array.isArray(transactionTypes)
+    ? transactionTypes
+    : [transactionTypes];
+
+  return candidates.some(
+    (transactionType) =>
+      normalizeSearchValue(transactionType) === normalizedSelectedType
+  );
 };
 
 const matchesDateRange = (transaction, startDate, endDate) => {
@@ -395,6 +402,10 @@ export const filterTransactions = (transactions, filters = {}) => {
   return transactionsToFilter.filter((transaction) => {
     const { agent, customer } = getAdminParticipantDetails(transaction);
     const transactionType = getTransactionTypeLabel(transaction);
+    const formattedTransactionType = pickFirst(
+      formatTransactionForAdmin(transaction)?.type,
+      transactionType
+    );
     const transactionStatus = getTransactionStatusCategory(transaction);
 
     if (!matchesDateRange(transaction, normalizedFilters.startDate, normalizedFilters.endDate)) {
@@ -443,7 +454,12 @@ export const filterTransactions = (transactions, filters = {}) => {
       return false;
     }
 
-    if (!matchesExactType(normalizedFilters.type, transactionType)) {
+    if (
+      !matchesExactType(normalizedFilters.type, [
+        formattedTransactionType,
+        transactionType,
+      ])
+    ) {
       return false;
     }
 

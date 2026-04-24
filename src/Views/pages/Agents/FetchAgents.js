@@ -55,6 +55,27 @@ const getAgentManagerName = (agentManager) => {
   );
 };
 
+const getAgentEmail = (agent) => {
+  if (!agent || typeof agent !== "object") return "";
+
+  return agent?.user?.email || "";
+};
+
+const getAgentDateOfBirth = (agent) => {
+  const value = agent?.dateOfBirth;
+
+  if (!value) return "";
+  if (typeof value !== "string") return String(value);
+
+  return value.split("T")[0].split(" ")[0];
+};
+
+const getGlobusVirtualAccount = (agent) => {
+  if (!agent || typeof agent !== "object") return "";
+
+  return agent?.globusVirtualAccount || "";
+};
+
 const Agents = (props) => {
   const token = JSON.parse(localStorage.getItem("data"));
   let { name } = token.user.roleGroup;
@@ -213,6 +234,9 @@ const Agents = (props) => {
       "Agent ID",
       "Business Name",
       "User Name",
+      "Email",
+      "Date Of Birth",
+      "Globus Virtual Account",
       "Phone Number",
       "Terminal ID",
       "Date Created",
@@ -222,7 +246,10 @@ const Agents = (props) => {
   const item = agents.map((agent) => [
     agent.id,
     agent.businessName,
-    agent.user.username,
+    agent?.user?.username || "",
+    getAgentEmail(agent),
+    getAgentDateOfBirth(agent),
+    getGlobusVirtualAccount(agent),
     agent.businessPhone,
     agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
     agent.createdAt,
@@ -250,7 +277,10 @@ const Agents = (props) => {
       id: index,
       AgentID: agent.id === null ? "" : agent.id,
       BusinessName: agent.businessName === null ? "" : agent.businessName,
-      UserName: agent.user.username === null ? "" : agent.user.username,
+      UserName: agent?.user?.username === null ? "" : agent?.user?.username || "",
+      Email: getAgentEmail(agent),
+      DateOfBirth: getAgentDateOfBirth(agent),
+      GlobusVirtualAccount: getGlobusVirtualAccount(agent),
       PhoneNumber: agent.businessPhone === null ? "" : agent.businessPhone,
       Action: "",
       TerminalID:
@@ -302,6 +332,30 @@ const Agents = (props) => {
       style: { width: "20em", whiteSpace: "normal", wordWrap: "break-word" },
       headerStyle: (colum, colIndex) => {
         return { width: "200px", textAlign: "center" };
+      },
+    },
+    {
+      dataField: "Email",
+      text: "Email",
+      style: { width: "20em", whiteSpace: "normal", wordWrap: "break-word" },
+      headerStyle: () => {
+        return { width: "240px", textAlign: "center" };
+      },
+    },
+    {
+      dataField: "DateOfBirth",
+      text: "Date Of Birth",
+      style: { width: "12em", whiteSpace: "normal", wordWrap: "break-word" },
+      headerStyle: () => {
+        return { width: "150px", textAlign: "center" };
+      },
+    },
+    {
+      dataField: "GlobusVirtualAccount",
+      text: "Globus Virtual Account",
+      style: { width: "18em", whiteSpace: "normal", wordWrap: "break-word" },
+      headerStyle: () => {
+        return { width: "220px", textAlign: "center" };
       },
     },
     { dataField: "PhoneNumber", text: "Phone Number" },

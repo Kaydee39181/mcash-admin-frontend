@@ -45,6 +45,16 @@ const appendIfPresent = (params, key, value) => {
   params.append(key, normalizedValue);
 };
 
+const normalizeVirtualAccountTypeFilter = (value) => {
+  const normalizedValue = String(value || "").trim();
+
+  if (!normalizedValue) {
+    return "";
+  }
+
+  return normalizedValue.replace(/\s+(credit|debit)$/i, "");
+};
+
 const buildVirtualAccountUrl = (page = 0, length = 10, filters = {}) => {
   const params = new URLSearchParams();
 
@@ -58,14 +68,14 @@ const buildVirtualAccountUrl = (page = 0, length = 10, filters = {}) => {
   appendIfPresent(params, "accountNumber", filters?.accountNumber);
   appendIfPresent(params, "accountName", filters?.accountName);
   appendIfPresent(params, "bankName", filters?.bankName);
-  appendIfPresent(params, "type", filters?.type);
+  appendIfPresent(params, "type", normalizeVirtualAccountTypeFilter(filters?.type));
   appendIfPresent(params, "reference", filters?.reference);
 
   return `${AgentConstant.VIRTUAL_ACCOUNT_TRANSACTIONS_URL}?${params.toString()}`;
 };
 
 export const FetchVirtualAccountTransactions =
-  (page = 0, length = 10, filters = {}) =>
+  (page = 0, length = 10, filters = {}, options = {}) =>
   async (dispatch) => {
     dispatch(asyncActions(FETCH_VIRTUAL_ACCOUNT_TRANSACTIONS).loading(true));
     const token = safeParseToken();
@@ -81,19 +91,66 @@ export const FetchVirtualAccountTransactions =
     }
 
     try {
-      const url = buildVirtualAccountUrl(page, length, filters);
-      const response = await virtualAxios.get(url, {
-        headers: {
-          Authorization: `Bearer ${token.access_token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const requestHeaders = {
+        Authorization: `Bearer ${token.access_token}`,
+        "Content-Type": "application/json",
+      };
+      const shouldFetchAll = options?.fetchAll === true;
 
-      const payload = response?.data;
-      const data = normalizeTransactions(payload);
-      const total =
-        payload?.recordsFiltered ?? payload?.recordsTotal ?? payload?.total ?? data.length;
-      const agentDetails = normalizeAgentDetails(payload);
+      let payload;
+      let data = [];
+      let total = 0;
+      let agentDetails = null;
+
+      if (shouldFetchAll) {
+        const chunkLength = Math.max(1, Number(length) || 100);
+        let currentPage = 0;
+        let lastPayload = null;
+        let expectedTotal = 0;
+
+        while (true) {
+          const url = buildVirtualAccountUrl(currentPage, chunkLength, filters);
+          const response = await virtualAxios.get(url, {
+            headers: requestHeaders,
+          });
+
+          const currentPayload = response?.data;
+          const currentBatch = normalizeTransactions(currentPayload);
+          const currentTotal =
+            currentPayload?.recordsFiltered ??
+            currentPayload?.recordsTotal ??
+            currentPayload?.total ??
+            currentBatch.length;
+
+          data = [...data, ...currentBatch];
+          expectedTotal = Math.max(expectedTotal, Number(currentTotal) || 0);
+          agentDetails = normalizeAgentDetails(currentPayload) || agentDetails;
+          lastPayload = currentPayload;
+
+          if (
+            currentBatch.length === 0 ||
+            currentBatch.length < chunkLength ||
+            (expectedTotal > 0 && data.length >= expectedTotal)
+          ) {
+            payload = lastPayload;
+            total = expectedTotal || data.length;
+            break;
+          }
+
+          currentPage += 1;
+        }
+      } else {
+        const url = buildVirtualAccountUrl(page, length, filters);
+        const response = await virtualAxios.get(url, {
+          headers: requestHeaders,
+        });
+
+        payload = response?.data;
+        data = normalizeTransactions(payload);
+        total =
+          payload?.recordsFiltered ?? payload?.recordsTotal ?? payload?.total ?? data.length;
+        agentDetails = normalizeAgentDetails(payload);
+      }
 
       dispatch(
         asyncActions(FETCH_VIRTUAL_ACCOUNT_TRANSACTIONS).success({

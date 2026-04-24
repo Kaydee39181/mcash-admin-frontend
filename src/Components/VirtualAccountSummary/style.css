@@ -100,7 +100,10 @@
 }
 
 .virtual-account-summary__detail-value--mono {
+  font-size: 18px;
   letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .virtual-account-summary__account-row {
@@ -109,6 +112,7 @@
   justify-content: center;
   gap: 12px;
   min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .virtual-account-summary__icon-btn {
@@ -127,9 +131,9 @@
 }
 
 .virtual-account-summary__copy-btn {
-  min-width: 96px;
-  min-height: 40px;
-  padding: 10px 14px;
+  min-width: 86px;
+  min-height: 36px;
+  padding: 8px 12px;
   border: none;
   border-radius: 999px;
   background: #1e4a86;
@@ -138,8 +142,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
   box-shadow: 0 10px 20px rgba(30, 74, 134, 0.18);
@@ -200,6 +207,10 @@
   .virtual-account-summary__balance-value,
   .virtual-account-summary__detail-value {
     font-size: 18px;
+  }
+
+  .virtual-account-summary__detail-value--mono {
+    white-space: normal;
   }
 
   .virtual-account-summary__account-row {

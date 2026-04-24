@@ -15,6 +15,12 @@ import Pagination from "react-js-pagination";
 import "./style.css";
 import { DropdownButton, Dropdown } from "react-bootstrap";
 
+const getAgentManagerEmail = (agent) => {
+  if (!agent || typeof agent !== "object") return "";
+
+  return agent?.agentManager?.user?.email || agent?.user?.email || "";
+};
+
 const FetchAgentsManager = (props) => {
   const {
     FetchAgentManager: FetchAgentManagers,
@@ -84,6 +90,7 @@ const FetchAgentsManager = (props) => {
       "Agent ID",
       "Name",
       "User Name",
+      "Email",
       "Phone Number",
       "State",
       "LGA",
@@ -94,7 +101,8 @@ const FetchAgentsManager = (props) => {
   const item = agentmanager.map((agent) => [
     agent.id,
     agent.name,
-    agent.user.username,
+    agent?.user?.username || "",
+    getAgentManagerEmail(agent),
     agent.phone,
     agent.state.stateName,
     agent.lga.lga,
@@ -109,6 +117,7 @@ const FetchAgentsManager = (props) => {
       AgentID: agent.user.id === null ? "" : agent.user.id,
       Name: agent.user.fullName === null ? "" : agent.user.fullName,
       UserName: agent.user.username === null ? "" : agent.user.username,
+      Email: getAgentManagerEmail(agent),
       PhoneNumber: agent.phone === null ? "" : agent.phone,
       State: agent.state.stateName === null ? "" : agent.state.stateName,
       LGA: agent.lga.lga === null ? "" : agent.lga.lga,
@@ -168,6 +177,19 @@ const FetchAgentsManager = (props) => {
       },
       headerStyle: (colum, colIndex) => {
         return { width: "200px", textAlign: "center" };
+      },
+    },
+    {
+      dataField: "Email",
+      text: "Email",
+      style: {
+        width: "20em",
+        whiteSpace: "normal",
+        wordWrap: "break-word",
+        padding: "10px",
+      },
+      headerStyle: () => {
+        return { width: "240px", textAlign: "center" };
       },
     },
     { dataField: "PhoneNumber", text: "Phone Number" },
