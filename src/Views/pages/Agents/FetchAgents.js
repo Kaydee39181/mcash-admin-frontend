@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
@@ -17,11 +17,13 @@ import {
   ActivatateCode,
   FetchBankTerminal,
   UnAssignTerminal,
+  buildAgentUrl,
 } from "../../../Redux/requests/agentRequest";
 import { connect } from "react-redux";
 import "./style.css";
 import Pagination from "react-js-pagination";
 import { isAgentManagerRole } from "../../../utils/roleLabel";
+import { fetchCompleteDataSet } from "../../../utils/exportRequests";
 
 const resolveFullName = (person) => {
   if (!person || typeof person !== "object") return "";
@@ -76,6 +78,62 @@ const getGlobusVirtualAccount = (agent) => {
   return agent?.globusVirtualAccount || "";
 };
 
+const getAgentExportData = (agents = []) => {
+  const safeAgents = Array.isArray(agents) ? agents : [];
+
+  const managerNameByManagerId = safeAgents.reduce((acc, agent) => {
+    const managerId = getAgentManagerId(agent?.agentManager);
+    const managerName = getAgentManagerName(agent?.agentManager);
+
+    if (managerId && managerName && !acc.has(managerId)) {
+      acc.set(managerId, managerName);
+    }
+
+    return acc;
+  }, new Map());
+
+  const item = safeAgents.map((agent) => [
+    agent.id,
+    agent.businessName,
+    agent?.user?.username || "",
+    getAgentEmail(agent),
+    getAgentDateOfBirth(agent),
+    getGlobusVirtualAccount(agent),
+    agent.businessPhone,
+    agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
+    agent.createdAt,
+  ]);
+
+  const products = safeAgents.map((agent, index) => {
+    const managerId = getAgentManagerId(agent?.agentManager);
+    const resolvedManagerName =
+      getAgentManagerName(agent?.agentManager) ||
+      (managerId ? managerNameByManagerId.get(managerId) || "" : "");
+
+    return {
+      agent: agent ? agent : "",
+      id: index,
+      AgentID: agent.id === null ? "" : agent.id,
+      BusinessName: agent.businessName === null ? "" : agent.businessName,
+      UserName: agent?.user?.username === null ? "" : agent?.user?.username || "",
+      Email: getAgentEmail(agent),
+      DateOfBirth: getAgentDateOfBirth(agent),
+      GlobusVirtualAccount: getGlobusVirtualAccount(agent),
+      PhoneNumber: agent.businessPhone === null ? "" : agent.businessPhone,
+      Action: "",
+      TerminalID:
+        agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
+      AgentManager: resolvedManagerName,
+      DateCreated: agent.createdAt === null ? "" : agent.createdAt,
+    };
+  });
+
+  return {
+    item,
+    products,
+  };
+};
+
 const Agents = (props) => {
   const token = JSON.parse(localStorage.getItem("data"));
   let { name } = token.user.roleGroup;
@@ -100,6 +158,8 @@ const Agents = (props) => {
     FilterModalActive,
     showExportModal,
     ExportModalActive,
+    downloadAllMode,
+    setDownloadAllMode,
     initialState,
     filterValues,
     setFilterValues,
@@ -139,10 +199,28 @@ const Agents = (props) => {
   }, [FetchAgents, FetchBankTerminals, filterValues, length, nextPage]);
   const closeExport = () => {
     showExportModal(false);
+    setDownloadAllMode(false);
   };
   const closeFilter = () => {
     showFilterModal(false);
   };
+
+  const getCompleteAgentDataset = useCallback(async () => {
+    const knownTotal = Number(agentTotal) || 0;
+
+    if (knownTotal === 0) {
+      return [];
+    }
+
+    const { data } = await fetchCompleteDataSet({
+      buildUrl: (pageNumber, chunkSize) =>
+        buildAgentUrl(pageNumber, chunkSize, filterValues),
+      totalCount: knownTotal,
+      chunkSize: 2000,
+    });
+
+    return data;
+  }, [agentTotal, filterValues]);
 
   useEffect(() => {
     FetchHardWares();
@@ -162,6 +240,7 @@ const Agents = (props) => {
       [event.target.name]: event.target.value,
     });
     setNextPage(0);
+    setActivePage(1);
     showExportModal(false);
   }
 
@@ -226,69 +305,34 @@ const Agents = (props) => {
     FetchAgents(nextPage, length, filterValues);
     closeFilter();
     setNextPage(0);
+    setActivePage(1);
+  };
+
+  const resetFilters = () => {
+    setFilterValues(initialState);
+    setNextPage(0);
+    setActivePage(1);
   };
 
   const title = "Agents page";
-  const headers = [
-    [
-      "Agent ID",
-      "Business Name",
-      "User Name",
-      "Email",
-      "Date Of Birth",
-      "Globus Virtual Account",
-      "Phone Number",
-      "Terminal ID",
-      "Date Created",
+  const headers = useMemo(
+    () => [
+      [
+        "Agent ID",
+        "Business Name",
+        "User Name",
+        "Email",
+        "Date Of Birth",
+        "Globus Virtual Account",
+        "Phone Number",
+        "Terminal ID",
+        "Date Created",
+      ],
     ],
-  ];
+    []
+  );
 
-  const item = agents.map((agent) => [
-    agent.id,
-    agent.businessName,
-    agent?.user?.username || "",
-    getAgentEmail(agent),
-    getAgentDateOfBirth(agent),
-    getGlobusVirtualAccount(agent),
-    agent.businessPhone,
-    agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
-    agent.createdAt,
-  ]);
-
-  const managerNameByManagerId = agents.reduce((acc, agent) => {
-    const managerId = getAgentManagerId(agent?.agentManager);
-    const managerName = getAgentManagerName(agent?.agentManager);
-
-    if (managerId && managerName && !acc.has(managerId)) {
-      acc.set(managerId, managerName);
-    }
-
-    return acc;
-  }, new Map());
-
-  const products = agents.map((agent, index) => {
-    const managerId = getAgentManagerId(agent?.agentManager);
-    const resolvedManagerName =
-      getAgentManagerName(agent?.agentManager) ||
-      (managerId ? managerNameByManagerId.get(managerId) || "" : "");
-
-    return {
-      agent: agent ? agent : "",
-      id: index,
-      AgentID: agent.id === null ? "" : agent.id,
-      BusinessName: agent.businessName === null ? "" : agent.businessName,
-      UserName: agent?.user?.username === null ? "" : agent?.user?.username || "",
-      Email: getAgentEmail(agent),
-      DateOfBirth: getAgentDateOfBirth(agent),
-      GlobusVirtualAccount: getGlobusVirtualAccount(agent),
-      PhoneNumber: agent.businessPhone === null ? "" : agent.businessPhone,
-      Action: "",
-      TerminalID:
-        agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
-      AgentManager: resolvedManagerName,
-      DateCreated: agent.createdAt === null ? "" : agent.createdAt,
-    };
-  });
+  const { item, products } = useMemo(() => getAgentExportData(agents), [agents]);
 
   const noDataIndication = () => {
     if (loading) return "Loading agents...";
@@ -299,6 +343,23 @@ const Agents = (props) => {
   const startItem = totalAgentsCount > 0 ? (activePage - 1) * length + 1 : 0;
   const endItem = totalAgentsCount > 0 ? Math.min(activePage * length, totalAgentsCount) : 0;
   const allAgentsEventKey = String(totalAgentsCount > 0 ? totalAgentsCount : length || 10);
+
+  const requestAllAgentsExport = useCallback(async () => {
+    const allAgents = await getCompleteAgentDataset();
+
+    return {
+      ...getAgentExportData(allAgents),
+      title,
+      headers,
+      filename: "Agent file",
+      filterValues,
+    };
+  }, [
+    filterValues,
+    getCompleteAgentDataset,
+    headers,
+    title,
+  ]);
 
   const columns = [
     // { dataField: 'id', text: 'Id'},
@@ -540,7 +601,7 @@ const Agents = (props) => {
           <Pagination
             activePage={activePage}
             itemsCountPerPage={length}
-            totalItemsCount={agentTotal}
+            totalItemsCount={totalAgentsCount}
             pageRangeDisplayed={5}
             onChange={_handlePageChange}
           />
@@ -558,6 +619,8 @@ const Agents = (props) => {
         loadPage={FetchAgents}
         handleFilterValue={_handleFilterValue}
         submitFilter={onFilterSubmit}
+        filterValues={filterValues}
+        resetFilter={resetFilters}
       />
       <ExportModal
         show={ExportModalActive}
@@ -568,6 +631,8 @@ const Agents = (props) => {
         item={item}
         products={products}
         columns={columns}
+        filterValues={filterValues}
+        requestExportData={downloadAllMode ? requestAllAgentsExport : undefined}
       />
     </div>
   );

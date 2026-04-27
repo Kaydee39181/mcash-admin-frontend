@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
@@ -11,6 +11,7 @@ import {
   FetchTransactionSingle,
   FetchTransactionTypes,
   FetchTransactionStatus,
+  buildTransactionSingleUrl,
 } from "../../../Redux/requests/transactionRequest";
 import Loader from "../../../Components/secondLoader";
 import ExportModal from "../../../Components/Exports";
@@ -22,9 +23,89 @@ import {
 import Pagination from "react-js-pagination";
 
 import { connect } from "react-redux";
+import { fetchAllPaginatedData } from "../../../utils/exportRequests";
 
 import "./style.css";
 // import ExportLink from '../Exports/index';
+
+const getTransactionSingleManagerName = (transact) =>
+  transact?.agent?.agentManager?.accountName ||
+  transact?.agent?.agentManager?.user?.fullName ||
+  transact?.agentManager?.accountName ||
+  transact?.agentManager?.user?.fullName ||
+  transact?.agentManagerName ||
+  "";
+
+const buildTransactionSingleExportData = (transactions) => {
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
+  const managerByAgentId = safeTransactions.reduce((acc, transact) => {
+    const agentId = transact?.agent?.id;
+    const managerName = getTransactionSingleManagerName(transact);
+
+    if (agentId != null && managerName && !acc.has(String(agentId))) {
+      acc.set(String(agentId), managerName);
+    }
+
+    return acc;
+  }, new Map());
+
+  const resolveManagerName = (transact) => {
+    const managerName = getTransactionSingleManagerName(transact);
+    if (managerName) return managerName;
+
+    const agentId = transact?.agent?.id;
+    if (agentId != null) {
+      return managerByAgentId.get(String(agentId)) || "—";
+    }
+
+    return "—";
+  };
+
+  const item = safeTransactions.map((transact) => [
+    transact?.systemTime || "",
+    transact?.agent?.businessName || "",
+    resolveManagerName(transact),
+    transact?.transactionId || "",
+    transact?.transactionType?.type || "",
+    transact?.agent?.bankTerminal?.terminalId || "",
+    transact?.amount ?? "",
+    transact?.statusCode || "",
+    transact?.agentFee ?? "",
+    transact?.stampDuty ?? "",
+    transact?.rrn || "",
+    transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
+    transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
+  ]);
+
+  const products = safeTransactions.map((transact) => ({
+    transact,
+    id: transact?.id ?? "",
+    Date: transact?.systemTime || "",
+    Agent: transact?.agent?.businessName || "",
+    AgentManager: resolveManagerName(transact),
+    TransactionID: transact?.transactionId || "",
+    Type: transact?.transactionType?.type || "",
+    TerminalID: transact?.agent?.bankTerminal?.terminalId || "",
+    Amount: transact?.amount ?? "",
+    Status: transact?.statusCode || "",
+    ConvenienceFee: transact?.convenienceFee ?? "",
+    AgentFee: transact?.agentFee ?? "",
+    StampDuty: transact?.stampDuty ?? "",
+    RRN: transact?.rrn || "",
+    STAN: transact?.stan || "",
+    PostBalance:
+      transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
+    PreBalance:
+      transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
+    AppVersion: transact?.appVersion || "",
+  }));
+
+  return {
+    item,
+    products,
+  };
+};
 
 const Transactions = (props) => {
   const {
@@ -39,6 +120,7 @@ const Transactions = (props) => {
   } = props;
   console.log(transactionsType);
   const [exportModalActive, showExportModal] = useState(false);
+  const [downloadAllMode, setDownloadAllMode] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
   const [nextPage, setNextPage] = useState(0);
   const [length, setLength] = useState(10);
@@ -91,119 +173,35 @@ const Transactions = (props) => {
   }, [nextPage, length, filterValues, FetchTransactionSingles, FetchTransactionType, FetchTransactionStatuses]);
 
   const title = "Transactions page";
-  const transactions = Array.isArray(transaction) ? transaction : [];
+  const transactions = useMemo(
+    () => (Array.isArray(transaction) ? transaction : []),
+    [transaction]
+  );
 
-  const getManagerName = (transact) =>
-    transact?.agent?.agentManager?.accountName ||
-    transact?.agent?.agentManager?.user?.fullName ||
-    transact?.agentManager?.accountName ||
-    transact?.agentManager?.user?.fullName ||
-    transact?.agentManagerName ||
-    "";
-
-  const managerByAgentId = transactions.reduce((acc, transact) => {
-    const agentId = transact?.agent?.id;
-    const managerName = getManagerName(transact);
-
-    if (agentId != null && managerName && !acc.has(String(agentId))) {
-      acc.set(String(agentId), managerName);
-    }
-
-    return acc;
-  }, new Map());
-
-  const resolveManagerName = (transact) => {
-    const managerName = getManagerName(transact);
-    if (managerName) return managerName;
-
-    const agentId = transact?.agent?.id;
-    if (agentId != null) {
-      return managerByAgentId.get(String(agentId)) || "—";
-    }
-
-    return "—";
-  };
-
-  const headers = [
-  [
-    "Date",
-    "Agent",
-    "Agent Manager",
-    "Transaction ID",
-    "Type",
-    "Terminal ID",
-    "Amount",
-    "Status",
-    "Agent Fee",
-    "Stamp Duty",
-    "RRN",
-    "Pre Balance",
-    "Post Balance",
-  ],
-];
-  const item = transactions.map((transact) => [
-    transact?.systemTime || "",
-    transact?.agent?.businessName || "",
-    resolveManagerName(transact),
-    transact?.transactionId || "",
-    transact?.transactionType?.type || "",
-    transact?.agent?.bankTerminal == null
-      ? ""
-      : transact?.agent?.bankTerminal?.terminalId,
-    transact?.amount ?? "",
-    transact?.statusCode || "",
-    transact?.agentFee ?? "",
-    transact?.stampDuty ?? "",
-    transact?.rrn || "",
-    transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
-    transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
-  ]);
-
-  const products = transactions.map((transact) => {
-    return {
-      transact: transact,
-      id: transact?.agent?.id === "undefined" ? "" : transact?.id,
-      Date: transact?.systemTime === "undefined" ? "" : transact?.systemTime,
-      Agent:
-        transact?.agent?.businessName === "undefined"
-          ? ""
-          : transact?.agent?.businessName,
-      AgentManager: resolveManagerName(transact),
-      TransactionID:
-        transact?.transactionId === "undefined" ? "" : transact?.transactionId,
-      Type:
-        transact?.transactionType?.type === "undefined"
-          ? ""
-          : transact?.transactionType?.type,
-      TerminalID:
-        transact?.agent?.bankTerminal === null
-          ? ""
-          : transact?.agent?.bankTerminal?.terminalId,
-      Amount: transact?.amount === "undefined" ? "" : transact?.amount,
-      Status: transact?.statusCode,
-      ConvenienceFee: transact?.convenienceFee,
-      AgentFee: transact?.agentFee === "undefined" ? "" : transact?.agentFee,
-      StampDuty: transact?.stampDuty === "undefined" ? "" : transact?.stampDuty,
-      RRN: transact?.rrn === "undefined" ? "" : transact?.rrn,
-      STAN: transact?.stan === "undefined" ? "" : transact?.stan,
-      
-      // CardDetails:transact.rrn === 'undefined' ? '':transact.rrn ,
-      // PreBalance:
-      //   transact.postPurseBalance.toFixed(2) === "undefined"
-      //     ? ""
-      //     : transact.postPurseBalance.toFixed(2),
-      // PostBalance:
-      //   transact.postPurseBalance.toFixed(2) === "undefined"
-      //     ? ""
-      //     : transact.prePurseBalance.toFixed(2),
-
-      PostBalance: transact?.prePurseBalance != null ? transact.prePurseBalance.toFixed(2) : "",
-      PreBalance: transact?.postPurseBalance != null ? transact.postPurseBalance.toFixed(2) : "",
-
-      AppVersion:
-        transact?.appVersion === "undefined" ? "" : transact?.appVersion,
-    };
-  });
+  const headers = useMemo(
+    () => [
+      [
+        "Date",
+        "Agent",
+        "Agent Manager",
+        "Transaction ID",
+        "Type",
+        "Terminal ID",
+        "Amount",
+        "Status",
+        "Agent Fee",
+        "Stamp Duty",
+        "RRN",
+        "Pre Balance",
+        "Post Balance",
+      ],
+    ],
+    []
+  );
+  const { item, products } = useMemo(
+    () => buildTransactionSingleExportData(transactions),
+    [transactions]
+  );
 
   const noDataIndication = () => {
     if (loading) return "Loading transactions...";
@@ -325,8 +323,25 @@ const Transactions = (props) => {
     setNextPage(pageNumber - 1);
   };
 
+  const requestAllAgentTransactionsExport = useCallback(async () => {
+    const agentId = localStorage.getItem("agentId");
+    const { data } = await fetchAllPaginatedData({
+      buildUrl: (pageNumber, chunkSize) =>
+        buildTransactionSingleUrl(agentId, pageNumber, chunkSize, filterValues),
+    });
+
+    return {
+      ...buildTransactionSingleExportData(data),
+      title,
+      headers,
+      filename: "transaction file",
+      filterValues,
+    };
+  }, [filterValues, headers, title]);
+
   const closeExport = () => {
     showExportModal(false);
+    setDownloadAllMode(false);
   };
   const closeFilter = () => {
     showFilterModal(false);
@@ -335,6 +350,16 @@ const Transactions = (props) => {
   const OpenFilter = () => {
     showFilterModal(true);
     setFilterValues(initialState);
+  };
+
+  const openCurrentExport = () => {
+    setDownloadAllMode(false);
+    showExportModal(true);
+  };
+
+  const openDownloadAll = () => {
+    setDownloadAllMode(true);
+    showExportModal(true);
   };
 
   return (
@@ -364,9 +389,14 @@ const Transactions = (props) => {
               Filter
             </span>
 
-            <span onClick={() => showExportModal(true)}>
+            <span onClick={openCurrentExport}>
               <img src={Upload} alt="Export" />
               Export
+            </span>
+
+            <span onClick={openDownloadAll}>
+              <img src={Upload} alt="Download all" />
+              Download all
             </span>
           </div>
         </div>
@@ -445,6 +475,9 @@ const Transactions = (props) => {
         products={products}
         columns={columns}
         filterValues={filterValues}
+        requestExportData={
+          downloadAllMode ? requestAllAgentTransactionsExport : undefined
+        }
       />
     </DashboardTemplate>
   );

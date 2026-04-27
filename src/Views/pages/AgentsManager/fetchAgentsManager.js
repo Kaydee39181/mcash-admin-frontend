@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
 import { NavLink } from "react-router-dom";
-import { FetchAgentManager } from "../../../Redux/requests/agentManagerRequest";
+import {
+  FetchAgentManager,
+  buildAgentManagerUrl,
+} from "../../../Redux/requests/agentManagerRequest";
 import Loader from "../../../Components/secondLoader";
 import { connect } from "react-redux";
 import ExportModal from "../../../Components/Exports/index";
@@ -14,11 +17,45 @@ import Pagination from "react-js-pagination";
 
 import "./style.css";
 import { DropdownButton, Dropdown } from "react-bootstrap";
+import { fetchAllPaginatedData } from "../../../utils/exportRequests";
 
 const getAgentManagerEmail = (agent) => {
   if (!agent || typeof agent !== "object") return "";
 
   return agent?.agentManager?.user?.email || agent?.user?.email || "";
+};
+
+const getAgentManagerExportData = (agentManagers = []) => {
+  const safeAgentManagers = Array.isArray(agentManagers) ? agentManagers : [];
+
+  const item = safeAgentManagers.map((agent) => [
+    agent.id,
+    agent.name,
+    agent?.user?.username || "",
+    getAgentManagerEmail(agent),
+    agent.phone,
+    agent.state.stateName,
+    agent.lga.lga,
+    agent.createdAt,
+  ]);
+
+  const products = safeAgentManagers.map((agent, index) => ({
+    id: index,
+    Agent: agent,
+    AgentID: agent.user.id === null ? "" : agent.user.id,
+    Name: agent.user.fullName === null ? "" : agent.user.fullName,
+    UserName: agent.user.username === null ? "" : agent.user.username,
+    Email: getAgentManagerEmail(agent),
+    PhoneNumber: agent.phone === null ? "" : agent.phone,
+    State: agent.state.stateName === null ? "" : agent.state.stateName,
+    LGA: agent.lga.lga === null ? "" : agent.lga.lga,
+    DateCreated: agent.createdAt === null ? "" : agent.createdAt,
+  }));
+
+  return {
+    item,
+    products,
+  };
 };
 
 const FetchAgentsManager = (props) => {
@@ -30,6 +67,8 @@ const FetchAgentsManager = (props) => {
     FilterModalActive,
     showExportModal,
     ExportModalActive,
+    downloadAllMode,
+    setDownloadAllMode,
     agentManagerTotal,
     filterValues,
     setFilterValues,
@@ -45,6 +84,7 @@ const FetchAgentsManager = (props) => {
 
   const closeExport = () => {
     showExportModal(false);
+    setDownloadAllMode(false);
   };
   const closeFilter = () => {
     showFilterModal(false);
@@ -85,45 +125,26 @@ const FetchAgentsManager = (props) => {
   };
 
   const title = "AgentManager page";
-  const headers = [
-    [
-      "Agent ID",
-      "Name",
-      "User Name",
-      "Email",
-      "Phone Number",
-      "State",
-      "LGA",
-      "Date Created",
+  const headers = useMemo(
+    () => [
+      [
+        "Agent ID",
+        "Name",
+        "User Name",
+        "Email",
+        "Phone Number",
+        "State",
+        "LGA",
+        "Date Created",
+      ],
     ],
-  ];
+    []
+  );
 
-  const item = agentmanager.map((agent) => [
-    agent.id,
-    agent.name,
-    agent?.user?.username || "",
-    getAgentManagerEmail(agent),
-    agent.phone,
-    agent.state.stateName,
-    agent.lga.lga,
-    agent.createdAt,
-  ]);
-
-  const products = agentmanager.map((agent, index) => {
-    //console.log(agent);
-    return {
-      id: index,
-      Agent: agent,
-      AgentID: agent.user.id === null ? "" : agent.user.id,
-      Name: agent.user.fullName === null ? "" : agent.user.fullName,
-      UserName: agent.user.username === null ? "" : agent.user.username,
-      Email: getAgentManagerEmail(agent),
-      PhoneNumber: agent.phone === null ? "" : agent.phone,
-      State: agent.state.stateName === null ? "" : agent.state.stateName,
-      LGA: agent.lga.lga === null ? "" : agent.lga.lga,
-      DateCreated: agent.createdAt === null ? "" : agent.createdAt,
-    };
-  });
+  const { item, products } = useMemo(
+    () => getAgentManagerExportData(agentmanager),
+    [agentmanager]
+  );
 
   const noDataIndication = () => {
     if (loading) return "Loading agents...";
@@ -138,6 +159,21 @@ const FetchAgentsManager = (props) => {
   const allAgentManagersEventKey = String(
     totalAgentManagersCount > 0 ? totalAgentManagersCount : length || 10
   );
+
+  const requestAllAgentManagersExport = useCallback(async () => {
+    const { data } = await fetchAllPaginatedData({
+      buildUrl: (pageNumber, chunkSize) =>
+        buildAgentManagerUrl(pageNumber, chunkSize, filterValues),
+    });
+
+    return {
+      ...getAgentManagerExportData(data),
+      title,
+      headers,
+      filename: "AgentManager file",
+      filterValues,
+    };
+  }, [filterValues, headers, title]);
 
   const columns = [
     // { dataField: 'id', text: 'Id'},
@@ -297,6 +333,10 @@ const FetchAgentsManager = (props) => {
         item={item}
         products={products}
         columns={columns}
+        filterValues={filterValues}
+        requestExportData={
+          downloadAllMode ? requestAllAgentManagersExport : undefined
+        }
       />
     </div>
   );

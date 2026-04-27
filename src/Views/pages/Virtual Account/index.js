@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
@@ -22,7 +22,10 @@ import FilterModal from "../../../Components/Filter";
 import VirtualAccountSummary from "../../../Components/VirtualAccountSummary";
 import ViewReceipts from "../../../Components/viewReceipt";
 import { AgentConstant } from "../../../constants/constants";
-import { FetchVirtualAccountTransactions } from "../../../Redux/requests/virtualAccountRequest";
+import {
+  FetchVirtualAccountTransactions,
+  buildVirtualAccountUrl,
+} from "../../../Redux/requests/virtualAccountRequest";
 import useMainTransactionsForBalance from "../../../hooks/useMainTransactionsForBalance";
 import { isVirtualAccountRestrictedRole } from "../../../utils/roleLabel";
 import {
@@ -30,6 +33,7 @@ import {
   formatTransactionForAdmin,
   getTransactionPartiesAndStatus,
 } from "../../../utils/virtualAccountTransactions";
+import { fetchAllPaginatedData } from "../../../utils/exportRequests";
 
 import "../Transactions/style.css";
 import "./style.css";
@@ -195,6 +199,7 @@ const VirtualAccount = (props) => {
   const [receiptview, showReceiptView] = useState(false);
 
   const [exportModalActive, showExportModal] = useState(false);
+  const [downloadAllMode, setDownloadAllMode] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
 
   const [page, setPage] = useState(0);
@@ -359,7 +364,10 @@ const VirtualAccount = (props) => {
     setPage(0);
   };
 
-  const closeExport = () => showExportModal(false);
+  const closeExport = () => {
+    showExportModal(false);
+    setDownloadAllMode(false);
+  };
   const closeFilter = () => {
     setDraftFilterValues(filterValues);
     showFilterModal(false);
@@ -370,19 +378,26 @@ const VirtualAccount = (props) => {
     showFilterModal(true);
   };
 
+  const openCurrentExport = () => {
+    setDownloadAllMode(false);
+    showExportModal(true);
+  };
+
+  const openDownloadAll = () => {
+    setDownloadAllMode(true);
+    showExportModal(true);
+  };
+
   const filteredTransactions = useMemo(() => {
     return filterTransactions(virtualTransactions, filterValues);
   }, [filterValues, virtualTransactions]);
 
-  const allProducts = useMemo(() => {
-    const transactionsToRender = Array.isArray(filteredTransactions)
-      ? filteredTransactions
-      : [];
-
-    return transactionsToRender.map((transact, index) => {
-      const rawDate =
-        transact?.transactionDate ||
-        transact?.createdAt ||
+  const buildVirtualExportProducts = useCallback(
+    (transactionsToRender = []) =>
+      transactionsToRender.map((transact, index) => {
+        const rawDate =
+          transact?.transactionDate ||
+          transact?.createdAt ||
         transact?.systemTime ||
         transact?.appTime ||
         transact?.date ||
@@ -424,40 +439,49 @@ const VirtualAccount = (props) => {
         transact?.currentBalance
       );
 
-      return {
-        transact,
-        id: transact?.id ?? transact?.transactionId ?? index,
-        Date: formatDateTime(rawDate),
-        TransactionID: pickFirst(transact?.transactionId, transact?.transactionID),
-        Reference:
-          transact?.reference ||
-          transact?.transactionReference ||
-          transact?.externalReference ||
-          transact?.transactionId ||
-          transact?.rrn ||
-          "",
-        Type: pickFirst(normalizedTransaction?.type, typeRaw),
-        RRN: rrnRaw,
-        STAN: stanRaw,
-        PreBalance: preBalanceRaw,
-        PostBalance: postBalanceRaw,
-        SenderAccountName: transactionParties.sender?.name || "",
-        SenderBankName: transactionParties.sender?.bankName || "",
-        SenderAccountNumber: transactionParties.sender?.accountNumber || "",
-        ReceiverAccountName: transactionParties.receiver?.name || "",
-        ReceiverBankName: transactionParties.receiver?.bankName || "",
-        ReceiverAccountNumber: transactionParties.receiver?.accountNumber || "",
-        Amount: formatAmount(transact?.amount ?? transact?.transactionAmount),
-        Status: pickFirst(adminFormatted?.statusMessage, statusRaw, transactionParties.status),
-        StatusVariant: transactionParties.status,
-        ErrorMessage:
-          transactionParties.status === "FAILED"
-            ? pickFirst(adminFormatted?.statusMessage, transactionParties.errorMessage)
-            : transactionParties.errorMessage,
-        Narration: transact?.narration || transact?.description || "",
-      };
-    });
-  }, [currentUserContext, filteredTransactions, showAccountNumberBadge]);
+        return {
+          transact,
+          id: transact?.id ?? transact?.transactionId ?? index,
+          Date: formatDateTime(rawDate),
+          TransactionID: pickFirst(transact?.transactionId, transact?.transactionID),
+          Reference:
+            transact?.reference ||
+            transact?.transactionReference ||
+            transact?.externalReference ||
+            transact?.transactionId ||
+            transact?.rrn ||
+            "",
+          Type: pickFirst(normalizedTransaction?.type, typeRaw),
+          RRN: rrnRaw,
+          STAN: stanRaw,
+          PreBalance: preBalanceRaw,
+          PostBalance: postBalanceRaw,
+          SenderAccountName: transactionParties.sender?.name || "",
+          SenderBankName: transactionParties.sender?.bankName || "",
+          SenderAccountNumber: transactionParties.sender?.accountNumber || "",
+          ReceiverAccountName: transactionParties.receiver?.name || "",
+          ReceiverBankName: transactionParties.receiver?.bankName || "",
+          ReceiverAccountNumber: transactionParties.receiver?.accountNumber || "",
+          Amount: formatAmount(transact?.amount ?? transact?.transactionAmount),
+          Status: pickFirst(adminFormatted?.statusMessage, statusRaw, transactionParties.status),
+          StatusVariant: transactionParties.status,
+          ErrorMessage:
+            transactionParties.status === "FAILED"
+              ? pickFirst(adminFormatted?.statusMessage, transactionParties.errorMessage)
+              : transactionParties.errorMessage,
+          Narration: transact?.narration || transact?.description || "",
+        };
+      }),
+    [currentUserContext, showAccountNumberBadge]
+  );
+
+  const allProducts = useMemo(() => {
+    const transactionsToRender = Array.isArray(filteredTransactions)
+      ? filteredTransactions
+      : [];
+
+    return buildVirtualExportProducts(transactionsToRender);
+  }, [buildVirtualExportProducts, filteredTransactions]);
 
   const visibleProducts = useMemo(() => {
     if (!hasDerivedTypeFilter) {
@@ -548,26 +572,29 @@ const VirtualAccount = (props) => {
     return "No virtual account transactions were found. Try adjusting the filters.";
   };
 
-  const headers = [
-    [
-      "Date",
-      "Transaction Type",
-      "Transaction ID",
-      "Reference",
-      "Pre-Balance",
-      "Post-Balance",
-      "Sender A/C Number",
-      "Sender A/C Name",
-      "Sender Bank Name",
-      "Receiver A/C Number",
-      "Receiver A/C Name",
-      "Receiver Bank Name",
-      "Amount",
-      "Status",
-      "Error Message",
-      "Narration",
+  const headers = useMemo(
+    () => [
+      [
+        "Date",
+        "Transaction Type",
+        "Transaction ID",
+        "Reference",
+        "Pre-Balance",
+        "Post-Balance",
+        "Sender A/C Number",
+        "Sender A/C Name",
+        "Sender Bank Name",
+        "Receiver A/C Number",
+        "Receiver A/C Name",
+        "Receiver Bank Name",
+        "Amount",
+        "Status",
+        "Error Message",
+        "Narration",
+      ],
     ],
-  ];
+    []
+  );
 
   const item = allProducts.map((row) => [
     row.Date || "",
@@ -587,6 +614,58 @@ const VirtualAccount = (props) => {
     row.ErrorMessage || "",
     row.Narration || "",
   ]);
+
+  const requestAllVirtualAccountExport = useCallback(async () => {
+    const { data } = await fetchAllPaginatedData({
+      buildUrl: (pageNumber, chunkSize) =>
+        buildVirtualAccountUrl(pageNumber, chunkSize, filterValues),
+      extractItems: (payload) => {
+        if (Array.isArray(payload?.data?.records)) return payload.data.records;
+        if (Array.isArray(payload?.data?.data)) return payload.data.data;
+        if (Array.isArray(payload?.data)) return payload.data;
+        if (Array.isArray(payload?.records)) return payload.records;
+        if (Array.isArray(payload)) return payload;
+        return [];
+      },
+      extractTotal: (payload) =>
+        payload?.recordsFiltered ??
+        payload?.recordsTotal ??
+        payload?.total ??
+        payload?.data?.recordsFiltered ??
+        payload?.data?.recordsTotal ??
+        payload?.data?.total ??
+        0,
+    });
+
+    const filteredData = filterTransactions(data, filterValues);
+    const exportProducts = buildVirtualExportProducts(filteredData);
+
+    return {
+      title: "Virtual Account Transactions",
+      filename: "virtual-account-transactions",
+      headers,
+      item: exportProducts.map((row) => [
+        row.Date || "",
+        row.Type || "",
+        row.TransactionID || "",
+        row.Reference || "",
+        row.PreBalance || "",
+        row.PostBalance || "",
+        row.SenderAccountNumber || "",
+        row.SenderAccountName || "",
+        row.SenderBankName || "",
+        row.ReceiverAccountNumber || "",
+        row.ReceiverAccountName || "",
+        row.ReceiverBankName || "",
+        row.Amount || "",
+        row.Status || "",
+        row.ErrorMessage || "",
+        row.Narration || "",
+      ]),
+      products: exportProducts,
+      filterValues,
+    };
+  }, [buildVirtualExportProducts, filterValues, headers]);
 
   const columns = [
     { dataField: "Date", text: "Date" },
@@ -838,13 +917,14 @@ const VirtualAccount = (props) => {
                   <span>Filter</span>
                 </button>
 
-                <button
-                  type="button"
-                  className="va-action"
-                  onClick={() => showExportModal(true)}
-                >
+                <button type="button" className="va-action" onClick={openCurrentExport}>
                   <img src={Upload} alt="export" />
                   <span>Export</span>
+                </button>
+
+                <button type="button" className="va-action" onClick={openDownloadAll}>
+                  <img src={Upload} alt="export" />
+                  <span>Download all</span>
                 </button>
               </div>
             )}
@@ -949,6 +1029,9 @@ const VirtualAccount = (props) => {
             products={allProducts}
             columns={columns}
             filterValues={filterValues}
+            requestExportData={
+              downloadAllMode ? requestAllVirtualAccountExport : undefined
+            }
           />
 
         </>

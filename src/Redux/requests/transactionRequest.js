@@ -9,7 +9,7 @@ import {
 import { AgentConstant } from "../../constants/constants";
 // import { history } from "../../utils/history";
 
-const buildTransactionUrl = (page, length, filters = {}) => {
+export const buildTransactionUrl = (page, length, filters = {}) => {
   const params = new URLSearchParams();
 
   params.append("startPage", page);
@@ -38,6 +38,17 @@ const buildTransactionUrl = (page, length, filters = {}) => {
 
   return `${AgentConstant.FETCH_TRANSACTIONS_URL}${params.toString()}`;
 };
+
+export const buildTransactionSingleUrl = (
+  agentId,
+  page,
+  length,
+  filters = {}
+) =>
+  buildTransactionUrl(page, length, {
+    ...filters,
+    agentId,
+  });
 
 export const FetchTransaction = (
   page,
@@ -151,7 +162,7 @@ export const FetchTransactionSingle = (
   console.log(agentIde);
   console.log(`bearer ${token.access_token}`);
   axios
-    .get(buildTransactionUrl(page, length, {
+    .get(buildTransactionSingleUrl(agentIde, page, length, {
       startDate,
       endDate,
       terminalId,
@@ -161,7 +172,6 @@ export const FetchTransactionSingle = (
       rrn,
       pan,
       stan,
-      agentId: agentIde,
       agentManagerId,
       agentManagerName,
       draw,

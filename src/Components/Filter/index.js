@@ -23,6 +23,7 @@ const Filter = ({ show, close, ...props }) => {
 
   const isTransaction = props.name === "transaction";
   const isVirtualAccount = props.name === "virtualAccount";
+  const isAgent = props.name === "agent";
   const getFieldValue = (fieldName) =>
     Object.prototype.hasOwnProperty.call(filterValues, fieldName)
       ? filterValues[fieldName]
@@ -73,6 +74,7 @@ const Filter = ({ show, close, ...props }) => {
               </Row>
               :
 
+              !isAgent ? (
               <Row>
                 <Col md={4} sm={12}>
                   <Form.Group controlId="">
@@ -124,6 +126,7 @@ const Filter = ({ show, close, ...props }) => {
                   </Col>
                   : ''}
               </Row>
+              ) : null
             }
 
             {isTransaction || props.name === "centralpurse" ?
@@ -318,7 +321,37 @@ const Filter = ({ show, close, ...props }) => {
 
 
             {
-              props.name === "agent" || props.name === "agentmanager" || props.name === "centralpurse" ?
+              isAgent ? (
+                <Row>
+                  <Col md={4} sm={12}>
+                    <Form.Group controlId="">
+                      <Form.Label>User Name</Form.Label>
+                      <Form.Control
+                        size="sm"
+                        type="text"
+                        placeholder="Enter user Name"
+                        name="username"
+                        value={getFieldValue("username")}
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={4} sm={12}>
+                    <Form.Group controlId="">
+                      <Form.Label>Phone Number</Form.Label>
+                      <Form.Control
+                        size="sm"
+                        type="text"
+                        name="phone"
+                        placeholder="phone number"
+                        value={getFieldValue("phone")}
+                        onChange={handleFilterValue}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              ) : props.name === "agentmanager" || props.name === "centralpurse" ?
                 <Row>
                   <Col md={4} sm={12}>
                     <Form.Group controlId="">

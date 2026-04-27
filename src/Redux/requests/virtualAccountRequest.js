@@ -55,7 +55,7 @@ const normalizeVirtualAccountTypeFilter = (value) => {
   return normalizedValue.replace(/\s+(credit|debit)$/i, "");
 };
 
-const buildVirtualAccountUrl = (page = 0, length = 10, filters = {}) => {
+export const buildVirtualAccountUrl = (page = 0, length = 10, filters = {}) => {
   const params = new URLSearchParams();
 
   params.append("startPage", String(Math.max(0, Number(page) || 0)));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
@@ -15,6 +15,7 @@ import {
   FetchTransaction,
   FetchTransactionTypes,
   FetchTransactionStatus,
+  buildTransactionUrl,
 } from "../../../Redux/requests/transactionRequest";
 
 import Loader from "../../../Components/secondLoader";
@@ -28,6 +29,7 @@ import ViewReceipts from "../../../Components/viewReceipt";
 import { connect } from "react-redux";
 import moment from "moment";
 import { formatTransactionForAdmin } from "../../../utils/virtualAccountTransactions";
+import { fetchAllPaginatedData } from "../../../utils/exportRequests";
 
 import "./style.css";
 
@@ -88,6 +90,166 @@ const resolveReceiptTotalAmount = (transaction) => {
   );
 };
 
+const getManagerName = (transact) => {
+  const nestedAgentManager = transact?.agent?.agentManager;
+  const rootAgentManager = transact?.agentManager;
+
+  return (
+    nestedAgentManager?.accountName ||
+    resolveFullName(nestedAgentManager?.user) ||
+    resolveFullName(nestedAgentManager) ||
+    rootAgentManager?.accountName ||
+    resolveFullName(rootAgentManager?.user) ||
+    resolveFullName(rootAgentManager) ||
+    transact?.agentManagerName ||
+    ""
+  );
+};
+
+const getManagerId = (transact) => {
+  const nestedAgentManager = transact?.agent?.agentManager;
+  const rootAgentManager = transact?.agentManager;
+
+  return String(
+    (nestedAgentManager && typeof nestedAgentManager !== "object"
+      ? nestedAgentManager
+      : nestedAgentManager?.id ?? nestedAgentManager?.user?.id) ??
+      transact?.agent?.agentManagerId ??
+      (rootAgentManager && typeof rootAgentManager !== "object"
+        ? rootAgentManager
+        : rootAgentManager?.id ?? rootAgentManager?.user?.id) ??
+      transact?.agentManagerId ??
+      ""
+  );
+};
+
+const buildTransactionExportData = (transactions, filters = {}) => {
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
+
+  const managerByAgentId = safeTransactions.reduce((acc, transact) => {
+    const agentId = transact?.agent?.id;
+    const managerName = getManagerName(transact);
+
+    if (agentId != null && managerName && !acc.has(String(agentId))) {
+      acc.set(String(agentId), managerName);
+    }
+
+    return acc;
+  }, new Map());
+
+  const managerNameByManagerId = safeTransactions.reduce((acc, transact) => {
+    const managerId = getManagerId(transact);
+    const managerName = getManagerName(transact);
+
+    if (managerId && managerName && !acc.has(managerId)) {
+      acc.set(managerId, managerName);
+    }
+
+    return acc;
+  }, new Map());
+
+  const managerIdByAgentId = safeTransactions.reduce((acc, transact) => {
+    const agentId = transact?.agent?.id;
+    const managerId = getManagerId(transact);
+
+    if (agentId != null && managerId !== "" && !acc.has(String(agentId))) {
+      acc.set(String(agentId), managerId);
+    }
+
+    return acc;
+  }, new Map());
+
+  const resolveManagerName = (transact) => {
+    const managerName = getManagerName(transact);
+    if (managerName) return managerName;
+
+    const managerId = getManagerId(transact);
+    if (managerId) {
+      return managerNameByManagerId.get(managerId) || "—";
+    }
+
+    const agentId = transact?.agent?.id;
+    if (agentId != null) {
+      return managerByAgentId.get(String(agentId)) || "—";
+    }
+
+    return "—";
+  };
+
+  const resolveManagerId = (transact) => {
+    const managerId = getManagerId(transact);
+    if (managerId !== "") return String(managerId);
+
+    const agentId = transact?.agent?.id;
+    if (agentId != null) {
+      return managerIdByAgentId.get(String(agentId)) || "";
+    }
+
+    return "";
+  };
+
+  const normalizedManagerIdFilter = String(filters?.agentManagerId || "")
+    .trim()
+    .toLowerCase();
+
+  const transactionsToRender = normalizedManagerIdFilter
+    ? safeTransactions.filter((transact) =>
+        resolveManagerId(transact).toLowerCase().includes(normalizedManagerIdFilter)
+      )
+    : safeTransactions;
+
+  const item = transactionsToRender.map((transact) => [
+    transact?.systemTime || "",
+    transact?.agent?.businessName || "",
+    resolveManagerName(transact),
+    transact?.transactionId || "",
+    resolveDisplayTransactionType(transact),
+    transact?.agent?.bankTerminal?.terminalId || "",
+    transact?.amount ?? "",
+    transact?.statusCode || "",
+    transact?.agentFee ?? "",
+    transact?.stampDuty ?? "",
+    transact?.rrn || "",
+    Number(transact?.postPurseBalance ?? 0).toFixed(2),
+    Number(transact?.prePurseBalance ?? 0).toFixed(2),
+  ]);
+
+  const products = transactionsToRender.map((transact) => {
+    const time = new Date(transact?.systemTime);
+    const ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
+
+    return {
+      transact,
+      id: transact?.id ?? "",
+      Date: transact?.systemTime ? ntime : "",
+      Agent: transact?.agent?.businessName || "",
+      AgentManager: resolveManagerName(transact),
+      TransactionID: transact?.transactionId || "",
+      Type: resolveDisplayTransactionType(transact),
+      TerminalID: transact?.agent?.bankTerminal?.terminalId || "",
+      Amount: transact?.amount ?? "",
+      Status: transact?.statusCode || "",
+      accountNumber: transact?.accountNumber || "-----",
+      accountName: transact?.accountName || "----",
+      bankName: transact?.bankName || "-----",
+      ConvenienceFee: transact?.convenienceFee ?? "",
+      AgentFee: transact?.agentFee ?? "",
+      StampDuty: transact?.stampDuty ?? "",
+      RRN: transact?.rrn || "",
+      STAN: transact?.stan || "",
+      PreBalance: Number(transact?.prePurseBalance ?? 0).toFixed(2),
+      PostBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
+      AppVersion: transact?.appVersion || "",
+      totalAmount: resolveReceiptTotalAmount(transact),
+    };
+  });
+
+  return {
+    item,
+    products,
+  };
+};
+
 const Transactions = (props) => {
   const {
     FetchTransaction: FetchTransactions,
@@ -101,6 +263,7 @@ const Transactions = (props) => {
   } = props;
 
   const [exportModalActive, showExportModal] = useState(false);
+  const [downloadAllMode, setDownloadAllMode] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
 
   const [nextPage, setNextPage] = useState(0);
@@ -221,8 +384,21 @@ const Transactions = (props) => {
     setActivePage(1);
   };
 
-  const closeExport = () => showExportModal(false);
+  const closeExport = () => {
+    showExportModal(false);
+    setDownloadAllMode(false);
+  };
   const closeFilter = () => showFilterModal(false);
+
+  const openCurrentExport = () => {
+    setDownloadAllMode(false);
+    showExportModal(true);
+  };
+
+  const openDownloadAll = () => {
+    setDownloadAllMode(true);
+    showExportModal(true);
+  };
 
   const OpenFilter = () => {
     showFilterModal(true);
@@ -234,115 +410,13 @@ const Transactions = (props) => {
   
   const title = "Transactions page";
 
-  const transactions = Array.isArray(transaction) ? transaction : [];
+  const transactions = useMemo(
+    () => (Array.isArray(transaction) ? transaction : []),
+    [transaction]
+  );
   const token = JSON.parse(localStorage.getItem("data") || "null");
   const roleName = token?.user?.roleGroup?.name || "";
   const isAgentView = roleName === "AGENT";
-
-  const getManagerName = (transact) => {
-    const nestedAgentManager = transact?.agent?.agentManager;
-    const rootAgentManager = transact?.agentManager;
-
-    return (
-      nestedAgentManager?.accountName ||
-      resolveFullName(nestedAgentManager?.user) ||
-      resolveFullName(nestedAgentManager) ||
-      rootAgentManager?.accountName ||
-      resolveFullName(rootAgentManager?.user) ||
-      resolveFullName(rootAgentManager) ||
-      transact?.agentManagerName ||
-      ""
-    );
-  };
-
-  const getManagerId = (transact) => {
-    const nestedAgentManager = transact?.agent?.agentManager;
-    const rootAgentManager = transact?.agentManager;
-
-    return String(
-      (nestedAgentManager && typeof nestedAgentManager !== "object"
-        ? nestedAgentManager
-        : nestedAgentManager?.id ?? nestedAgentManager?.user?.id) ??
-        transact?.agent?.agentManagerId ??
-        (rootAgentManager && typeof rootAgentManager !== "object"
-          ? rootAgentManager
-          : rootAgentManager?.id ?? rootAgentManager?.user?.id) ??
-        transact?.agentManagerId ??
-        ""
-    );
-  };
-
-  const managerByAgentId = transactions.reduce((acc, transact) => {
-    const agentId = transact?.agent?.id;
-    const managerName = getManagerName(transact);
-
-    if (agentId != null && managerName && !acc.has(String(agentId))) {
-      acc.set(String(agentId), managerName);
-    }
-
-    return acc;
-  }, new Map());
-
-  const managerNameByManagerId = transactions.reduce((acc, transact) => {
-    const managerId = getManagerId(transact);
-    const managerName = getManagerName(transact);
-
-    if (managerId && managerName && !acc.has(managerId)) {
-      acc.set(managerId, managerName);
-    }
-
-    return acc;
-  }, new Map());
-
-  const resolveManagerName = (transact) => {
-    const managerName = getManagerName(transact);
-    if (managerName) return managerName;
-
-    const managerId = getManagerId(transact);
-    if (managerId) {
-      return managerNameByManagerId.get(managerId) || "—";
-    }
-
-    const agentId = transact?.agent?.id;
-    if (agentId != null) {
-      return managerByAgentId.get(String(agentId)) || "—";
-    }
-
-    return "—";
-  };
-
-  const managerIdByAgentId = transactions.reduce((acc, transact) => {
-    const agentId = transact?.agent?.id;
-    const managerId = getManagerId(transact);
-
-    if (agentId != null && managerId !== "" && !acc.has(String(agentId))) {
-      acc.set(String(agentId), managerId);
-    }
-
-    return acc;
-  }, new Map());
-
-  const resolveManagerId = (transact) => {
-    const managerId = getManagerId(transact);
-    if (managerId !== "") return String(managerId);
-
-    const agentId = transact?.agent?.id;
-    if (agentId != null) {
-      return managerIdByAgentId.get(String(agentId)) || "";
-    }
-
-    return "";
-  };
-
-  const normalizedManagerIdFilter = String(
-    filterValues?.agentManagerId || ""
-  ).trim().toLowerCase();
-
-  const transactionsToRender = normalizedManagerIdFilter
-    ? transactions.filter((transact) =>
-        resolveManagerId(transact).toLowerCase().includes(normalizedManagerIdFilter)
-      )
-    : transactions;
 
   const noDataIndication = () => {
     if (loading) return "Loading transactions...";
@@ -350,74 +424,31 @@ const Transactions = (props) => {
   };
 
   
-  const headers = [
-    [
-      "Date",
-      "Agent",
-      "Agent Manager",
-      "Transaction ID",
-      "Type",
-      "Terminal ID",
-      "Amount",
-      "Status",
-      "Agent Fee",
-      "Stamp Duty",
-      "RRN",
-      "Pre Balance",
-      "Post Balance",
+  const headers = useMemo(
+    () => [
+      [
+        "Date",
+        "Agent",
+        "Agent Manager",
+        "Transaction ID",
+        "Type",
+        "Terminal ID",
+        "Amount",
+        "Status",
+        "Agent Fee",
+        "Stamp Duty",
+        "RRN",
+        "Pre Balance",
+        "Post Balance",
+      ],
     ],
-  ];
+    []
+  );
 
-  const item = transactionsToRender.map((transact) => [
-    transact?.systemTime || "",
-    transact?.agent?.businessName || "",
-    resolveManagerName(transact),
-    transact?.transactionId || "",
-    resolveDisplayTransactionType(transact),
-    transact?.agent?.bankTerminal?.terminalId || "",
-    transact?.amount ?? "",
-    transact?.statusCode || "",
-    transact?.agentFee ?? "",
-    transact?.stampDuty ?? "",
-    transact?.rrn || "",
-    Number(transact?.postPurseBalance ?? 0).toFixed(2),
-    Number(transact?.prePurseBalance ?? 0).toFixed(2),
-  ]);
-
-
-  const products = transactionsToRender.map((transact) => {
-
-    const time = new Date(transact?.systemTime);
-    const ntime = moment(time).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
-
-    return {
-      transact,
-      id: transact?.id ?? "",
-      Date: transact?.systemTime ? ntime : "",
-      Agent: transact?.agent?.businessName || "",
-      AgentManager: resolveManagerName(transact),
-      TransactionID: transact?.transactionId || "",
-      Type: resolveDisplayTransactionType(transact),
-      TerminalID: transact?.agent?.bankTerminal?.terminalId || "",
-      Amount: transact?.amount ?? "",
-      Status: transact?.statusCode || "",
-      accountNumber: transact?.accountNumber || "-----",
-      accountName: transact?.accountName || "----",
-      bankName: transact?.bankName || "-----",
-      ConvenienceFee: transact?.convenienceFee ?? "",
-      AgentFee: transact?.agentFee ?? "",
-      StampDuty: transact?.stampDuty ?? "",
-      RRN: transact?.rrn || "",
-      STAN: transact?.stan || "",
-
-      PreBalance: Number(transact?.prePurseBalance ?? 0).toFixed(2),
-      PostBalance: Number(transact?.postPurseBalance ?? 0).toFixed(2),
-
-
-      AppVersion: transact?.appVersion || "",
-      totalAmount: resolveReceiptTotalAmount(transact),
-    };
-  });
+  const { item, products } = useMemo(
+    () => buildTransactionExportData(transactions, filterValues),
+    [filterValues, transactions]
+  );
 
   // TABLE COLUMNS
 
@@ -550,6 +581,21 @@ const Transactions = (props) => {
     setNextPage(pageNumber - 1);
   };
 
+  const requestAllTransactionsExport = useCallback(async () => {
+    const { data } = await fetchAllPaginatedData({
+      buildUrl: (pageNumber, chunkSize) =>
+        buildTransactionUrl(pageNumber, chunkSize, filterValues),
+    });
+
+    return {
+      ...buildTransactionExportData(data, filterValues),
+      title,
+      headers,
+      filename: "transaction file",
+      filterValues,
+    };
+  }, [filterValues, headers, title]);
+
   return (
     <DashboardTemplate>
       <div className="transact-wrapper">
@@ -575,9 +621,14 @@ const Transactions = (props) => {
                 Filter
               </span>
 
-              <span onClick={() => showExportModal(true)}>
+              <span onClick={openCurrentExport}>
                 <img src={Upload} alt="export" />
                 Export
+              </span>
+
+              <span onClick={openDownloadAll}>
+                <img src={Upload} alt="download all" />
+                Download all
               </span>
             </div>
           </div>
@@ -601,9 +652,14 @@ const Transactions = (props) => {
                   Filter
                 </span>
 
-                <span onClick={() => showExportModal(true)}>
+                <span onClick={openCurrentExport}>
                   <img src={Upload} alt="export" />
                   Export
+                </span>
+
+                <span onClick={openDownloadAll}>
+                  <img src={Upload} alt="download all" />
+                  Download all
                 </span>
               </div>
             </div>
@@ -692,6 +748,7 @@ const Transactions = (props) => {
         products={products}
         columns={columns}
         filterValues={filterValues}
+        requestExportData={downloadAllMode ? requestAllTransactionsExport : undefined}
       />
 
       <ToastContainer autoClose={8000} />

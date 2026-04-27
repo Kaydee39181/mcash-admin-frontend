@@ -18,15 +18,12 @@ const AgentsWrapper = () => {
   const [createModalActive, showCreateModal] = React.useState(false);
   const [active, showActive] = React.useState("home");
   const [ExportModalActive, showExportModal] = React.useState(false);
+  const [downloadAllMode, setDownloadAllMode] = React.useState(false);
   const [FilterModalActive, showFilterModal] = React.useState(false);
   
   const initialState = {
-    startDate: "",
-    endDate: "",
     username: "",
-    businessName: "",
     phone: "",
-    agentId: "",
   };
   const [filterValues, setFilterValues] = useState(initialState);
 
@@ -44,6 +41,16 @@ const AgentsWrapper = () => {
     setFilterValues(initialState);
   };
 
+  const openCurrentExport = () => {
+    setDownloadAllMode(false);
+    showExportModal(true);
+  };
+
+  const openDownloadAll = () => {
+    setDownloadAllMode(true);
+    showExportModal(true);
+  };
+
   const renderTab = () => (
     <Tabs
       defaultActiveKey={active}
@@ -58,6 +65,8 @@ const AgentsWrapper = () => {
           filterValues={filterValues}
           setFilterValues={setFilterValues}
           ExportModalActive={ExportModalActive}
+          downloadAllMode={downloadAllMode}
+          setDownloadAllMode={setDownloadAllMode}
           FilterModalActive={FilterModalActive}
           showExportModal={showExportModal}
           showFilterModal={showFilterModal}
@@ -96,9 +105,14 @@ const AgentsWrapper = () => {
               Filter
             </span>
 
-            <span onClick={() => showExportModal(true)}>
+            <span onClick={openCurrentExport}>
               <img src={Upload} alt="Export" />
               Export
+            </span>
+
+            <span onClick={openDownloadAll}>
+              <img src={Upload} alt="Download all" />
+              Download all
             </span>
           </div>
         </div>

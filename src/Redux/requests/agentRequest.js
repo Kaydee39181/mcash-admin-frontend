@@ -14,18 +14,43 @@ import {
 } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
 
-const buildAgentUrl = (page, length, filters = {}) => {
+const appendIfPresent = (params, key, value) => {
+  if (value === null || value === undefined) return;
+  const normalized = String(value).trim();
+  if (!normalized) return;
+  params.append(key, normalized);
+};
+
+export const buildAgentUrl = (page, length, filters = {}) => {
   const params = new URLSearchParams();
 
   params.append("startPage", page);
   params.append("length", length);
 
   Object.entries(filters).forEach(([key, value]) => {
-    if (value === null || value === undefined) return;
-    const normalized = String(value).trim();
-    if (!normalized) return;
-    params.append(key, normalized);
+    appendIfPresent(params, key, value);
   });
+
+  return `${AgentConstant.FETCH_AGENT_URL}${params.toString()}`;
+};
+
+export const buildAmbassadorAgentUrl = (
+  agentManagerId,
+  page,
+  length,
+  filters = {}
+) => {
+  const params = new URLSearchParams();
+
+  params.append("startPage", page);
+  params.append("length", length);
+  appendIfPresent(params, "startDate", filters.startDate);
+  appendIfPresent(params, "endDate", filters.endDate);
+  appendIfPresent(params, "username", filters.username);
+  appendIfPresent(params, "businessName", filters.businessName);
+  appendIfPresent(params, "phone", filters.phone);
+  appendIfPresent(params, "agentId", filters.agentId);
+  appendIfPresent(params, "agentManagerId", agentManagerId);
 
   return `${AgentConstant.FETCH_AGENT_URL}${params.toString()}`;
 };
@@ -34,7 +59,19 @@ export const FetchAgent =
   (
     page,
     length,
-    { startDate, endDate, username, businessName, phone, agentId }
+    {
+      startDate,
+      endDate,
+      username,
+      businessName,
+      phone,
+      agentId,
+      email,
+      globusVirtualAccount,
+      dateOfBirth,
+      agentManagerId,
+      agentManagerName,
+    }
   ) =>
   (dispatch) => {
     dispatch(asyncActions(FETCH_AGENTS).loading(true));
@@ -48,6 +85,11 @@ export const FetchAgent =
         businessName,
         phone,
         agentId,
+        email,
+        globusVirtualAccount,
+        dateOfBirth,
+        agentManagerId,
+        agentManagerName,
       }), {
         headers: {
           Authorization: `bearer ${token.access_token}`,
@@ -115,8 +157,14 @@ export const FetchambassadorAgent =
     console.log(`bearer ${token.access_token}`);
     axios
       .get(
-        `${AgentConstant.FETCH_AGENT_URL}startPage=${page}&length=${length}&startDate=${startDate}&endDate=${endDate}&username=${username}&businessName=${businessName}&phone=${phone}&agentManagerId=${agentIde}
-        `,
+        buildAmbassadorAgentUrl(agentIde, page, length, {
+          startDate,
+          endDate,
+          username,
+          businessName,
+          phone,
+          agentId,
+        }),
         {
           headers: {
             Authorization: `bearer ${token.access_token}`,

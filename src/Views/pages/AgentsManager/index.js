@@ -17,6 +17,7 @@ const AgentsManager = () => {
   const [createModalActive, showCreateModal] = React.useState(false);
   const [active, showActive] = React.useState("home");
   const [ExportModalActive, showExportModal] = React.useState(false);
+  const [downloadAllMode, setDownloadAllMode] = React.useState(false);
   const [FilterModalActive, showFilterModal] = React.useState(false);
 
   const initialState = {
@@ -35,6 +36,16 @@ const AgentsManager = () => {
     setFilterValues(initialState);
   };
 
+  const openCurrentExport = () => {
+    setDownloadAllMode(false);
+    showExportModal(true);
+  };
+
+  const openDownloadAll = () => {
+    setDownloadAllMode(true);
+    showExportModal(true);
+  };
+
   const renderTab = () => (
     <Tabs
         defaultActiveKey={active}
@@ -47,6 +58,8 @@ const AgentsManager = () => {
         <FetchAgentsManager
           initialState={initialState}
           ExportModalActive={ExportModalActive}
+          downloadAllMode={downloadAllMode}
+          setDownloadAllMode={setDownloadAllMode}
           FilterModalActive={FilterModalActive}
           showExportModal={showExportModal}
           showFilterModal={showFilterModal}
@@ -88,9 +101,14 @@ const AgentsManager = () => {
               Filter
             </span>
 
-            <span onClick={() => showExportModal(true)}>
+            <span onClick={openCurrentExport}>
               <img src={Upload} alt="Export" />
               Export
+            </span>
+
+            <span onClick={openDownloadAll}>
+              <img src={Upload} alt="Download all" />
+              Download all
             </span>
           </div>
         </div>

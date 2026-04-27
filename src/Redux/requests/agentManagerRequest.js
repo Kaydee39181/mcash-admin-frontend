@@ -3,6 +3,27 @@ import { asyncActions } from "../../utils/asyncUtil";
 import { FETCH_AGENTS_MANAGER, FETCH_LGA, FETCH_STATE, FETCH_BANK, CREATE_AGENTS_MANAGER, AGENT_MANAGER_SETTLEMENT } from "../actions/actionTypes";
 import { AgentConstant } from "../../constants/constants";
 
+const appendIfPresent = (params, key, value) => {
+    if (value === null || value === undefined) return;
+    const normalized = String(value).trim();
+    if (!normalized) return;
+    params.append(key, normalized);
+};
+
+export const buildAgentManagerUrl = (
+    page,
+    length,
+    filters = {}
+) => {
+    const params = new URLSearchParams();
+    params.append("startPage", page);
+    params.append("length", length);
+    appendIfPresent(params, "username", filters.username);
+    appendIfPresent(params, "phone", filters.phone);
+
+    return `${AgentConstant.FETCH_AGENT_MANAGER_URL}${params.toString()}`;
+};
+
 
 export const FetchAgentManager = (
     page,
@@ -14,7 +35,10 @@ export const FetchAgentManager = (
     dispatch(asyncActions(FETCH_AGENTS_MANAGER).loading(true));
     const token = JSON.parse(localStorage.getItem("data"))
     axios
-        .get(`${AgentConstant.FETCH_AGENT_MANAGER_URL}startPage=${page}&length=${length}&username=${username}&phone=${phone}`, {
+        .get(buildAgentManagerUrl(page, length, {
+            username,
+            phone
+        }), {
             headers: {
                 'Authorization': `bearer ${token.access_token}`,
                 'Content-Type': 'application/json'

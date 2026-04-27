@@ -11,14 +11,3 @@ Dockerfile
 npm-debug.log
 yarn-error.log
 yarn-debug.log
-
-
-
-# node_modules
-# build
-# .git
-# .gitignore
-# vercel.json
-# Dockerfile
-# npm-debug.log
-# yarn-error.log

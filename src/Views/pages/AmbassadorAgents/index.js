@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import BootstrapTable from "react-bootstrap-table-next";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
 import "react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
@@ -15,11 +15,13 @@ import Print from "../../../Assets/img/printer.png";
 import {
   FetchambassadorAgent,
   FetchBankTerminal,
+  buildAmbassadorAgentUrl,
 } from "../../../Redux/requests/agentRequest";
 
 import { connect } from "react-redux";
 import "./style.css";
 import Pagination from "react-js-pagination";
+import { fetchAllPaginatedData } from "../../../utils/exportRequests";
 
 const getAgentEmail = (agent) => {
   if (!agent || typeof agent !== "object") return "";
@@ -42,6 +44,43 @@ const getGlobusVirtualAccount = (agent) => {
   return agent?.globusVirtualAccount || "";
 };
 
+const getAmbassadorAgentExportData = (agents = []) => {
+  const safeAgents = Array.isArray(agents) ? agents : [];
+
+  const item = safeAgents.map((agent) => [
+    agent.id,
+    agent.businessName,
+    agent?.user?.username || "",
+    getAgentEmail(agent),
+    getAgentDateOfBirth(agent),
+    getGlobusVirtualAccount(agent),
+    agent.businessPhone,
+    agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
+    agent.createdAt,
+  ]);
+
+  const products = safeAgents.map((agent, index) => ({
+    agent: agent ? agent : "",
+    id: index,
+    AgentID: agent.id === null ? "" : agent.id,
+    BusinessName: agent.businessName === null ? "" : agent.businessName,
+    UserName: agent?.user?.username === null ? "" : agent?.user?.username || "",
+    Email: getAgentEmail(agent),
+    DateOfBirth: getAgentDateOfBirth(agent),
+    GlobusVirtualAccount: getGlobusVirtualAccount(agent),
+    PhoneNumber: agent.businessPhone === null ? "" : agent.businessPhone,
+    Action: "",
+    TerminalID:
+      agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
+    DateCreated: agent.createdAt === null ? "" : agent.createdAt,
+  }));
+
+  return {
+    item,
+    products,
+  };
+};
+
 const Agents = (props) => {
   const {
     FetchBankTerminal: FetchBankTerminals,
@@ -51,6 +90,7 @@ const Agents = (props) => {
     agentTotal,
   } = props;
   const [ExportModalActive, showExportModal] = useState(false);
+  const [downloadAllMode, setDownloadAllMode] = useState(false);
   const [FilterModalActive, showFilterModal] = useState(false);
 
   const initialState = {
@@ -70,6 +110,7 @@ const Agents = (props) => {
 
   const closeExport = () => {
     showExportModal(false);
+    setDownloadAllMode(false);
   };
   const closeFilter = () => {
     showFilterModal(false);
@@ -94,6 +135,16 @@ const Agents = (props) => {
     setFilterValues(initialState);
   };
 
+  const openCurrentExport = () => {
+    setDownloadAllMode(false);
+    showExportModal(true);
+  };
+
+  const openDownloadAll = () => {
+    setDownloadAllMode(true);
+    showExportModal(true);
+  };
+
   const _handlePageChange = (pageNumber) => {
     setActivePage(pageNumber);
     setNextPage(pageNumber - 1);
@@ -113,49 +164,27 @@ const Agents = (props) => {
   };
 
   const title = "Agents page";
-  const headers = [
-    [
-      "Agent ID",
-      "Business Name",
-      "User Name",
-      "Email",
-      "Date Of Birth",
-      "Globus Virtual Account",
-      "Phone Number",
-      "Terminal ID",
-      "Date Created",
+  const headers = useMemo(
+    () => [
+      [
+        "Agent ID",
+        "Business Name",
+        "User Name",
+        "Email",
+        "Date Of Birth",
+        "Globus Virtual Account",
+        "Phone Number",
+        "Terminal ID",
+        "Date Created",
+      ],
     ],
-  ];
+    []
+  );
 
-  const item = agents.map((agent) => [
-    agent.id,
-    agent.businessName,
-    agent?.user?.username || "",
-    getAgentEmail(agent),
-    getAgentDateOfBirth(agent),
-    getGlobusVirtualAccount(agent),
-    agent.businessPhone,
-    agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
-    agent.createdAt,
-  ]);
-
-  const products = agents.map((agent, index) => {
-    return {
-      agent: agent ? agent : "",
-      id: index,
-      AgentID: agent.id === null ? "" : agent.id,
-      BusinessName: agent.businessName === null ? "" : agent.businessName,
-      UserName: agent?.user?.username === null ? "" : agent?.user?.username || "",
-      Email: getAgentEmail(agent),
-      DateOfBirth: getAgentDateOfBirth(agent),
-      GlobusVirtualAccount: getGlobusVirtualAccount(agent),
-      PhoneNumber: agent.businessPhone === null ? "" : agent.businessPhone,
-      Action: "",
-      TerminalID:
-        agent.bankTerminal === null ? "" : agent.bankTerminal.terminalId,
-      DateCreated: agent.createdAt === null ? "" : agent.createdAt,
-    };
-  });
+  const { item, products } = useMemo(
+    () => getAmbassadorAgentExportData(agents),
+    [agents]
+  );
 
   const noDataIndication = () => {
     if (loading) return "Loading agents...";
@@ -217,6 +246,22 @@ const Agents = (props) => {
     },
   ];
 
+  const requestAllAmbassadorAgentsExport = useCallback(async () => {
+    const agentManagerId = localStorage.getItem("viewagentId");
+    const { data } = await fetchAllPaginatedData({
+      buildUrl: (pageNumber, chunkSize) =>
+        buildAmbassadorAgentUrl(agentManagerId, pageNumber, chunkSize, filterValues),
+    });
+
+    return {
+      ...getAmbassadorAgentExportData(data),
+      title,
+      headers,
+      filename: "Agent file",
+      filterValues,
+    };
+  }, [filterValues, headers, title]);
+
   return (
     <DashboardTemplate>
       <div className="transact-wrapper">
@@ -239,9 +284,14 @@ const Agents = (props) => {
               Filter
             </span>
 
-            <span onClick={() => showExportModal(true)}>
+            <span onClick={openCurrentExport}>
               <img src={Upload} alt="Export" />
               Export
+            </span>
+
+            <span onClick={openDownloadAll}>
+              <img src={Upload} alt="Download all" />
+              Download all
             </span>
           </div>
         </div>
@@ -316,6 +366,10 @@ const Agents = (props) => {
             item={item}
             products={products}
             columns={columns}
+            filterValues={filterValues}
+            requestExportData={
+              downloadAllMode ? requestAllAmbassadorAgentsExport : undefined
+            }
           />
         </div>
       </div>
