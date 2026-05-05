@@ -5,6 +5,9 @@ const initialState = {
   agentmanager: [],
   agentStates: [],
   agentLga:[],
+  agentLgaLoading:false,
+  agentLgaError:false,
+  agentLgaErrorMessage:"",
   agentBanks:[],
   agentCreation:false,
   settlement:[],
@@ -62,20 +65,40 @@ const AgentManagerReducer = (state = initialState, action) => {
       };
       case asyncActionName(FETCH_LGA).loading:
         console.log('11')
-      return { ...state, loading:true };
+      return {
+        ...state,
+        agentLga: [],
+        agentLgaLoading:true,
+        agentLgaError:false,
+        agentLgaErrorMessage:"",
+        loading:true
+      };
       case asyncActionName(FETCH_LGA).success:
           console.log('22')
   
         return {
           ...state,
           agentLga:action.payload,
+          agentLgaLoading:false,
+          agentLgaError:false,
+          agentLgaErrorMessage:"",
           success: true,
           loading:false,
           error: false,
         };
       case asyncActionName(FETCH_LGA).failure:
+        const lgaError =
+          action?.payload?.error?.response?.data?.responseMessage ||
+          action?.payload?.error?.response?.data?.message ||
+          action?.payload?.error?.message ||
+          action?.payload?.error ||
+          "Unable to load LGAs for the selected state.";
         return {
           ...state,
+          agentLga: [],
+          agentLgaLoading:false,
+          agentLgaError:true,
+          agentLgaErrorMessage:lgaError,
           error: true,
           success: false,
           loading:false,

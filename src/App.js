@@ -1,6 +1,7 @@
 import React from "react";
 import "./App.css";
 import "./shared-action-effects.css";
+import "./shared-forms.css";
 import "./shared-responsive.css";
 import "./shared-transaction-table.css";
 import "react-toastify/dist/ReactToastify.css";

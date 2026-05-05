@@ -30,6 +30,7 @@ import { connect } from "react-redux";
 import moment from "moment";
 import { formatTransactionForAdmin } from "../../../utils/virtualAccountTransactions";
 import { fetchAllPaginatedData } from "../../../utils/exportRequests";
+import { safeParseStoredAuth } from "../../../utils/auth";
 
 import "./style.css";
 
@@ -292,7 +293,7 @@ const Transactions = (props) => {
   const [filterValues, setFilterValues] = useState(initialState);
 
   const QueryTransaction = (transactId) => {
-    const token = JSON.parse(localStorage.getItem("data"));
+    const token = safeParseStoredAuth();
     const loadings = toast.loading("Please wait...");
 
     const apiUrl = `https://api.mcashpoint.com/api/v1/transfer/query?transactionId=${transactId}`;
@@ -414,7 +415,7 @@ const Transactions = (props) => {
     () => (Array.isArray(transaction) ? transaction : []),
     [transaction]
   );
-  const token = JSON.parse(localStorage.getItem("data") || "null");
+  const token = safeParseStoredAuth();
   const roleName = token?.user?.roleGroup?.name || "";
   const isAgentView = roleName === "AGENT";
 

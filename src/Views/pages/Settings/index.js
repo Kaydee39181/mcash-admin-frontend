@@ -16,18 +16,32 @@ import "./style.css";
 import RoleGroups from "./RoleGroups";
 import CreatePin from "./CreatePin";
 import ResetPIN from "./ResetPIN";
+import { getEffectiveRoleGroup, safeParseStoredAuth, userHasRole } from "../../../utils/auth";
 
 const Settings = () => {
-  const token = JSON.parse(localStorage.getItem("data"));
-
-  const { name } = token.user.roleGroup;
+  const token = safeParseStoredAuth();
+  const { name, role } = getEffectiveRoleGroup(token);
   const defaultTab =
     name === "ADMIN" || name === "Senior Management " || name === "Product"
       ? "first"
       : "second";
+  const tokenWithEffectiveRoles = token
+    ? {
+        ...token,
+        user: {
+          ...token.user,
+          roleGroup: {
+            ...token.user?.roleGroup,
+            name,
+            role,
+          },
+        },
+      }
+    : null;
 
-  const isVisibleToUser = (roleCode, user) =>
-    user.roleGroup.role.some((role) => role.roleCode === roleCode);
+  if (!token?.user) {
+    return null;
+  }
 
   return (
     <DashboardTemplate>
@@ -73,7 +87,7 @@ const Settings = () => {
                       </div>
                     </Nav.Link>
                   </Nav.Item>
-                  {isVisibleToUser("ROLE_CREATE_ROLEGROUP", token.user) && (
+                  {userHasRole("ROLE_CREATE_ROLEGROUP", tokenWithEffectiveRoles) && (
                     <Nav.Item>
                       <Nav.Link eventKey="third">
                         <div className="tab-navs">
@@ -146,7 +160,7 @@ const Settings = () => {
                   <Tab.Pane eventKey="second">
                     <ChangePassword></ChangePassword>
                   </Tab.Pane>
-                  {isVisibleToUser("ROLE_CREATE_ROLEGROUP", token.user) && (
+                  {userHasRole("ROLE_CREATE_ROLEGROUP", tokenWithEffectiveRoles) && (
                     <Tab.Pane eventKey="third">
                       <RoleGroups></RoleGroups>
                     </Tab.Pane>

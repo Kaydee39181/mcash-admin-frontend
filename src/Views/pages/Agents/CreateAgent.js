@@ -22,6 +22,44 @@ import moment from "moment";
 import axios from "axios";
 import { AgentConstant } from "../../../constants/constants";
 import AsyncSelect from "react-select/async";
+import { safeParseStoredAuth } from "../../../utils/auth";
+
+const initialCreateAgentData = {
+  accountNumber: "",
+  accountName: "",
+  accountBvn: "",
+  businessName: "",
+  dateOfBirth: "",
+  businessPhone: "",
+  businessAddress: "",
+  gender: "",
+  firstname: "",
+  middlename: "",
+  lastname: "",
+  email: "",
+  username: "",
+  stateId: "",
+  lgaId: "",
+  bankId: "",
+  agentManagerId: "",
+};
+
+const getRequestErrorMessage = (requestError) => {
+  if (!requestError) {
+    return "There was an error sending your request, please try again later.";
+  }
+
+  if (typeof requestError === "string") {
+    return requestError;
+  }
+
+  return (
+    requestError?.response?.data?.responseMessage ||
+    requestError?.response?.data?.message ||
+    requestError?.message ||
+    "There was an error sending your request, please try again later."
+  );
+};
 
 const CreateAgentModal = ({
   create,
@@ -37,33 +75,19 @@ const CreateAgentModal = ({
   erroMessage,
   agentStates,
   agentLgas,
+  agentLgaLoading,
+  agentLgaError,
+  agentLgaErrorMessage,
   agentBanks,
   createAgent,
 }) => {
-  // const [isPublic, setIsPublic] = useState(true);
   const [errors, setErrors] = useState([]);
   const [successMessage, SetSuccessMessage] = useState([]);
-  // const [logvt, setIsLogvt] = useState({});
-  const [CreateAgentData, setCreateAgentData] = useState({
-    accountNumber: "",
-    accountName: "",
-    accountBvn: "",
-    businessName: "",
-    dateOfBirth: moment().locale("en").format("YYYY-MM-DD"),
-    businessPhone: "",
-    businessAddress: "",
-    gender: "",
-    firstname: "",
-    middlename: "",
-    lastname: "",
-    email: "",
-    username: "",
-    stateId: "",
-    lgaId: "",
-    bankId: "",
-  });
-  const getToken = JSON.parse(localStorage.getItem("data"));
-  const { access_token } = getToken;
+  const [selectedStateCode, setSelectedStateCode] = useState("");
+  const [selectedAgentManager, setSelectedAgentManager] = useState(null);
+  const [CreateAgentData, setCreateAgentData] = useState(initialCreateAgentData);
+  const getToken = safeParseStoredAuth();
+  const access_token = getToken?.access_token || "";
 
   useEffect(() => {
     FetchStates();
@@ -71,24 +95,29 @@ const CreateAgentModal = ({
   }, [FetchStates, FetchBankS]);
 
   useEffect(() => {
-    if (erroMessage) {
-      if (error && erroMessage.error !== "Already registered user") {
-        setErrors([
-          "There was an error sending your request, please try again later.",
-        ]);
-        SetSuccessMessage([]);
-      } else if (erroMessage) {
-        setErrors(erroMessage.error);
-      }
+    if (error && erroMessage) {
+      setErrors([getRequestErrorMessage(erroMessage.error)]);
+      SetSuccessMessage([]);
     }
   }, [error, erroMessage]);
 
   useEffect(() => {
     if (success) {
-      SetSuccessMessage(["operation Successful"]);
+      SetSuccessMessage(["Operation successful."]);
       setErrors([]);
+      setSelectedStateCode("");
+      setSelectedAgentManager(null);
+      setCreateAgentData(initialCreateAgentData);
     }
   }, [success]);
+
+  useEffect(() => {
+    if (!selectedStateCode) {
+      return;
+    }
+
+    FetchLgas(selectedStateCode);
+  }, [FetchLgas, selectedStateCode]);
 
   const SearchAgentManagers = async (searchQuery) => {
     try {
@@ -124,35 +153,93 @@ const CreateAgentModal = ({
   };
 
   const updateInput = (event) => {
-    setCreateAgentData({
-      ...CreateAgentData,
-      [event.target.name]: event.target.value,
-    });
+    const { name, value } = event.target;
+
+    setErrors([]);
+    setCreateAgentData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const _handleSelectState = (e) => {
-    const optionValue = JSON.parse(e.target.value);
-    setCreateAgentData({
-      ...CreateAgentData,
-      [e.target.name]: optionValue.stateId,
-    });
-    FetchLgas(optionValue.stateCode);
+    const selectedState = agentStates.find(
+      (stateItem) => String(stateItem.id) === e.target.value
+    );
+
+    setErrors([]);
+    setSelectedStateCode(selectedState ? selectedState.stateCode : "");
+    setCreateAgentData((prevState) => ({
+      ...prevState,
+      stateId: selectedState ? String(selectedState.id) : "",
+      lgaId: "",
+    }));
   };
 
   const _handleSelectBank = (e) => {
-    let stateCode = e.target.value;
-    FetchLgas(stateCode);
+    const { name, value } = e.target;
 
-    setCreateAgentData({
-      ...CreateAgentData,
-      [e.target.name]: stateCode,
-    });
+    setErrors([]);
+    setCreateAgentData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const onSubmit = (event) => {
     event.preventDefault();
+
+    const validationErrors = [];
+
+    if (!CreateAgentData.stateId) {
+      validationErrors.push("Select a state before submitting.");
+    }
+
+    if (!CreateAgentData.lgaId) {
+      validationErrors.push("Select an LGA before submitting.");
+    }
+
+    if (agentLgaError) {
+      validationErrors.push(
+        agentLgaErrorMessage || "Unable to load LGAs for the selected state."
+      );
+    }
+
+    if (
+      selectedStateCode &&
+      !agentLgaLoading &&
+      !agentLgaError &&
+      agentLgas.length === 0
+    ) {
+      validationErrors.push("No LGAs available for the selected state.");
+    }
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      SetSuccessMessage([]);
+      return;
+    }
+
     handleCreateAgent(CreateAgentData);
   };
+
+  const visibleLgas = selectedStateCode ? agentLgas : [];
+  const lgaUnavailable =
+    !!selectedStateCode &&
+    !agentLgaLoading &&
+    !agentLgaError &&
+    visibleLgas.length === 0;
+  const lgaPlaceholder = !selectedStateCode
+    ? "Select a state first"
+    : agentLgaLoading
+      ? "Loading LGAs..."
+      : agentLgaError
+        ? "Unable to load LGAs"
+      : lgaUnavailable
+        ? "No LGAs available"
+        : "Select your LGA";
+  const lgaSelectDisabled =
+    !selectedStateCode || agentLgaLoading || agentLgaError || lgaUnavailable;
 
   return (
     <div>
@@ -164,8 +251,12 @@ const CreateAgentModal = ({
         <h5>Create Agent</h5>
         <hr />
         <Form onSubmit={onSubmit}>
-          {success ? <Alert variant="success">{successMessage}</Alert> : null}
-          {error ? <Alert variant="danger">{errors}</Alert> : null}
+          {successMessage.length > 0 ? (
+            <Alert variant="success">{successMessage.join(" ")}</Alert>
+          ) : null}
+          {errors.length > 0 ? (
+            <Alert variant="danger">{errors.join(" ")}</Alert>
+          ) : null}
           <h6>Personal Information</h6>
           <br />
           <Row>
@@ -176,7 +267,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter first name"
                   name="firstname"
+                  value={CreateAgentData.firstname}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -187,6 +280,7 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter middle name"
                   name="middlename"
+                  value={CreateAgentData.middlename}
                   onChange={updateInput}
                 />
               </Form.Group>
@@ -198,7 +292,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter last name"
                   name="lastname"
+                  value={CreateAgentData.lastname}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -211,7 +307,10 @@ const CreateAgentModal = ({
                   type="date"
                   placeholder="date of birth"
                   name="dateOfBirth"
+                  value={CreateAgentData.dateOfBirth}
                   onChange={updateInput}
+                  max={moment().locale("en").format("YYYY-MM-DD")}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -222,15 +321,25 @@ const CreateAgentModal = ({
                   type="email"
                   placeholder="Enter email address"
                   name="email"
+                  value={CreateAgentData.email}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Gender</Form.Label>
-                <Form.Control as="select" name="gender" onChange={updateInput}>
-                  <option>Select Gender</option>
+                <Form.Control
+                  as="select"
+                  name="gender"
+                  value={CreateAgentData.gender}
+                  onChange={updateInput}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Gender
+                  </option>
                   <option>MALE</option>
                   <option>FEMALE</option>
                 </Form.Control>
@@ -245,10 +354,15 @@ const CreateAgentModal = ({
                   cacheOptions
                   loadOptions={promiseOptions}
                   defaultOptions
+                  value={selectedAgentManager}
+                  isClearable
                   onChange={(val) => {
-                    const { value } = val;
+                    setSelectedAgentManager(val || null);
                     updateInput({
-                      target: { value: value, name: "agentManagerId" },
+                      target: {
+                        value: val ? val.value : "",
+                        name: "agentManagerId",
+                      },
                     });
                   }}
                   name="agentManagerId"
@@ -268,7 +382,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter business name"
                   name="businessName"
+                  value={CreateAgentData.businessName}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -279,7 +395,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter Business address"
                   name="businessAddress"
+                  value={CreateAgentData.businessAddress}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -292,7 +410,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter business phone number"
                   name="businessPhone"
+                  value={CreateAgentData.businessPhone}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -302,15 +422,16 @@ const CreateAgentModal = ({
                 <Form.Control
                   name="stateId"
                   as="select"
+                  value={CreateAgentData.stateId}
                   onChange={_handleSelectState}
+                  required
                 >
-                  <option>Select your state</option>
+                  <option value="" disabled>
+                    Select your state
+                  </option>
                   {agentStates.map((state, i) => {
                     return (
-                      <option
-                        key={i}
-                        value={`{"stateCode": "${state.stateCode}", "stateId": ${state.id} }`}
-                      >
+                      <option key={i} value={state.id}>
                         {state.stateName}
                       </option>
                     );
@@ -321,16 +442,34 @@ const CreateAgentModal = ({
             <Col md={4} sm={12}>
               <Form.Group controlId="exampleForm.ControlSelect1">
                 <Form.Label>Local Govt Area</Form.Label>
-                <Form.Control as="select" name="lgaId" onChange={updateInput}>
-                  <option disabled>Select your LGA</option>
-                  {agentLgas.map((lga, i) => {
+                <Form.Control
+                  as="select"
+                  name="lgaId"
+                  value={CreateAgentData.lgaId}
+                  onChange={updateInput}
+                  disabled={lgaSelectDisabled}
+                  required
+                >
+                  <option value="" disabled>
+                    {lgaPlaceholder}
+                  </option>
+                  {visibleLgas.map((lga, i) => {
                     return (
-                      <option value={lga.id} key={i}>
+                      <option value={String(lga.id)} key={i}>
                         {lga.lga}
                       </option>
                     );
                   })}
                 </Form.Control>
+                {agentLgaError ? (
+                  <Form.Text className="text-danger">
+                    {agentLgaErrorMessage || "Unable to load LGAs for the selected state."}
+                  </Form.Text>
+                ) : lgaUnavailable ? (
+                  <Form.Text className="text-danger">
+                    No LGAs available for the selected state.
+                  </Form.Text>
+                ) : null}
               </Form.Group>
             </Col>
           </Row>
@@ -346,7 +485,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter Account Number"
                   name="accountNumber"
+                  value={CreateAgentData.accountNumber}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -357,7 +498,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter account name"
                   name="accountName"
+                  value={CreateAgentData.accountName}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -367,9 +510,13 @@ const CreateAgentModal = ({
                 <Form.Control
                   name="bankId"
                   as="select"
+                  value={CreateAgentData.bankId}
                   onChange={_handleSelectBank}
+                  required
                 >
-                  <option>Select your bank</option>
+                  <option value="" disabled>
+                    Select your bank
+                  </option>
                   {agentBanks.map((bank, i) => {
                     return (
                       <option key={i} value={bank.id}>
@@ -389,7 +536,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter Account BVN"
                   name="accountBvn"
+                  value={CreateAgentData.accountBvn}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -400,7 +549,9 @@ const CreateAgentModal = ({
                   type="text"
                   placeholder="Enter username"
                   name="username"
+                  value={CreateAgentData.username}
                   onChange={updateInput}
+                  required
                 />
               </Form.Group>
             </Col>
@@ -423,11 +574,13 @@ CreateAgentModal.propTypes = {
 };
 
 const mapStateToProps = (state) => {
-  console.log(state);
   return {
     createAgent: state.agents.createAgent,
     agentStates: state.agentmanager.agentStates,
     agentLgas: state.agentmanager.agentLga,
+    agentLgaLoading: state.agentmanager.agentLgaLoading,
+    agentLgaError: state.agentmanager.agentLgaError,
+    agentLgaErrorMessage: state.agentmanager.agentLgaErrorMessage,
     agentBanks: state.agentmanager.agentBanks,
     loading: state.agents.loading,
     erroMessage: state.agents.errorMessage,

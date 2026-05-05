@@ -55,6 +55,12 @@ const Profile = (props) => {
           </button>
         </NavLink>
 
+        {!state?.row ? (
+          <section className="profile-card profile-card--manager">
+            <p className="profile-card-label">Agent manager details unavailable</p>
+            <p>Open an agent manager profile from the list to view full details.</p>
+          </section>
+        ) : (
         <section className="profile-card profile-card--manager">
           <div className="profile-card-top">
             <p className="profile-card-label">Agent Manager Profile</p>
@@ -115,6 +121,7 @@ const Profile = (props) => {
             </div>
           </div>
         </section>
+        )}
       </div>
     </DashboardTemplate>
   );

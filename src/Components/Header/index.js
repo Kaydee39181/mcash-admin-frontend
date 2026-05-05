@@ -2,10 +2,11 @@ import React from "react";
 import "./style.css";
 import ThemeToggle from "../ThemeToggle";
 import { getDisplayRoleName } from "../../utils/roleLabel";
+import { getEffectiveRoleName, safeParseStoredAuth } from "../../utils/auth";
 
 export default function Header(props) {
-  const token = JSON.parse(localStorage.getItem("data"));
-  const roleName = getDisplayRoleName(token ? token.user.roleGroup.name : "");
+  const token = safeParseStoredAuth();
+  const roleName = getDisplayRoleName(getEffectiveRoleName(token));
 
   return (
     <div className="container-fluid m-0">

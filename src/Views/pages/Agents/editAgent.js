@@ -64,6 +64,12 @@ const CreateAgentModal = ({
   }, [FetchBankS, FetchStates]);
 
   useEffect(() => {
+    if (state?.stateCode) {
+      FetchLgas(state.stateCode);
+    }
+  }, [FetchLgas, state]);
+
+  useEffect(() => {
     console.log(error, erroMessage);
     if (erroMessage) {
       if (error && erroMessage.error !== "Already registered user") {
@@ -94,31 +100,36 @@ const CreateAgentModal = ({
 
   const _handleSelectState = (e) => {
     const selectedState = agentStates.find(
-      (stateItem) => stateItem.stateCode === e.target.value
+      (stateItem) => String(stateItem.id) === e.target.value
     );
     const stateId = selectedState ? selectedState.id : "";
     setCreateAgentData({
       ...CreateAgentData,
-      [e.target.name]: stateId,
+      [e.target.name]: stateId ? String(stateId) : "",
+      lgaId: "",
     });
-    let stateCode = e.target.value;
-    FetchLgas(stateCode);
+    const stateCode = selectedState ? selectedState.stateCode : "";
+    if (stateCode) {
+      FetchLgas(stateCode);
+    }
   };
 
   const _handleSelectBank = (e) => {
-    let stateCode = e.target.value;
-    FetchLgas(stateCode);
-
     setCreateAgentData({
       ...CreateAgentData,
-      [e.target.name]: stateCode,
+      [e.target.name]: e.target.value,
     });
   };
 
   const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
-    console.log(data);
-    handleUpdateAgent(data);
+    const payload = {
+      ...data,
+      stateId: CreateAgentData.stateId || data.stateId,
+      lgaId: CreateAgentData.lgaId || data.lgaId,
+      bankId: CreateAgentData.bankId || data.bankId,
+    };
+    handleUpdateAgent(payload);
   };
 
   return (
@@ -304,7 +315,7 @@ const CreateAgentModal = ({
                       {agentStates.map((states, i) => {
                         console.log(state);
                         return (
-                          <option key={i} value={states.stateCode}>
+                          <option key={i} value={states.id}>
                             {states.stateName}
                           </option>
                         );
@@ -321,15 +332,15 @@ const CreateAgentModal = ({
                       onChange={updateInput}
                       ref={register({ required: true })}
                     >
-                      <option value={lga ? lga.id : ""}>
-                        {lga ? lga.lga : ""}
-                      </option>
-                      {agentLgas.map((lga, i) => {
-                        return (
-                          <option value={lga.id} key={i}>
-                            {lga.lga}
-                          </option>
-                        );
+                        <option value={lga ? lga.id : ""}>
+                          {lga ? lga.lga : ""}
+                        </option>
+                        {agentLgas.map((lga, i) => {
+                          return (
+                            <option value={String(lga.id)} key={i}>
+                              {lga.lga}
+                            </option>
+                          );
                       })}
                     </Form.Control>
                   </Form.Group>

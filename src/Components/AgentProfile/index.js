@@ -17,6 +17,7 @@ import {
   ActivatateCode,
 } from "../../Redux//requests/agentRequest";
 import { connect } from "react-redux";
+import { getEffectiveRoleName, safeParseStoredAuth } from "../../utils/auth";
 
 import "./style.css";
 
@@ -31,8 +32,8 @@ const formatValue = (value) => {
 };
 
 const Profile = (props) => {
-  const token = JSON.parse(localStorage.getItem("data"));
-  const { name } = token.user.roleGroup;
+  const token = safeParseStoredAuth();
+  const name = getEffectiveRoleName(token);
   const {
     loading,
     ActivateDeactivateUser: ActivateDeactivateUsers,
@@ -194,6 +195,12 @@ const Profile = (props) => {
           </button>
         </NavLink>
 
+        {!state?.row ? (
+          <section className="profile-card">
+            <p className="profile-card-label">Agent details unavailable</p>
+            <p>Open an agent profile from the agents table to view full details.</p>
+          </section>
+        ) : (
         <section className="profile-card">
           <div className="profile-card-top">
             <p className="profile-card-label">Agent Profile</p>
@@ -329,6 +336,7 @@ const Profile = (props) => {
             )}
           </div>
         </section>
+        )}
       </div>
       <EditUser
         load={loading}

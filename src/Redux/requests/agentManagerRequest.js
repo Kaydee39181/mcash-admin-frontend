@@ -84,7 +84,7 @@ export const FetchLga = (stateCode) => dispatch => {
     dispatch(asyncActions(FETCH_LGA).loading(true));
     const token = JSON.parse(localStorage.getItem("data"))
     axios
-        .get(`${AgentConstant.FETCH_LGA_URL}=${stateCode}`, {
+        .get(`${AgentConstant.FETCH_LGA_URL}${encodeURIComponent(stateCode)}`, {
             headers: {
                 'Authorization': `bearer ${token.access_token}`,
                 'Content-Type': 'application/json'

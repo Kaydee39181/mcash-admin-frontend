@@ -24,6 +24,7 @@ import "./style.css";
 import Pagination from "react-js-pagination";
 import { isAgentManagerRole } from "../../../utils/roleLabel";
 import { fetchCompleteDataSet } from "../../../utils/exportRequests";
+import { getEffectiveRoleName, safeParseStoredAuth } from "../../../utils/auth";
 
 const resolveFullName = (person) => {
   if (!person || typeof person !== "object") return "";
@@ -135,10 +136,8 @@ const getAgentExportData = (agents = []) => {
 };
 
 const Agents = (props) => {
-  const token = JSON.parse(localStorage.getItem("data"));
-  let { name } = token.user.roleGroup;
-
-  console.log("token", name);
+  const token = safeParseStoredAuth();
+  const name = getEffectiveRoleName(token);
 
   const {
     FetchBankTerminal: FetchBankTerminals,

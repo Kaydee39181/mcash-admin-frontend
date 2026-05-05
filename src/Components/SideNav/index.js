@@ -15,13 +15,13 @@ import { removeToken } from "../../utils/localStorage";
 import { logoutUser } from "../../Redux/requests/userRequest";
 import { connect } from "react-redux";
 import HardWareModal from "../HardwareModal/HardWareModal";
+import { isAgentManagerRole } from "../../utils/roleLabel";
 import {
-  isAgentManagerRole,
-  isVirtualAccountRestrictedRole,
-} from "../../utils/roleLabel";
-
-const isVisibleToUser = (roleCode, user) =>
-  user.roleGroup.role.some((role) => role.roleCode === roleCode);
+  getEffectiveRoleGroup,
+  isVirtualAccountAccessRestricted,
+  safeParseStoredAuth,
+  userHasRole,
+} from "../../utils/auth";
 
 class SideNav extends Component {
   constructor(props) {
@@ -46,20 +46,23 @@ class SideNav extends Component {
   };
 
   render() {
-    const token = JSON.parse(localStorage.getItem("data"));
-    console.log("token", token);
-    let { name } = token.user.roleGroup;
-    if (isAgentManagerRole(name)) {
-      token.user.roleGroup.role = [{ roleCode: "ROLE_VIEW_ALL_AGENT" }];
-    }
-    if (name === "AGENT") {
-      token.user.roleGroup.role = [
-        { roleCode: "ROLE_VIEW_ALL_AGENT" },
-        { roleCode: "ROLE_VIEW_ALL_TRANSACTION" },
-      ];
+    const token = safeParseStoredAuth();
+    const roleGroup = getEffectiveRoleGroup(token);
+    const name = roleGroup.name;
+
+    if (!token?.user) {
+      return null;
     }
 
     const navWrapperClassName = `sidenav-wrap${this.props.open ? " is-open" : ""}`;
+    const canViewAdmins = userHasRole("ROLE_VIEW_ALL_ADMIN", token);
+    const canViewTransactions = userHasRole("ROLE_VIEW_ALL_TRANSACTION", token);
+    const canViewAgents = userHasRole("ROLE_VIEW_ALL_AGENT", token);
+    const canViewAgentFees = userHasRole("ROLE_VIEW_AGENT_FEE", token);
+    const canViewPurse = userHasRole("ROLE_VIEW_PURSE", token);
+    const canViewAudit = userHasRole("ROLE_VIEW_AUDIT_LOG", token);
+    const canViewVirtualAccount =
+      canViewAgents && !isVirtualAccountAccessRestricted(token);
 
     return (
       <div className={navWrapperClassName}>
@@ -84,7 +87,7 @@ class SideNav extends Component {
                     <span className="list-group-item-text">Dashboard </span>
                   </li>
                 </NavLink>
-                {isVisibleToUser("ROLE_VIEW_ALL_ADMIN", token.user) && (
+                {canViewAdmins && (
                   <NavLink to="/admin" activeClassName="current">
                     <li className="list-group-item">
                       <img src={Agent} alt="" />
@@ -92,7 +95,7 @@ class SideNav extends Component {
                     </li>
                   </NavLink>
                 )}
-                {isVisibleToUser("ROLE_VIEW_ALL_TRANSACTION", token.user) && (
+                {canViewTransactions && (
                   <NavLink to="/transactions" activeClassName="current">
                     <li className="list-group-item ">
                       <img src={Transaction} alt="" />{" "}
@@ -100,7 +103,7 @@ class SideNav extends Component {
                     </li>
                   </NavLink>
                 )}
-                {!isVirtualAccountRestrictedRole(name) && (
+                {canViewVirtualAccount && (
                   <NavLink
                     to="/virtual-account"
                     activeClassName="current"
@@ -112,7 +115,7 @@ class SideNav extends Component {
                     </li>
                   </NavLink>
                 )}
-                {isVisibleToUser("ROLE_VIEW_ALL_AGENT", token.user) &&
+                {canViewAgents &&
                   name !== "AGENT" && (
                     <NavLink to="/agents" activeClassName="current">
                       <li className="list-group-item">
@@ -121,7 +124,7 @@ class SideNav extends Component {
                       </li>
                     </NavLink>
                   )}
-                {isVisibleToUser("ROLE_VIEW_ALL_AGENT", token.user) &&
+                {canViewAgents &&
                   name === "AGENT" && (
                     <NavLink to="/agentsaccount" activeClassName="current">
                       <li className="list-group-item">
@@ -132,7 +135,7 @@ class SideNav extends Component {
                       </li>
                     </NavLink>
                   )}
-                {isVisibleToUser("ROLE_VIEW_ALL_AGENT", token.user) &&
+                {canViewAgents &&
                   !isAgentManagerRole(name) &&
                   name !== "AGENT" && (
                     <NavLink to="/agentsmanager" activeClassName="current">
@@ -144,7 +147,7 @@ class SideNav extends Component {
                       </li>
                     </NavLink>
                   )}
-                {isVisibleToUser("ROLE_VIEW_AGENT_FEE", token.user) && (
+                {canViewAgentFees && (
                   <NavLink to="/agentfees" activeClassName="current">
                     <li className="list-group-item">
                       <img src={Agentmanagaer} alt="" />{" "}
@@ -152,7 +155,7 @@ class SideNav extends Component {
                     </li>
                   </NavLink>
                 )}
-                {isVisibleToUser("ROLE_VIEW_PURSE", token.user) && (
+                {canViewPurse && (
                   <NavLink to="/purse" activeClassName="current">
                     <li className="list-group-item">
                       <img src={Purse} alt="" />{" "}
@@ -161,7 +164,7 @@ class SideNav extends Component {
                   </NavLink>
                 )}
 
-                {isVisibleToUser("ROLE_VIEW_AUDIT_LOG", token.user) && (
+                {canViewAudit && (
                   <NavLink to="/audit" activeClassName="current">
                     <li className="list-group-item">
                       <img src={Audit} alt="" />{" "}
@@ -170,7 +173,7 @@ class SideNav extends Component {
                   </NavLink>
                 )}
 
-                {isVisibleToUser("ROLE_VIEW_AUDIT_LOG", token.user) && (
+                {canViewAdmins && (
                   <NavLink to="/appversion" activeClassName="current">
                     <li className="list-group-item">
                       <img src={Audit} alt="" />
@@ -179,7 +182,7 @@ class SideNav extends Component {
                   </NavLink>
                 )}
 
-                {isVisibleToUser("ROLE_VIEW_ALL_ADMIN", token.user) && (
+                {canViewAdmins && (
                   <Link
                     onClick={() => {
                       this.setState({ showHardwareModal: true });
@@ -194,19 +197,21 @@ class SideNav extends Component {
                     </li>
                   </Link>
                 )}
-                <NavLink
-                  to="/openAccount"
-                  activeClassName="current"
-                  onClick={this.forceUpdateHandler}
-                >
-                  <li className="list-group-item ">
-                    <img src={Dashboard} alt="" />
-                    <span className="list-group-item-text">
-                      Open Bank Account{" "}
-                    </span>
-                  </li>
-                </NavLink>
-                {isVisibleToUser("ROLE_VIEW_AUDIT_LOG", token.user) && (
+                {canViewAgents && (
+                  <NavLink
+                    to="/openAccount"
+                    activeClassName="current"
+                    onClick={this.forceUpdateHandler}
+                  >
+                    <li className="list-group-item ">
+                      <img src={Dashboard} alt="" />
+                      <span className="list-group-item-text">
+                        Open Bank Account{" "}
+                      </span>
+                    </li>
+                  </NavLink>
+                )}
+                {canViewAudit && (
                 <NavLink
                   to="/selectSwitch"
                   activeClassName="current"

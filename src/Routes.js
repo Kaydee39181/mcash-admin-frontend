@@ -27,6 +27,7 @@ import AgentsAccount from "./Views/pages/AgentsAccount";
 import AccountOpening from "./Views/pages/AccountOpening";
 import Gtb from "./Views/pages/AccountOpening/Gtb";
 import VirtualAccount from "./Views/pages/Virtual Account";
+import NotFound from "./Views/pages/NotFound";
 import AgentProfile from "./Components/AgentProfile";
 import AgentManagerProfile from "./Components/AgentManagerProfile";
 
@@ -174,8 +175,7 @@ class Routes extends Component {
                 component={Settings}
               />
 
-              {/* Catch-all */}
-              <Route component={Login} />
+              <Route component={NotFound} />
             </Switch>
           </Router>
         </Provider>

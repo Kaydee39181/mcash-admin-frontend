@@ -4,19 +4,10 @@ import { connect } from "react-redux";
 import { isLoggedIn } from "../../utils/isLoggedIn";
 import DashboardTemplate from "../../Views/template/dashboardtemplate";
 import {
-  isAgentManagerRole,
-  isVirtualAccountRestrictedRole,
-} from "../../utils/roleLabel";
-
-const safeGetToken = () => {
-  const raw = localStorage.getItem("data");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-};
+  getEffectiveRoleGroup,
+  isVirtualAccountAccessRestricted,
+  safeParseStoredAuth,
+} from "../../utils/auth";
 
 const AuthRequired = ({
   component: Component,
@@ -26,21 +17,15 @@ const AuthRequired = ({
   restrictVirtualAccount,
   ...rest
 }) => {
-  const token = safeGetToken();
+  if (!isLoggedIn()) {
+    return <Redirect to="/" />;
+  }
+
+  const token = safeParseStoredAuth();
   if (!token?.user?.roleGroup) return <Redirect to="/" />;
 
-  const roleGroup = token.user.roleGroup;
+  const roleGroup = getEffectiveRoleGroup(token);
   const name = roleGroup.name;
-
-  if (isAgentManagerRole(name)) {
-    roleGroup.role = [{ roleCode: "ROLE_VIEW_ALL_AGENT" }];
-  }
-  if (name === "AGENT") {
-    roleGroup.role = [
-      { roleCode: "ROLE_VIEW_ALL_AGENT" },
-      { roleCode: "ROLE_VIEW_ALL_TRANSACTION" },
-    ];
-  }
 
   const roles = Array.isArray(roleGroup.role) ? roleGroup.role : [];
 
@@ -48,7 +33,7 @@ const AuthRequired = ({
     return <Redirect to="/" />;
   }
 
-  if (restrictVirtualAccount && isVirtualAccountRestrictedRole(name)) {
+  if (restrictVirtualAccount && isVirtualAccountAccessRestricted(token)) {
     return (
       <DashboardTemplate>
         <h2>You do not have permissions to view this page</h2>
@@ -68,11 +53,7 @@ const AuthRequired = ({
     <Route
       {...rest}
       render={(props) =>
-        isLoggedIn() ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to={{ pathname: "/", state: { from: props.location } }} />
-        )
+        <Component {...props} />
       }
     />
   );
